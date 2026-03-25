@@ -6,16 +6,17 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import dto.Product; // 사용자님의 DTO 패키지 경로에 맞게 확인하세요
+import dto.Product;
 import util.DBUtil;
 
 public class ProductDAO {
 
     /**
-     * [기존 기능 유지] 메인 페이지 하단의 중고 용품 목록을 가져옵니다.
+     * 메인 페이지 하단의 중고 용품 목록
      */
     public static List<Product> getAllProducts() {
         List<Product> list = new ArrayList<>();
+
         try (Connection conn = DBUtil.getConnection()) {
             String sql = "SELECT * FROM product";
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -23,64 +24,88 @@ public class ProductDAO {
 
             while (rs.next()) {
                 Product p = new Product();
+                p.setId(rs.getInt("id"));              // 상세보기 링크용
                 p.setName(rs.getString("name"));
                 p.setPrice(rs.getInt("price"));
-                // 기존 코드의 p.setImage 유지 (DTO 필드명이 imageUrl이라면 p.setImageUrl로 수정)
-                p.setImage(rs.getString("image")); 
+                p.setImage(rs.getString("image"));     // productList / main 용
                 list.add(p);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return list;
     }
 
     /**
-     * [신규 기능] 캠핑장 검색 및 사이드바 필터링 결과를 가져옵니다.
-     * @param keyword 메인 검색어 (이름 또는 주소 검색)
-     * @param tags 메인 해시태그 검색 (#물놀이 등)
-     * @param types 사이드바 숙소 유형 필터 (펜션, 글램핑 등 다중 선택)
+     * 캠핑장 검색 + 필터
+     * 
+     * @param keyword  검색어 (이름 / 주소)
+     * @param tags     메인 태그 검색
+     * @param typeList 숙소유형 다중 선택
+     * @param locList  지역 다중 선택
      */
-    public List<Product> getFilteredCampList(String keyword, String tags, String[] types) {
+    public List<Product> getFilteredCampList(String keyword, String tags, List<String> typeList, List<String> locList) {
         List<Product> list = new ArrayList<>();
-        
-        // 1. 동적 SQL 조립 (camps 테이블 기준)
-        StringBuilder sql = new StringBuilder("SELECT * FROM camps WHERE 1=1");
 
-        if (keyword != null && !keyword.isEmpty()) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM camps WHERE 1=1");
+        List<String> params = new ArrayList<>();
+
+        // 1. 검색어
+        if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append(" AND (name LIKE ? OR address LIKE ?)");
+            params.add("%" + keyword.trim() + "%");
+            params.add("%" + keyword.trim() + "%");
         }
-        if (tags != null && !tags.isEmpty()) {
-            sql.append(" AND tags LIKE ?");
+
+        // 2. 메인 태그 검색
+        if (tags != null && !tags.trim().isEmpty()) {
+            String[] tagArr = tags.split("\\s*,\\s*");
+
+            if (tagArr.length > 0) {
+                sql.append(" AND (");
+                for (int i = 0; i < tagArr.length; i++) {
+                    if (i > 0) sql.append(" OR ");
+                    sql.append("tags LIKE ?");
+                    params.add("%" + tagArr[i].trim() + "%");
+                }
+                sql.append(")");
+            }
         }
-        if (types != null && types.length > 0) {
-            sql.append(" AND type IN (");
-            for (int i = 0; i < types.length; i++) {
-                sql.append(i == 0 ? "?" : ", ?");
+
+        // 3. 숙소 유형 다중 선택
+        if (typeList != null && !typeList.isEmpty()) {
+            sql.append(" AND (");
+            for (int i = 0; i < typeList.size(); i++) {
+                if (i > 0) sql.append(" OR ");
+                sql.append("type LIKE ?");
+                params.add("%" + typeList.get(i).trim() + "%");
+            }
+            sql.append(")");
+        }
+
+        // 4. 지역 다중 선택
+        if (locList != null && !locList.isEmpty()) {
+            sql.append(" AND (");
+            for (int i = 0; i < locList.size(); i++) {
+                if (i > 0) sql.append(" OR ");
+                sql.append("address LIKE ?");
+                params.add("%" + locList.get(i).trim() + "%");
             }
             sql.append(")");
         }
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-            
-            int idx = 1;
-            
-            // 2. 파라미터 바인딩
-            if (keyword != null && !keyword.isEmpty()) {
-                ps.setString(idx++, "%" + keyword + "%");
-                ps.setString(idx++, "%" + keyword + "%");
-            }
-            if (tags != null && !tags.isEmpty()) {
-                ps.setString(idx++, "%" + tags + "%");
-            }
-            if (types != null && types.length > 0) {
-                for (String t : types) {
-                    ps.setString(idx++, t);
-                }
+
+            // 파라미터 바인딩
+            for (int i = 0; i < params.size(); i++) {
+                ps.setString(i + 1, params.get(i));
             }
 
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
                 Product p = new Product();
                 p.setId(rs.getInt("id"));
@@ -89,12 +114,14 @@ public class ProductDAO {
                 p.setType(rs.getString("type"));
                 p.setTags(rs.getString("tags"));
                 p.setPrice(rs.getInt("price"));
-                p.setImageUrl(rs.getString("image")); // DB 컬럼명 image를 DTO imageUrl에 세팅
+                p.setImageUrl(rs.getString("image"));   // campList 용
                 list.add(p);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return list;
     }
 }

@@ -1,4 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="dao.UserDAO, dao.ProductDAO, dto.Product, java.util.List" %>
+<%
+    String ctx = request.getContextPath();
+    String userId = (String) session.getAttribute("userId");
+    String userName = (String) session.getAttribute("userName");
+
+    List<Product> mainProducts = ProductDAO.getAllProducts();
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -9,190 +17,94 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <style>
-        :root { --main-green: #1b4d3e; --point-orange: #ff6b35; --soft-beige: #f4f1ea; --dark-text: #2d3436; }
-        body { background: #ffffff; font-family: 'Noto Sans KR', sans-serif; color: var(--dark-text); }
-        
-        .hero-container { position: relative; margin-bottom: 80px; }
-        .hero-slide { width: 100%; height: 580px; position: relative; overflow: hidden; border-radius: 0 0 80px 0; }
-        .hero-slide img { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s ease; z-index: 0; }
-        .hero-slide img.active { opacity: 1; z-index: 1; transform: scale(1.1); transition: opacity 1.2s ease, transform 6s linear; }
-
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.2)); z-index: 2; }
-
-        .hero-text { position: absolute; top: 40%; left: 10%; color: white; z-index: 3; }
-
-        .search-wrapper { position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 900px; z-index: 10; }
-        .search-card { background: white; border-radius: 30px; padding: 30px; }
-
-        .nav-pills .nav-link { color: #888; border-radius: 50px; padding: 10px 25px; }
-        .nav-pills .nav-link.active { background: #1b4d3e; color: white; }
-
-        .btn-main { background: #1b4d3e; color: white; border-radius: 12px; padding: 12px; }
-
-        .tag { display: inline-block; padding: 10px 24px; margin: 6px; border-radius: 50px; background: #f4f1ea; cursor: pointer; }
-        .tag.active { background: #ff6b35; color: white; }
-        .tag-search { background: #1b4d3e; color: white; }
-
-        .card-item { background: white; border-radius: 10px; overflow: visible; }
-        .card-img-wrapper { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 10px; }
-
-        .card-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .card-body-custom {
-            padding: 12px 4px;
-        }
-
-        .item-price {
-            color: #ff6b35;
-            font-weight: bold;
-        }
-
-        /* 🔥 전체보기 버튼 */
-        .view-all-btn {
-            text-decoration: none;
-            font-weight: 600;
-            color: #555;
-            transition: 0.2s;
-        }
-
-        .view-all-btn:hover {
-            color: #ff6b35;
-        }
-        
-        /* 🔥 헤더 */
-		.main-header {
-		    width: 100%;
-		    background: white;
-		    border-bottom: 1px solid #eee;
-		    position: sticky;
-		    top: 0;
-		    z-index: 999;
-		}
-		
-		/* 로고 */
-		.logo a {
-		    text-decoration: none;
-		    display: flex;
-		    align-items: center;
-		}
-		
-		.logo-icon {
-		    font-size: 22px;
-		    margin-right: 6px;
-		}
-		
-		.logo-text {
-		    font-size: 20px;
-		    font-weight: bold;
-		    color: #1b4d3e;
-		}
-		
-		/* 메뉴 */
-		.nav-menu a {
-		    margin: 0 15px;
-		    text-decoration: none;
-		    color: #444;
-		    font-weight: 500;
-		    transition: 0.2s;
-		}
-		
-		.nav-menu a:hover {
-		    color: #1b4d3e;
-		}
-		
-		/* 오른쪽 버튼 */
-		.nav-right a {
-		    margin-left: 10px;
-		    text-decoration: none;
-		}
-		
-		.btn-outline {
-		    padding: 6px 12px;
-		    border: 1px solid #ccc;
-		    border-radius: 20px;
-		    color: #555;
-		}
-		
-		.btn-main {
-		    padding: 6px 14px;
-		    background: #1b4d3e;
-		    color: white;
-		    border-radius: 20px;
-		}
-    </style>
+    <link rel="stylesheet" href="<%=ctx%>/assets/css/common.css">
+    <link rel="stylesheet" href="<%=ctx%>/assets/css/main.css">
 </head>
-<!-- 🔥 HEADER START -->
-<!-- 🔥 HEADER -->
-<header class="main-header">
-    <div class="container d-flex justify-content-between align-items-center py-3">
+<body>
 
-        <!-- 로고 -->
+<header class="main-header">
+    <div class="container-fluid px-5 d-flex justify-content-between align-items-center py-3">
         <div class="logo">
-            <a href="${pageContext.request.contextPath}/index.jsp">
+            <a href="<%=ctx%>/main.jsp">
                 <span class="logo-icon">⛺</span>
                 <span class="logo-text">Camp Mate</span>
             </a>
         </div>
 
-        <!-- 메뉴 -->
         <nav class="nav-menu">
-            <a href="${pageContext.request.contextPath}/productList.jsp">캠핑용품</a>
-            <a href="${pageContext.request.contextPath}/community.jsp">커뮤니티</a>
-            <a href="${pageContext.request.contextPath}/cs.jsp">고객센터</a>
+            <a href="<%=ctx%>/campList">예약하기</a>
+            <a href="<%=ctx%>/productList.jsp">캠핑용품</a>
+
+            <div class="dropdown">
+                <a href="#" class="dropbtn">커뮤니티</a>
+                <div class="dropdown-content">
+                    <a href="<%=ctx%>/review.jsp">후기</a>
+                    <a href="<%=ctx%>/news.jsp">캠핑소식</a>
+                </div>
+            </div>
+
+            <a href="<%=ctx%>/cs.jsp">고객센터</a>
         </nav>
 
-        <!-- 오른쪽 -->
         <div class="nav-right">
-            <a href="${pageContext.request.contextPath}/login.jsp" class="btn-outline">로그인</a>
-            <a href="${pageContext.request.contextPath}/register.jsp" class="btn-main">회원가입</a>
+            <% if (userId == null) { %>
+                <a href="<%=ctx%>/login.jsp" class="btn-outline-custom">로그인</a>
+                <a href="<%=ctx%>/register.jsp" class="btn-main-custom">회원가입</a>
+            <% } else { %>
+                <span class="welcome-msg">👋 <%= (userName != null && !userName.isEmpty()) ? userName : userId %>님 환영합니다!</span>
+                <a href="<%=ctx%>/logout.jsp" class="btn-logout-custom">로그아웃</a>
+            <% } %>
         </div>
-
     </div>
 </header>
 
-<body>
-
 <div class="hero-container">
     <div class="hero-slide">
-        <img src="${pageContext.request.contextPath}/assets/img/camp1.jpg" class="active">
-        <img src="${pageContext.request.contextPath}/assets/img/camp2.jpg">
-        <img src="${pageContext.request.contextPath}/assets/img/camp3.jpg">
+        <img src="<%=ctx%>/assets/img/camp1.jpg" class="active" alt="캠핑 이미지 1">
+        <img src="<%=ctx%>/assets/img/camp2.jpg" alt="캠핑 이미지 2">
+        <img src="<%=ctx%>/assets/img/camp3.jpg" alt="캠핑 이미지 3">
+
         <div class="overlay"></div>
 
         <div class="hero-text">
-            <h1>자연 속으로,<br><span style="color:#ff6b35;">더 가볍게</span> 떠나세요</h1>
+            <h1>
+                자연 속으로,<br>
+                <span class="hero-point">더 가볍게</span> 떠나세요
+            </h1>
         </div>
     </div>
 
     <div class="search-wrapper">
-        <div class="card search-card">
-
-            <ul class="nav nav-pills mb-3 justify-content-center">
-                <li class="nav-item"><button class="nav-link active">⛺ 캠핑장 찾기</button></li>
-                <li class="nav-item"><button class="nav-link">🛒 용품 거래하기</button></li>
+        <div class="card search-card border-0">
+            <ul class="nav nav-pills mb-3 justify-content-center" id="searchTab">
+                <li class="nav-item">
+                    <button type="button" class="nav-link active" onclick="changeSearchMode('camp', this)">⛺ 캠핑장 찾기</button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link" onclick="changeSearchMode('product', this)">🛒 용품 거래하기</button>
+                </li>
             </ul>
 
             <div class="row g-2">
                 <div class="col-md-9">
-                    <input type="text" id="campKeyword" class="form-control form-control-lg border-0 bg-light rounded-4 px-4" placeholder="어디로 떠나고 싶으신가요?">
+                    <input
+                        type="text"
+                        id="mainSearchInput"
+                        class="form-control form-control-lg border-0 bg-light rounded-4 px-4 main-search-input"
+                        placeholder="어디로 떠나고 싶으신가요?"
+                        onkeyup="if(window.event.keyCode==13){handleSearch()}"
+                    >
                 </div>
                 <div class="col-md-3">
-                    <button class="btn btn-main w-100 shadow-sm" onclick="performSearch()">검색하기</button>
+                    <button class="btn-main-search shadow-sm" onclick="handleSearch()">검색하기</button>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
-<div class="container text-center" style="margin-top: 100px;">
+<div class="container text-center mt-5 pt-5">
     <div class="d-flex flex-wrap justify-content-center pt-4">
-
         <span class="tag" data-tag="물놀이">#물놀이 🏊</span>
         <span class="tag" data-tag="깨끗한">#깨끗한 ✨</span>
         <span class="tag" data-tag="여유있는">#여유있는 🧘</span>
@@ -201,116 +113,124 @@
         <span class="tag" data-tag="계곡">#계곡 🏞️</span>
         <span class="tag" data-tag="글램핑">#글램핑 ⛺</span>
         <span class="tag" data-tag="카라반">#카라반 🚍</span>
-
-        <span class="tag tag-search" onclick="performSearch()">검색 🔍</span>
+        <span class="tag tag-search" onclick="performTagSearch()">검색 🔍</span>
     </div>
 </div>
 
 <div class="container my-5 pb-5">
-
-    <!-- 🔥 여기만 수정됨 -->
-    <div class="d-flex justify-content-between align-items-end mb-4">
+    <div class="d-flex justify-content-between align-items-end mb-4 px-2">
         <div>
-            <h3 class="fw-bold m-0">🔥 지금 가장 핫한 장비</h3>
-            <p class="text-muted m-0 mt-2">캠퍼들이 직접 추천하는 베스트 매물</p>
+            <h3 class="hot-title m-0">🔥 지금 가장 핫한 장비</h3>
         </div>
-
-        <div>
-            <a href="${pageContext.request.contextPath}/productList.jsp" class="view-all-btn">
-                전체보기 👀
-            </a>
-        </div>
+        <a href="<%=ctx%>/productList.jsp" class="view-all-btn">전체보기 👀</a>
     </div>
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="listDisplay"></div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        <%
+            if (mainProducts != null && !mainProducts.isEmpty()) {
+                int limit = Math.min(mainProducts.size(), 4);
+                for (int i = 0; i < limit; i++) {
+                    Product p = mainProducts.get(i);
+                    String imgFile = p.getImage();
+                    String imgPath = (imgFile != null && !imgFile.equals("false") && !imgFile.isEmpty())
+                            ? ctx + "/assets/img/" + imgFile
+                            : ctx + "/assets/img/default.jpg";
+        %>
+        <div class="col">
+            <a href="<%=ctx%>/productList.jsp" class="card-item">
+                <div class="card-img-wrapper">
+                    <img src="<%=imgPath%>" alt="<%= p.getName() %>" onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
+                </div>
+                <div class="card-body-custom">
+                    <div class="item-title text-truncate"><%= p.getName() %></div>
+                    <div class="item-price"><%= String.format("%,d", p.getPrice()) %>원</div>
+                </div>
+            </a>
+        </div>
+        <%
+                }
+            } else {
+        %>
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">등록된 상품이 없습니다. 🏕️</p>
+        </div>
+        <% } %>
+    </div>
 </div>
 
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-text">
+            Copyright © Camp Mate. All rights reserved.
+        </div>
+    </div>
+</footer>
+
 <script>
-const contextPath = "${pageContext.request.contextPath}";
+const contextPath = "<%=ctx%>";
+let currentSearchMode = 'camp';
 let selectedTags = [];
 
 document.addEventListener("DOMContentLoaded", function () {
-
     const slides = document.querySelectorAll(".hero-slide img");
     let current = 0;
 
-    setInterval(() => {
-        slides[current].classList.remove("active");
-        current = (current + 1) % slides.length;
-        slides[current].classList.add("active");
-    }, 4500);
+    if (slides.length > 0) {
+        setInterval(() => {
+            slides[current].classList.remove("active");
+            current = (current + 1) % slides.length;
+            slides[current].classList.add("active");
+        }, 4500);
+    }
 
     document.querySelectorAll(".tag:not(.tag-search)").forEach(tag => {
         tag.addEventListener("click", function () {
-
             const val = this.dataset.tag;
+            this.classList.toggle("active");
 
             if (selectedTags.includes(val)) {
                 selectedTags = selectedTags.filter(t => t !== val);
-                this.classList.remove("active");
             } else {
                 selectedTags.push(val);
-                this.classList.add("active");
             }
         });
     });
-
-    loadInitialProducts();
 });
 
-function loadInitialProducts() {
-    fetch(contextPath + "/product")
-        .then(res => res.json())
-        .then(data => renderList(data));
+function changeSearchMode(mode, btn) {
+    currentSearchMode = mode;
+
+    document.querySelectorAll('#searchTab .nav-link').forEach(el => el.classList.remove('active'));
+    btn.classList.add('active');
+
+    const input = document.getElementById("mainSearchInput");
+    input.placeholder = (mode === 'camp')
+        ? "어디로 떠나고 싶으신가요?"
+        : "어떤 장비가 필요하신가요?";
 }
 
-function performSearch() {
-    const keyword = document.getElementById("campKeyword").value;
-    const tags = selectedTags.join(",");
+function handleSearch() {
+    const keyword = document.getElementById("mainSearchInput").value.trim();
 
-    let url = contextPath + "/camp/search?";
-
-    if (keyword) url += "keyword=" + encodeURIComponent(keyword) + "&";
-    if (tags) url += "tags=" + encodeURIComponent(tags);
-
-    location.href = url;
-}
-
-function renderList(items) {
-
-    const container = document.getElementById("listDisplay");
-
-    if (!items || items.length === 0) {
-        container.innerHTML = '<div class="col-12 text-center py-5 text-muted">결과가 없습니다.</div>';
+    if (!keyword) {
+        alert("검색어를 입력해주세요.");
         return;
     }
 
-    let html = "";
+    if (currentSearchMode === 'camp') {
+        location.href = contextPath + "/campList?keyword=" + encodeURIComponent(keyword);
+    } else {
+        location.href = contextPath + "/productList.jsp?keyword=" + encodeURIComponent(keyword);
+    }
+}
 
-    items.forEach(item => {
+function performTagSearch() {
+    if (selectedTags.length === 0) {
+        alert("필터를 선택해주세요.");
+        return;
+    }
 
-        const price = item.price ? Number(item.price) : 0;
-
-        const img = (item.image && item.image !== "false") 
-            ? contextPath + "/assets/img/" + item.image
-            : contextPath + "/assets/img/default.jpg";
-
-        html += 
-        '<div class="col">' +
-            '<div class="card-item">' +
-                '<div class="card-img-wrapper">' +
-                    '<img src="' + img + '" onerror="this.src=\'' + contextPath + '/assets/img/default.jpg\'">' +
-                '</div>' +
-                '<div class="card-body-custom">' +
-                    '<div class="category-label">' + (item.category || '중고거래') + '</div>' +
-                    '<div class="item-title text-truncate">' + item.name + '</div>' +
-                    '<div class="item-price">' + price.toLocaleString() + '원</div>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
-    });
-
-    container.innerHTML = html;
+    location.href = contextPath + "/campList?tags=" + encodeURIComponent(selectedTags.join(","));
 }
 </script>
 

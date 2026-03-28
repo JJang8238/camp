@@ -1,0 +1,34 @@
+package dto;
+
+public class Camp {
+
+    private int id;
+    private String name;
+    private String address;
+    private String type;
+    private String tags;
+    private int price;
+    private String image;
+
+    // getter / setter
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
+
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+
+    public String getTags() { return tags; }
+    public void setTags(String tags) { this.tags = tags; }
+
+    public int getPrice() { return price; }
+    public void setPrice(int price) { this.price = price; }
+
+    public String getImage() { return image; }
+    public void setImage(String image) { this.image = image; }
+}

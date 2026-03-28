@@ -68,3 +68,10 @@ VALUES
 ('속초 바다 카라반', '강원도 속초시 해안도로', '카라반', '바다, 노을', 120000, 'camp2.jpg'),
 ('양평 별헤는 밤', '경기도 양평군 용문면', '차박/캠핑', '여유있는, 별빛', 50000, 'camp3.jpg'),
 ('제주 숲속 풀빌라', '제주특별자치도 제주시', '풀빌라', '반려견, 감성', 350000, 'camp1.jpg');
+
+ALTER TABLE product ADD COLUMN seller_id INT; --판매자 정보 추가!! 2026.03.28
+ALTER TABLE product ADD COLUMN description TEXT;
+
+UPDATE product 
+SET description = '거의 새상품, 1회 사용했습니다.'
+WHERE id = 1;

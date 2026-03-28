@@ -75,4 +75,29 @@ public class UserDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return false;
     }
+    //판매자 id 기준 조회
+    public dto.User getUserById(int id) {
+        dto.User user = null;
+
+        String sql = "SELECT id, userId, name FROM users WHERE id = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                user = new dto.User();
+                user.setId(rs.getInt("id"));
+                user.setUserId(rs.getString("userId"));
+                user.setName(rs.getString("name"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return user;
+    }
+
 }
+
+

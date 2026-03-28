@@ -38,6 +38,59 @@ public class ProductDAO {
         return list;
     }
 
+    public Product getProductById(int id) {
+        Product p = null;
+
+        try (Connection conn = DBUtil.getConnection()) {
+            String sql = "SELECT * FROM product WHERE id=?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                p = new Product();
+                p.setId(rs.getInt("id"));
+                p.setName(rs.getString("name"));
+                p.setPrice(rs.getInt("price"));
+                p.setImage(rs.getString("image")); 
+                p.setSellerId(rs.getInt("seller_id"));
+                p.setDescription(rs.getString("description"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return p;
+    }
+    
+    public List<Product> getProductsBySeller(int sellerId) {
+        List<Product> list = new ArrayList<>();
+
+        try (Connection conn = DBUtil.getConnection()) {
+            String sql = "SELECT * FROM product WHERE seller_id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, sellerId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Product p = new Product();
+                p.setId(rs.getInt("id"));
+                p.setName(rs.getString("name"));
+                p.setPrice(rs.getInt("price"));
+                p.setImage(rs.getString("image"));
+                p.setSellerId(rs.getInt("seller_id"));
+                list.add(p);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
     /**
      * 캠핑장 검색 + 필터
      * 

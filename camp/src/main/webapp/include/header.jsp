@@ -18,11 +18,15 @@
             <a href="<%=headerCtx%>/campList.jsp">예약하기</a>
             <a href="<%=headerCtx%>/productList.jsp">캠핑용품</a>
 
+            <%-- 커뮤니티: 클릭 시 이동 + 화살표 포함 --%>
             <div class="dropdown">
-                <button type="button" class="dropbtn">커뮤니티</button>
+                <a href="<%=headerCtx%>/community.jsp" class="dropbtn">
+                    커뮤니티 <span class="arrow-small">▼</span>
+                </a>
                 <div class="dropdown-content">
                     <a href="<%=headerCtx%>/review.jsp">후기</a>
                     <a href="<%=headerCtx%>/news.jsp">캠핑소식</a>
+                    <a href="<%=headerCtx%>/event.jsp">이벤트</a>
                 </div>
             </div>
 

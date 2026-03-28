@@ -1,3 +1,5 @@
+/* ===== [Camp Mate] COMMON CSS ===== */
+
 :root {
     --main-green: #1b4d3e;
     --sub-green: #2a6352;
@@ -5,11 +7,10 @@
 
     --dark-text: #2d3436;
     --light-text: #777;
-    --border-color: #eeeeee;
-
-    --bg-soft: #f8f9fa;
-    --page-bg: #f4f1ea;
+    --bg-beige: #f4f1ea;
     --white: #ffffff;
+    --border-color: #eeeeee;
+    --bg-soft: #f8f9fa;
 
     --radius-sm: 12px;
     --radius-md: 16px;
@@ -25,6 +26,8 @@
     --transition-base: 0.3s ease;
 }
 
+/* ================= RESET ================= */
+
 * {
     box-sizing: border-box;
 }
@@ -36,17 +39,12 @@ body {
 }
 
 body {
-    background: var(--page-bg);
+    background: var(--bg-beige);
     font-family: 'Noto Sans KR', sans-serif;
     font-size: 14px;
     color: var(--dark-text);
     line-height: 1.5;
     overflow-x: hidden;
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
 }
 
 img {
@@ -65,9 +63,16 @@ ul,
 ol {
     margin: 0;
     padding: 0;
+    list-style: none;
 }
 
-/* ===== HEADER ===== */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ================= HEADER ================= */
+
 .main-header {
     width: 100%;
     background: var(--white);
@@ -101,23 +106,33 @@ ol {
 .nav-menu > a,
 .nav-menu > .dropdown > .dropbtn {
     margin: 0 20px;
-    padding: 10px 0;
+    color: #444;
+    font-weight: 500;
+    font-size: 16px;
+    transition: var(--transition-fast);
     border: none;
     background: none;
     cursor: pointer;
     display: inline-block;
-    color: #444;
-    font-size: 14px;
-    font-weight: 500;
-    transition: color var(--transition-fast);
+    padding: 10px 0;
 }
 
-.nav-menu > a:hover,
-.nav-menu > .dropdown:hover > .dropbtn {
+.nav-menu a:hover,
+.nav-menu .dropdown:hover .dropbtn,
+.nav-menu a.active,
+.nav-menu .dropdown > .dropbtn.active {
     color: var(--main-green);
 }
 
-/* ===== DROPDOWN ===== */
+.arrow-small {
+    font-size: 12px;
+    margin-left: 4px;
+    vertical-align: middle;
+    position: relative;
+    top: 1px;
+}
+
+/* 드롭다운 */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -129,33 +144,35 @@ ol {
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
+    background-color: var(--white);
     min-width: 140px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
     padding: 10px 0;
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
     z-index: 1000;
+    border: 1px solid var(--border-color);
+}
+
+.dropdown-content a {
+    color: #555;
+    padding: 10px 20px;
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    transition: var(--transition-fast);
+    text-align: center;
+}
+
+.dropdown-content a:hover {
+    background-color: #f8f9fa;
+    color: var(--main-green);
 }
 
 .dropdown:hover .dropdown-content {
     display: block;
 }
 
-.dropdown-content a {
-    display: block;
-    padding: 10px 20px;
-    text-align: center;
-    font-size: 14px;
-    color: #555;
-    transition: var(--transition-fast);
-}
-
-.dropdown-content a:hover {
-    background: var(--bg-soft);
-    color: var(--main-green);
-}
-
+/* 오른쪽 영역 */
 .nav-right {
     display: flex;
     align-items: center;
@@ -163,20 +180,24 @@ ol {
 }
 
 .welcome-msg {
-    font-size: 14px;
     font-weight: 700;
     color: var(--main-green);
+    margin-right: 8px;
+    font-size: 15px;
+    white-space: nowrap;
 }
 
-/* ===== HEADER BUTTONS ===== */
+/* ================= BUTTON ================= */
+
 .btn-outline-custom,
 .btn-main-custom,
+.btn-logout,
 .btn-logout-custom {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 38px;
     padding: 6px 16px;
+    min-height: 38px;
     border-radius: 20px;
     font-size: 14px;
     transition: var(--transition-fast);
@@ -184,124 +205,40 @@ ol {
 
 .btn-outline-custom {
     border: 1px solid #ccc;
-    background: var(--white);
     color: #555;
+    background: var(--white);
 }
 
 .btn-outline-custom:hover {
-    background: var(--bg-soft);
+    background: #f8f9fa;
+    color: #333;
 }
 
 .btn-main-custom {
-    border: none;
     background: var(--main-green);
     color: var(--white);
+    border: none;
 }
 
 .btn-main-custom:hover {
-    background: var(--sub-green);
+    background: #163d31;
     color: var(--white);
 }
 
+.btn-logout,
 .btn-logout-custom {
     border: 1px solid var(--point-orange);
-    background: var(--white);
     color: var(--point-orange);
+    background: var(--white);
+    min-height: 35px;
 }
 
+.btn-logout:hover,
 .btn-logout-custom:hover {
     background: var(--point-orange);
     color: var(--white);
 }
 
-/* ===== PAGE LAYOUT ===== */
-.content-wrapper {
-    max-width: 1300px;
-    margin: 40px auto;
-    padding: 0 20px;
-    display: flex;
-    align-items: flex-start;
-    gap: 30px;
-}
-
-.sidebar {
-    width: 280px;
-    flex-shrink: 0;
-}
-
-.main-content {
-    flex: 1;
-    min-width: 0;
-}
-
-/* ===== COMMON BOX ===== */
-.panel-box,
-.filter-card,
-.content-box,
-.section-box,
-.top-search-box {
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    padding: 24px;
-}
-
-.filter-card + .filter-card,
-.panel-box + .panel-box,
-.content-box + .content-box,
-.section-box + .section-box,
-.top-search-box + .top-search-box {
-    margin-top: 20px;
-}
-
-.filter-title,
-.panel-title,
-.content-title,
-.top-search-title {
-    margin: 0 0 16px;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--main-green);
-}
-
-.filter-group + .filter-group {
-    margin-top: 18px;
-}
-
-.filter-label {
-    display: block;
-    margin-bottom: 8px;
-    color: #444;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-/* ===== FORM ===== */
-.filter-input,
-.filter-select,
-.common-input,
-.common-select {
-    width: 100%;
-    height: 46px;
-    padding: 0 14px;
-    border: 1px solid #ddd;
-    border-radius: 14px;
-    background: var(--white);
-    font-size: 14px;
-    outline: none;
-    transition: var(--transition-fast);
-}
-
-.filter-input:focus,
-.filter-select:focus,
-.common-input:focus,
-.common-select:focus {
-    border-color: var(--main-green);
-    box-shadow: 0 0 0 3px rgba(27, 77, 62, 0.08);
-}
-
-/* ===== COMMON BUTTON ===== */
 .btn-search,
 .btn-filter,
 .btn-submit-common {
@@ -315,6 +252,16 @@ ol {
     font-weight: 700;
     cursor: pointer;
     transition: var(--transition-fast);
+}
+
+.btn-submit-sm {
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 10px;
+    background: var(--main-green);
+    color: #fff;
+    border: none;
+    font-size: 13px;
 }
 
 .btn-search:hover,
@@ -362,10 +309,110 @@ ol {
     color: var(--white);
 }
 
-/* ===== SIDE MENU ===== */
-.side-menu {
-    list-style: none;
+/* ================= LAYOUT ================= */
+
+.content-wrapper {
+    max-width: 1300px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
 }
+
+.sidebar {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.container-box {
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+/* ================= COMMON BOX ================= */
+
+.panel-box,
+.filter-card,
+.content-box,
+.section-box,
+.top-search-box,
+.card-box {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+}
+
+.filter-card + .filter-card,
+.panel-box + .panel-box,
+.content-box + .content-box,
+.section-box + .section-box,
+.top-search-box + .top-search-box,
+.card-box + .card-box {
+    margin-top: 20px;
+}
+
+.filter-title,
+.panel-title,
+.content-title,
+.top-search-title,
+.section-title {
+    margin: 0 0 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--main-green);
+}
+
+.section-title.center {
+    text-align: center;
+}
+
+/* ================= FORM ================= */
+
+.filter-group + .filter-group {
+    margin-top: 18px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #444;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.filter-input,
+.filter-select,
+.common-input,
+.common-select {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    background: var(--white);
+    font-size: 14px;
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.filter-input:focus,
+.filter-select:focus,
+.common-input:focus,
+.common-select:focus {
+    border-color: var(--main-green);
+    box-shadow: 0 0 0 3px rgba(27, 77, 62, 0.08);
+}
+
+/* ================= SIDE MENU ================= */
 
 .side-menu li + li {
     margin-top: 10px;
@@ -395,7 +442,8 @@ ol {
     border-color: rgba(27, 77, 62, 0.15);
 }
 
-/* ===== COMMON TAG ===== */
+/* ================= TAG ================= */
+
 .common-tag-list {
     display: flex;
     flex-wrap: wrap;
@@ -426,7 +474,46 @@ ol {
     color: var(--white);
 }
 
-/* ===== HORIZONTAL CARD ===== */
+/* ================= COMMON LIST HELPERS ================= */
+
+.common-count {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 18px;
+}
+
+.common-empty-box {
+    background: #fff;
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    padding: 60px 20px;
+    text-align: center;
+    color: #888;
+}
+
+.common-sidebar-sticky {
+    position: sticky;
+    top: 110px;
+}
+
+.filter-check-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-check-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #444;
+    cursor: pointer;
+}
+
+/* ================= CARD ================= */
+
 .horizontal-card {
     display: flex;
     overflow: hidden;
@@ -563,7 +650,8 @@ ol {
     font-weight: 600;
 }
 
-/* ===== FOOTER ===== */
+/* ================= FOOTER ================= */
+
 .site-footer {
     margin-top: 60px;
     padding: 24px 0;
@@ -577,7 +665,8 @@ ol {
     font-size: 13px;
 }
 
-/* ===== TITLES ===== */
+/* ================= TITLE ================= */
+
 .page-section-title {
     margin: 0 0 8px;
     color: var(--main-green);
@@ -591,7 +680,28 @@ ol {
     font-size: 14px;
 }
 
-/* ===== RESPONSIVE ===== */
+/* ================= UTILITY ================= */
+
+.text-center {
+    text-align: center;
+}
+
+.mt-40 {
+    margin-top: 40px;
+}
+
+.mb-40 {
+    margin-bottom: 40px;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================= RESPONSIVE ================= */
+
 @media (max-width: 1200px) {
     .content-wrapper {
         gap: 20px;
@@ -604,21 +714,33 @@ ol {
     .horizontal-card .img-box {
         width: 260px;
     }
-}
-
-@media (max-width: 992px) {
-    .nav-menu {
-        gap: 6px;
-    }
 
     .nav-menu > a,
     .nav-menu > .dropdown > .dropbtn {
-        margin: 0 8px;
-        font-size: 13px;
+        margin: 0 14px;
+    }
+}
+
+@media (max-width: 992px) {
+    .main-header .container-fluid {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+        flex-wrap: wrap;
+        justify-content: center !important;
+        gap: 14px;
     }
 
-    .logo-text {
-        font-size: 20px;
+    .logo,
+    .nav-right {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .nav-menu {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     .content-wrapper {
@@ -642,16 +764,37 @@ ol {
 
 @media (max-width: 768px) {
     .main-header .container-fluid {
-        padding-left: 16px !important;
-        padding-right: 16px !important;
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+        gap: 10px;
     }
 
-    .nav-right {
-        gap: 8px;
+    .logo-text {
+        font-size: 20px;
+    }
+
+    .nav-menu > a,
+    .nav-menu > .dropdown > .dropbtn {
+        margin: 0 10px;
+        font-size: 14px;
+        padding: 8px 0;
+    }
+
+    .arrow-small {
+        font-size: 12px;
     }
 
     .welcome-msg {
         display: none;
+    }
+
+    .btn-outline-custom,
+    .btn-main-custom,
+    .btn-logout,
+    .btn-logout-custom {
+        font-size: 13px;
+        padding: 6px 12px;
+        min-height: 34px;
     }
 
     .content-wrapper {
@@ -659,11 +802,17 @@ ol {
         padding: 0 14px;
     }
 
+    .container-box {
+        margin: 32px auto;
+        padding: 0 14px;
+    }
+
     .panel-box,
     .filter-card,
     .content-box,
     .section-box,
-    .top-search-box {
+    .top-search-box,
+    .card-box {
         padding: 18px;
         border-radius: 20px;
     }

@@ -6,7 +6,7 @@
 <%@ page import="java.util.*" %>
 
 <%
-    String userId = (String) session.getAttribute("userId");
+    Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
@@ -17,13 +17,13 @@
     String userName = (String) session.getAttribute("userName");
     if (userName == null || userName.trim().isEmpty()) {
         UserDAO uDao = new UserDAO();
-        userName = uDao.getNameByUsername(userId);
+        userName = uDao.getNameByUserId(userId);
         if (userName != null) {
             session.setAttribute("userName", userName);
         }
     }
 
-    int loginUserId = 1; // 실제 환경에서는 세션의 userNo 등으로 교체
+    int loginUserId = userId; // 세션값 사용
 
     String place = request.getParameter("place");
     if (place == null) place = "";

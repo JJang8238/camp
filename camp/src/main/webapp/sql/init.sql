@@ -71,7 +71,28 @@ VALUES
 
 ALTER TABLE product ADD COLUMN seller_id INT; --판매자 정보 추가!! 2026.03.28
 ALTER TABLE product ADD COLUMN description TEXT;
-
+ALTER TABLE users ADD COLUMN profileImage VARCHAR(255);
 UPDATE product 
 SET description = '거의 새상품, 1회 사용했습니다.'
 WHERE id = 1;
+--product 테이블 컬럼 추가
+ALTER TABLE product ADD COLUMN category VARCHAR(50); 
+ALTER TABLE product ADD COLUMN location VARCHAR(100);
+ALTER TABLE product ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+--제품 이미지 여러장 저장할 테이블 생성
+CREATE TABLE product_image (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    image_path VARCHAR(255) NOT NULL,
+    sort_order INT DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_product_image_product
+        FOREIGN KEY (product_id) REFERENCES product(id)
+        ON DELETE CASCADE
+);
+
+--seller_id를 users.id와 연결하는 외래키
+ALTER TABLE product
+ADD CONSTRAINT fk_product_user
+FOREIGN KEY (seller_id) REFERENCES users(id)
+ON DELETE CASCADE;

@@ -1,13 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" session="true"%>
 <%
-    String userId = (String) session.getAttribute("userId");
+    String ctx = request.getContextPath();
+
+    Integer userId = (Integer) session.getAttribute("userId");
 
     if (userId == null) {
-        response.sendRedirect("login.jsp");
+        response.sendRedirect(ctx + "/login.jsp");
         return;
     }
-
-    String ctx = request.getContextPath();
 %>
 <!DOCTYPE html>
 <html lang="ko">

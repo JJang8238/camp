@@ -6,14 +6,14 @@
 <%
     String ctx = request.getContextPath();
 
-    String userId = (String) session.getAttribute("userId");
+    Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
         response.sendRedirect(ctx + "/login.jsp");
         return;
     }
 
     UserDAO uDao = new UserDAO();
-    String userName = uDao.getNameByUsername(userId);
+    String userName = uDao.getNameByUserId(userId);
     session.setAttribute("userName", userName);
 
     final String keyword = request.getParameter("keyword") != null ? request.getParameter("keyword") : "";
@@ -121,10 +121,10 @@
             </div>
         <% } else {
             for (Product p : list) {
-                String imgFile = p.getImage();
-                String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
-                        ? ctx + "/assets/img/" + imgFile
-                        : ctx + "/assets/img/default.jpg";
+            	String imgFile = p.getImage();
+            	String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
+            	        ? ctx + imgFile
+            	        : ctx + "/assets/img/default.jpg";
         %>
             <div class="horizontal-card">
                 <div class="img-box">

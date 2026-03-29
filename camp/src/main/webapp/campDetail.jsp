@@ -6,12 +6,18 @@ String ctx = request.getContextPath();
 
 String idStr = request.getParameter("id");
 
-if (idStr == null) {
+if (idStr == null || idStr.trim().isEmpty()) {
     out.println("id 없음");
     return;
 }
 
-int id = Integer.parseInt(idStr);
+int id = 0;
+try {
+    id = Integer.parseInt(idStr);
+} catch (NumberFormatException e) {
+    out.println("id 형식 오류");
+    return;
+}
 
 CampDAO campDao = new CampDAO();
 Camp camp = campDao.getCampById(id);
@@ -21,18 +27,19 @@ if (camp == null) {
     return;
 }
 
-// ✅ 이름 변수
-String name = camp.getName();
+// 이름
+String name = (camp.getName() != null) ? camp.getName() : "";
 
-// ✅ 매치
+// 매치
 MatchDAO matchDao = new MatchDAO();
 List<Match> matches = matchDao.getTodayMatchesByPlace(name);
+if (matches == null) matches = new ArrayList<>();
 
-// ✅ 리뷰
+// 리뷰
 PlaceReviewDAO reviewDao = new PlaceReviewDAO();
 List<Map<String, Object>> reviews = reviewDao.listByPlace(name, "latest");
+if (reviews == null) reviews = new ArrayList<>();
 %>
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>

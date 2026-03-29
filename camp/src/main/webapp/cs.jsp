@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" session="true" %>
 <%@ page import="dao.UserDAO" %>
 <%
-    String userId = (String) session.getAttribute("userId");
+    Integer userId = (Integer) session.getAttribute("userId");
     String ctx = request.getContextPath();
 
     if (userId == null) {
@@ -12,7 +12,7 @@
     String userName = (String) session.getAttribute("userName");
     if (userName == null || userName.trim().isEmpty()) {
         UserDAO uDao = new UserDAO();
-        userName = uDao.getNameByUsername(userId);
+        userName = uDao.getNameByUserId(userId);
         if (userName != null) {
             session.setAttribute("userName", userName);
         }

@@ -3,25 +3,26 @@
 <%
     String ctx = request.getContextPath();
 
-    String userId = (String) session.getAttribute("userId");
+    Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
         response.sendRedirect(ctx + "/login.jsp");
         return;
     }
 
-    UserDAO uDao = new UserDAO();
-    String userName = uDao.getNameByUsername(userId);
-    session.setAttribute("userName", userName);
-
-    List<Product> campList = (List<Product>) request.getAttribute("campList");
     String keyword = request.getParameter("keyword");
     String tags = request.getParameter("tags");
 
     String[] selectedTypes = request.getParameterValues("type");
-    List<String> typeList = (selectedTypes != null) ? Arrays.asList(selectedTypes) : new ArrayList<>();
+    List<String> typeList = (selectedTypes != null)
+            ? Arrays.asList(selectedTypes)
+            : new ArrayList<>();
 
     String[] selectedLocs = request.getParameterValues("loc");
-    List<String> locList = (selectedLocs != null) ? Arrays.asList(selectedLocs) : new ArrayList<>();
+    List<String> locList = (selectedLocs != null)
+            ? Arrays.asList(selectedLocs)
+            : new ArrayList<>();
+
+    List<Product> campList = (List<Product>) request.getAttribute("campList");
 %>
 <!DOCTYPE html>
 <html lang="ko">

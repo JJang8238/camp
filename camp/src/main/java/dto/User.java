@@ -9,7 +9,7 @@ public class User {
     private String name;        // 사용자 이름
     private String email;       // 이메일
     private Timestamp createdAt; // 가입일
-
+    private String profileImage; //프로필 이미지
     // 기본 생성자
     public User() {}
 

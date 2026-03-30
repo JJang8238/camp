@@ -1,0 +1,168 @@
+/* =========================
+   🔥 공통 레이아웃
+========================= */
+
+.camp-main {
+    display: flex;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+
+/* =========================
+   🔥 왼쪽 이미지
+========================= */
+
+.camp-left {
+    flex: 1.3;
+}
+
+.camp-main-img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+
+/* =========================
+   🔥 오른쪽 카드
+========================= */
+
+/* 🔥 카드 전체 */
+.camp-right-card {
+    flex: 1;
+    background: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 🔥 핵심 */
+}
+
+
+/* 🔥 아래 영역 */
+.camp-info-bottom {
+    margin-top: 20px;
+}
+
+
+/* 버튼 간격 */
+.btn-main-lg {
+    margin-top: 10px;
+}
+
+
+/* =========================
+   🔥 태그
+========================= */
+
+.tag-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tag-box span {
+    background: #eef4f1;
+    color: var(--main-green);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+}
+
+
+/* =========================
+   🔥 가격 & 버튼
+========================= */
+
+.price-box {
+    font-size: 26px;
+    font-weight: bold;
+    color: var(--point-orange);
+    margin-bottom: 20px;
+}
+
+.btn-main-lg {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--main-green);
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+.btn-main-lg:hover {
+    opacity: 0.9;
+}
+
+
+/* =========================
+   🔥 리뷰 영역
+========================= */
+
+.review-section {
+    max-width: 1200px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 24px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+}
+
+.review-section h3 {
+    margin-bottom: 20px;
+}
+
+
+/* 리뷰 카드 */
+.review-card {
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+}
+
+.review-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.user {
+    font-weight: 600;
+}
+
+.rating {
+    color: #ff9900;
+}
+
+
+/* 리뷰 입력 */
+.review-form textarea {
+    width: 100%;
+    height: 90px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-top: 15px;
+}
+
+.review-bottom {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.review-bottom select {
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.empty {
+    color: #999;
+}

@@ -1,189 +1,240 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" session="true"%>
-<%@ page import="dao.UserDAO" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" session="true" %>
+<%@ page import="java.util.*" %>
+<%@ page import="java.util.stream.Collectors" %>
+<%@ page import="dao.UserDAO, dao.ProductDAO, dto.Product" %>
+
 <%
-    // 1. 세션 및 사용자 정보 조회
-    String userId = (String) session.getAttribute("userId");
-    String userName = "";
-    String ctx = request.getContextPath(); // 프로젝트 루트 경로
-    
-    // 상품 페이지는 로그인이 필요한 서비스로 설정 (main.jsp 로직 반영)
+    String ctx = request.getContextPath();
+
+    Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) {
-        response.sendRedirect("login.jsp");
+        response.sendRedirect(ctx + "/login.jsp");
         return;
     }
 
     UserDAO uDao = new UserDAO();
-    userName = uDao.getNameByUsername(userId);
+    String userName = uDao.getNameByUserId(userId);
+    session.setAttribute("userName", userName);
+
+    final String keyword = request.getParameter("keyword") != null ? request.getParameter("keyword") : "";
+    final String selectedCategories = request.getParameter("category") != null ? request.getParameter("category") : "";
+
+    final List<String> selectedCategoryList =
+            !selectedCategories.trim().isEmpty()
+            ? Arrays.asList(selectedCategories.split("\\s*,\\s*"))
+            : Collections.emptyList();
+
+    List<Product> list = ProductDAO.getAllProducts();
+
+    if (!keyword.isEmpty()) {
+        list = list.stream()
+                .filter(p -> p.getName() != null && p.getName().contains(keyword))
+                .collect(Collectors.toList());
+    }
+
+    if (!selectedCategoryList.isEmpty()) {
+        list = list.stream()
+                .filter(p -> {
+                    if (p.getName() == null) return false;
+                    for (String cat : selectedCategoryList) {
+                        if (p.getName().contains(cat)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })
+                .collect(Collectors.toList());
+    }
 %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캠프 메이트 | 캠핑용품 스토어</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root { 
-            --main-green: #1b4d3e; 
-            --point-orange: #ff6b35; 
-            --bg-beige: #f4f1ea; 
-            --dark-text: #2d3436;
-        }
-        
-        body { background: var(--bg-beige); font-family: 'Noto Sans KR', sans-serif; color: var(--dark-text); margin: 0; }
-        
-        /* main.jsp와 동일한 HEADER 스타일 */
-        .main-header { width: 100%; background: white; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 999; }
-        .logo a { text-decoration: none; display: flex; align-items: center; }
-        .logo-icon { font-size: 24px; margin-right: 8px; }
-        .logo-text { font-size: 22px; font-weight: bold; color: var(--main-green); }
+    <title>캠프 메이트 | 스토어</title>
 
-        .nav-menu { display: flex; align-items: center; }
-        .nav-menu > a, .nav-menu > .dropdown > .dropbtn { 
-            margin: 0 20px; text-decoration: none; color: #444; font-weight: 500; transition: 0.2s; border: none; background: none; cursor: pointer; display: inline-block; padding: 10px 0;
-        }
-        .nav-menu a:hover, .nav-menu .dropdown:hover .dropbtn { color: var(--main-green); }
-        .arrow-small { font-size: 11px; margin-left: 3px; vertical-align: middle; }
-
-        /* 드롭다운 스타일 (main.jsp 동일) */
-        .dropdown { position: relative; display: inline-block; }
-        .dropdown-content {
-            display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); background-color: white; min-width: 140px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1); border-radius: 12px; padding: 10px 0; z-index: 1000; border: 1px solid #eee; margin-top: 0; 
-        }
-        .dropdown-content a { color: #555; padding: 10px 20px; text-decoration: none; display: block; font-size: 14px; font-weight: 400; transition: 0.2s; text-align: center; }
-        .dropdown-content a:hover { background-color: #f8f9fa; color: var(--main-green); }
-        .dropdown:hover .dropdown-content { display: block; }
-        
-        /* 오른쪽 영역 스타일 */
-        .nav-right { display: flex; align-items: center; gap: 12px; }
-        .welcome-msg { font-weight: bold; color: var(--main-green); margin-right: 8px; font-size: 15px; }
-        .btn-logout { padding: 6px 16px; border: 1px solid var(--point-orange); color: var(--point-orange); border-radius: 20px; text-decoration: none; font-size: 14px; transition: 0.2s; }
-        .btn-logout:hover { background: var(--point-orange); color: white; }
-
-        /* 상품 컨테이너 */
-        .product-container { max-width: 1200px; margin: 60px auto; padding: 0 20px; }
-        .page-header { text-align: center; margin-bottom: 50px; }
-        .page-header h2 { font-weight: 700; color: var(--main-green); font-size: 32px; }
-
-        /* 상품 카드 디자인 */
-        .product-card { background: white; border-radius: 25px; overflow: hidden; transition: all 0.3s ease; border: 1px solid #eee; height: 100%; display: flex; flex-direction: column; box-shadow: 0 10px 20px rgba(0,0,0,0.03); }
-        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
-        
-        .product-img-box { width: 100%; height: 250px; background: #f8f9fa; overflow: hidden; }
-        .product-img-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-        .product-card:hover .product-img-box img { transform: scale(1.08); }
-        
-        .product-info { padding: 25px; flex-grow: 1; text-align: left; }
-        .product-category { color: #bbb; font-size: 13px; font-weight: 500; margin-bottom: 5px; text-transform: uppercase; }
-        .product-name { font-size: 19px; font-weight: 700; margin-bottom: 12px; color: #333; }
-        .product-price { font-size: 22px; font-weight: 800; color: var(--main-green); }
-        
-        .btn-buy { background: var(--main-green); color: white; border: none; padding: 12px; width: 100%; border-radius: 15px; font-weight: 700; margin-top: 20px; transition: 0.2s; }
-        .btn-buy:hover { background: #2a6352; box-shadow: 0 4px 10px rgba(27, 77, 62, 0.2); }
-    </style>
+    <%@ include file="/include/head.jsp" %>
+    <link rel="stylesheet" href="<%=ctx%>/assets/css/product.css">
 </head>
 <body>
 
-<header class="main-header">
-    <div class="container-fluid px-5 d-flex justify-content-between align-items-center py-3">
-        <div class="logo">
-            <a href="<%=ctx%>/main.jsp">
-                <span class="logo-icon">⛺</span>
-                <span class="logo-text">Camp Mate</span>
-            </a>
-        </div>
+<jsp:include page="/include/header.jsp" />
 
-        <nav class="nav-menu">
-            <a href="<%=ctx%>/campList.jsp?mode=all">예약하기</a>
-            <a href="<%=ctx%>/productList.jsp" style="color: var(--main-green);">캠핑용품</a>
-            
-            <div class="dropdown">
-                <a href="<%=ctx%>/community.jsp" class="dropbtn">커뮤니티 <span class="arrow-small">▼</span></a>
-                <div class="dropdown-content">
-                    <a href="<%=ctx%>/review.jsp">후기</a>
-                    <a href="<%=ctx%>/news.jsp">캠핑소식</a>
-                    <a href="<%=ctx%>/event.jsp">이벤트</a>
+<div class="content-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-sticky">
+            <div class="filter-card">
+                <h3 class="filter-title">상품 검색</h3>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="sidebarKeyword">검색어</label>
+                    <input
+                        type="text"
+                        id="sidebarKeyword"
+                        class="filter-input"
+                        placeholder="상품명을 입력하세요"
+                        value="<%= keyword %>"
+                        onkeyup="if(window.event.keyCode==13){searchProducts();}"
+                    >
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">상품 유형</label>
+                    <div class="common-tag-list">
+                        <span class="common-tag" onclick="selectCategory('텐트')">텐트</span>
+                        <span class="common-tag" onclick="selectCategory('의자')">의자</span>
+                        <span class="common-tag" onclick="selectCategory('테이블')">테이블</span>
+                        <span class="common-tag" onclick="selectCategory('랜턴')">랜턴</span>
+                        <span class="common-tag" onclick="selectCategory('버너')">버너</span>
+                        <span class="common-tag" onclick="selectCategory('침낭')">침낭</span>
+                    </div>
+                    <input type="hidden" id="categoryInput" value="<%= selectedCategories %>">
+                </div>
+
+                <div class="filter-group">
+                    <button type="button" class="btn-search" onclick="searchProducts()">검색하기</button>
                 </div>
             </div>
 
-            <a href="<%=ctx%>/cs.jsp">고객센터</a>
-        </nav>
-
-        <div class="nav-right">
-            <span class="welcome-msg">👋 <%= userName %>님 환영합니다!</span>
-            <a href="<%=ctx%>/logout.jsp" class="btn-logout">로그아웃</a>
-        </div>
-    </div>
-</header>
-
-<div class="product-container">
-    <div class="page-header">
-        <h2>캠핑 기어 스토어 ⚒️</h2>
-        <p class="text-muted">전문가가 엄선한 최고의 캠핑 장비를 만나보세요.</p>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-md-3">
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="<%=ctx%>/assets/img/tent.jpg" alt="텐트" onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Tents</div>
-                    <div class="product-name">포레스트 돔 텐트 (4인용)</div>
-                    <div class="product-price">289,000원</div>
-                    <button class="btn-buy" onclick="alert('장바구니에 담겼습니다.')">장바구니 담기</button>
-                </div>
+            <div class="filter-card">
+                <h3 class="filter-title">빠른 메뉴</h3>
+                <ul class="side-menu">
+                    <li><a href="<%=ctx%>/productList.jsp" class="active">전체 상품</a></li>
+                    <li><a href="<%=ctx%>/productWrite.jsp">상품 등록</a></li>
+                    <li><a href="<%=ctx%>/mypage.jsp">내 거래 보기</a></li>
+                </ul>
             </div>
         </div>
+    </aside>
 
-        <div class="col-md-3">
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="<%=ctx%>/assets/img/lantern.jpg" alt="랜턴" onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Lighting</div>
-                    <div class="product-name">빈티지 에디슨 랜턴</div>
-                    <div class="product-price">45,000원</div>
-                    <button class="btn-buy" onclick="alert('장바구니에 담겼습니다.')">장바구니 담기</button>
-                </div>
-            </div>
+    <main class="main-content">
+        <h2 class="page-section-title">캠핑용품</h2>
+        <p class="section-sub-title">원하는 장비를 찾아보고 안전하게 거래해보세요.</p>
+
+        <div class="product-count">
+            총 <strong><%= list.size() %></strong>개의 상품이 검색되었습니다.
         </div>
 
-        <div class="col-md-3">
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="<%=ctx%>/assets/img/chair.jpg" alt="의자" onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Furniture</div>
-                    <div class="product-name">경량릴렉스 체어</div>
-                    <div class="product-price">72,000원</div>
-                    <button class="btn-buy" onclick="alert('장바구니에 담겼습니다.')">장바구니 담기</button>
-                </div>
+        <% if (list == null || list.isEmpty()) { %>
+            <div class="empty-box">
+                검색된 상품이 없습니다.
             </div>
-        </div>
+        <% } else {
+            for (Product p : list) {
+            	String imgFile = p.getImage();
+            	String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
+            	        ? ctx + imgFile
+            	        : ctx + "/assets/img/default.jpg";
+        %>
+            <div class="horizontal-card">
+                <div class="img-box">
+                    <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="product-thumb-link">
+                        <img src="<%=imgPath%>" alt="<%=p.getName()%>" onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
+                    </a>
+                </div>
 
-        <div class="col-md-3">
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="<%=ctx%>/assets/img/table.jpg" alt="테이블" onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Table</div>
-                    <div class="product-name">초경량 알루미늄 테이블</div>
-                    <div class="product-price">58,000원</div>
-                    <button class="btn-buy" onclick="alert('장바구니에 담겼습니다.')">장바구니 담기</button>
+                <div class="info-box">
+                    <div>
+                        <div class="card-top-line">
+                            <div class="product-name-link">
+                                <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>">
+                                    <h3 class="card-main-title"><%= p.getName() %></h3>
+                                </a>
+                                <div class="card-sub-text">Camp Mate 중고거래</div>
+                            </div>
+                            <span class="badge-soft">중고거래</span>
+                        </div>
+
+                        <div class="card-desc">
+                            전문가가 추천하는 인기 장비입니다. 상세 페이지에서 상품 상태와 거래 정보를 확인해보세요.
+                        </div>
+
+                        <div class="card-meta">
+                            <span class="meta-chip">캠핑용품</span>
+                            <span class="meta-chip green">직거래 가능</span>
+                            <span class="meta-chip point">인기 상품</span>
+                        </div>
+                    </div>
+
+                    <div class="card-bottom-line">
+                        <div>
+                            <p class="card-price"><%= String.format("%,d", p.getPrice()) %>원</p>
+                            <div class="card-extra">상세 페이지에서 상품 정보를 확인하세요.</div>
+                        </div>
+
+                        <div class="card-action-group">
+                            <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn-soft">상세보기</a>
+                            <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn-point">거래하기</a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+        <%  }
+           } %>
+    </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<jsp:include page="/include/footer.jsp" />
+
+<script>
+const ctx = "<%=ctx%>";
+
+function getSelectedCategories() {
+    const value = document.getElementById("categoryInput").value.trim();
+    if (!value) return [];
+    return value.split(",").map(v => v.trim()).filter(v => v !== "");
+}
+
+function setSelectedCategories(categories) {
+    document.getElementById("categoryInput").value = categories.join(",");
+}
+
+function updateTagStyle() {
+    const selected = getSelectedCategories();
+    const tags = document.querySelectorAll(".common-tag");
+
+    tags.forEach(tag => {
+        const text = tag.textContent.trim();
+        if (selected.includes(text)) {
+            tag.style.background = "var(--main-green)";
+            tag.style.color = "white";
+        } else {
+            tag.style.background = "";
+            tag.style.color = "";
+        }
+    });
+}
+
+function selectCategory(category) {
+    let selected = getSelectedCategories();
+
+    if (selected.includes(category)) {
+        selected = selected.filter(c => c !== category);
+    } else {
+        selected.push(category);
+    }
+
+    setSelectedCategories(selected);
+    updateTagStyle();
+}
+
+function searchProducts() {
+    const keyword = document.getElementById("sidebarKeyword").value.trim();
+    const categories = document.getElementById("categoryInput").value.trim();
+
+    let url = ctx + "/productList.jsp?keyword=" + encodeURIComponent(keyword);
+
+    if (categories) {
+        url += "&category=" + encodeURIComponent(categories);
+    }
+
+    location.href = url;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    updateTagStyle();
+});
+</script>
+
 </body>
 </html>

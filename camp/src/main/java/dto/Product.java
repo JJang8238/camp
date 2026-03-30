@@ -10,7 +10,8 @@ public class Product {
     private int price;          // 가격 (용품/캠핑장 공통)
     private String image;       // 기존 중고 용품 이미지 경로 필드
     private String imageUrl;    // 캠핑장 전용 이미지 경로 필드
-
+    private int sellerId;       //판매자 정보
+    private String description;
     // 기본 생성자
     public Product() {}
 
@@ -77,5 +78,21 @@ public class Product {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+    
+    public int getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(int sellerId) {
+        this.sellerId = sellerId;
+    }
+    
+    public String getDescription() { 
+    	return description; 
+    }
+    
+    public void setDescription(String description) { 
+    	this.description = description; 
     }
 }

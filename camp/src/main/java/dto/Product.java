@@ -11,7 +11,11 @@ public class Product {
     private String image;       // 기존 중고 용품 이미지 경로 필드
     private String imageUrl;    // 캠핑장 전용 이미지 경로 필드
     private int sellerId;       //판매자 정보
-    private String description;
+    private String description; //상품 설명
+    private String category;    //상품 카테고리
+    private String location;	//거래 위치
+    private String createdAt;	//등록시간
+    private boolean recent;
     // 기본 생성자
     public Product() {}
 
@@ -94,5 +98,37 @@ public class Product {
     
     public void setDescription(String description) { 
     	this.description = description; 
+    }
+    
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    public boolean isRecent() {
+        return recent;
+    }
+
+    public void setRecent(boolean recent) {
+        this.recent = recent;
     }
 }

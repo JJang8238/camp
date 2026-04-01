@@ -2,6 +2,8 @@
 <%@ page import="java.util.*" %>
 <%@ page import="java.util.stream.Collectors" %>
 <%@ page import="dao.UserDAO, dao.ProductDAO, dto.Product" %>
+<%@ page import="java.time.*" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 
 <%
     String ctx = request.getContextPath();
@@ -35,9 +37,10 @@
     if (!selectedCategoryList.isEmpty()) {
         list = list.stream()
                 .filter(p -> {
-                    if (p.getName() == null) return false;
+                    if (p.getCategory() == null) return false;
+
                     for (String cat : selectedCategoryList) {
-                        if (p.getName().contains(cat)) {
+                        if (p.getCategory().equals(cat)) {
                             return true;
                         }
                     }
@@ -87,6 +90,7 @@
                         <span class="common-tag" onclick="selectCategory('랜턴')">랜턴</span>
                         <span class="common-tag" onclick="selectCategory('버너')">버너</span>
                         <span class="common-tag" onclick="selectCategory('침낭')">침낭</span>
+                        <span class="common-tag" onclick="selectCategory('기타')">기타</span>
                     </div>
                     <input type="hidden" id="categoryInput" value="<%= selectedCategories %>">
                 </div>
@@ -123,7 +127,7 @@
             for (Product p : list) {
             	String imgFile = p.getImage();
             	String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
-            	        ? ctx + imgFile
+            			? ctx + "/assets/img/" + imgFile
             	        : ctx + "/assets/img/default.jpg";
         %>
             <div class="horizontal-card">
@@ -145,14 +149,28 @@
                             <span class="badge-soft">중고거래</span>
                         </div>
 
+						<%
+						String desc = p.getDescription();
+						if (desc != null && desc.length() > 80) {
+    						desc = desc.substring(0, 80) + "...";
+						}
+						%>
+
                         <div class="card-desc">
-                            전문가가 추천하는 인기 장비입니다. 상세 페이지에서 상품 상태와 거래 정보를 확인해보세요.
+                            <%= (p.getDescription() != null && !p.getDescription().isEmpty()) 
+        					? p.getDescription() 
+        					: "상품 설명이 없습니다." %>
                         </div>
 
                         <div class="card-meta">
-                            <span class="meta-chip">캠핑용품</span>
+                            <% if (p.getCategory() != null) { %>
+                            <span class="meta-chip"><%= p.getCategory() %></span>
+                            <% } %>
                             <span class="meta-chip green">직거래 가능</span>
                             <span class="meta-chip point">인기 상품</span>
+                            <% if (p.isRecent()) { %>
+                            <span class="meta-chip point">최근 등록</span>
+                            <% } %>
                         </div>
                     </div>
 

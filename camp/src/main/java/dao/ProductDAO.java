@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Timestamp;
 
 import dto.Product;
 import util.DBUtil;
@@ -14,26 +15,46 @@ public class ProductDAO {
     /**
      * 메인 페이지 하단의 중고 용품 목록
      */
-    public static List<Product> getAllProducts() {
-        List<Product> list = new ArrayList<>();
+	public static List<Product> getAllProducts() {
+	    List<Product> list = new ArrayList<>();
 
-        try (Connection conn = DBUtil.getConnection()) {
-            String sql = "SELECT * FROM product";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+	    try (Connection conn = DBUtil.getConnection()) {
+	        String sql =
+	            "SELECT p.id, p.name, p.price, p.description, p.category, p.location, p.created_at, " +
+	            "       COALESCE(p.image, pi.image_path) AS display_image " +
+	            "FROM product p " +
+	            "LEFT JOIN product_image pi " +
+	            "       ON p.id = pi.product_id AND pi.sort_order = 1 " +
+	            "ORDER BY p.id DESC";
 
-            while (rs.next()) {
-                Product p = new Product();
-                p.setId(rs.getInt("id"));              // 상세보기 링크용
-                p.setName(rs.getString("name"));
-                p.setPrice(rs.getInt("price"));
-                p.setImage(rs.getString("image"));     // productList / main 용
-                list.add(p);
-            }
+	        PreparedStatement ps = conn.prepareStatement(sql);
+	        ResultSet rs = ps.executeQuery();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	        while (rs.next()) {
+	            Product p = new Product();
+	            p.setId(rs.getInt("id"));
+	            p.setName(rs.getString("name"));
+	            p.setPrice(rs.getInt("price"));
+	            p.setImage(rs.getString("display_image"));
+	            p.setDescription(rs.getString("description"));
+	            p.setCategory(rs.getString("category"));
+	            p.setLocation(rs.getString("location"));
+	            p.setCreatedAt(rs.getString("created_at"));
+
+	            Timestamp created = rs.getTimestamp("created_at");
+	            if (created != null) {
+	                long diff = System.currentTimeMillis() - created.getTime();
+	                long hours = diff / (1000 * 60 * 60);
+	                p.setRecent(hours <= 24);
+	            }
+
+	            list.add(p);
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
 
         return list;
     }
@@ -91,6 +112,7 @@ public class ProductDAO {
 
         return list;
     }
+   
     /**
      * 캠핑장 검색 + 필터
      * 

@@ -124,3 +124,49 @@ CREATE TABLE place_review (
         FOREIGN KEY (userId) REFERENCES users(id)
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =========================
+-- 8. 캠핑 소식 테이블
+-- =========================
+CREATE TABLE news (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    summary VARCHAR(300),
+    content TEXT NOT NULL,
+    category VARCHAR(50),
+    image VARCHAR(255),
+    views INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO news (title, summary, content, category, image)
+VALUES
+('봄철 캠핑 준비 체크리스트',
+ '초보 캠퍼를 위한 필수 준비물 정리',
+ '봄 캠핑을 떠나기 전 반드시 확인해야 할 준비물 리스트를 소개합니다. 텐트, 침낭, 랜턴 등 기본 장비부터 날씨 대비 용품까지 꼼꼼하게 준비하세요.',
+ '캠핑 팁',
+ 'camp1.jpg'),
+
+('전국 벚꽃 캠핑 명소 추천',
+ '벚꽃과 함께 즐기는 감성 캠핑',
+ '봄 시즌에 맞춰 벚꽃이 아름다운 캠핑장을 추천드립니다. 자연과 함께 힐링할 수 있는 최고의 장소들을 만나보세요.',
+ '추천 캠핑장',
+ 'camp2.jpg'),
+
+('우천 시 캠핑 안전수칙',
+ '비 오는 날에도 안전하게 캠핑하는 방법',
+ '비가 오는 날에는 미끄럼 사고와 침수 위험이 있습니다. 방수 장비 준비와 안전한 위치 선정이 중요합니다.',
+ '안전 정보',
+ 'camp3.jpg'),
+
+('초보자를 위한 오토캠핑 가이드',
+ '처음 캠핑 가는 사람을 위한 완벽 가이드',
+ '오토캠핑은 차량을 이용해 편하게 즐길 수 있는 캠핑입니다. 초보자도 쉽게 시작할 수 있는 방법을 안내합니다.',
+ '캠핑 팁',
+ 'camp4.jpg'),
+
+('캠핑 장비 보관 방법',
+ '장비 오래 쓰는 관리 꿀팁',
+ '캠핑 장비는 사용 후 건조와 청소가 중요합니다. 올바른 보관법으로 장비 수명을 늘려보세요.',
+ '캠핑 팁',
+ 'camp5.jpg');

@@ -29,7 +29,7 @@
                 </a>
                 <div class="dropdown-content">
                     <a href="<%=headerCtx%>/review.jsp">후기</a>
-                    <a href="<%=headerCtx%>/news.jsp">캠핑소식</a>
+                    <a href="<%=headerCtx%>/newsList.jsp">캠핑소식</a>
                     <a href="<%=headerCtx%>/event.jsp">이벤트</a>
                 </div>
             </div>

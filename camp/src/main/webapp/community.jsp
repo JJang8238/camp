@@ -39,7 +39,7 @@
             </div>
 
             <div class="col-md-4">
-                <a href="<%=ctx%>/news.jsp" class="card-box community-card">
+                <a href="<%=ctx%>/newsList.jsp" class="card-box community-card">
                     <span class="community-icon">📰</span>
                     <div class="community-title">캠핑 소식 <span class="community-badge">NEW</span></div>
                     <p class="community-desc">
@@ -49,7 +49,7 @@
             </div>
 
             <div class="col-md-4">
-                <a href="<%=ctx%>/event.jsp" class="card-box community-card">
+                <a href="<%=ctx%>/eventList.jsp" class="card-box community-card">
                     <span class="community-icon">🎁</span>
                     <div class="community-title">이벤트</div>
                     <p class="community-desc">

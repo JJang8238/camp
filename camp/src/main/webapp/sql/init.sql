@@ -170,3 +170,43 @@ VALUES
  '캠핑 장비는 사용 후 건조와 청소가 중요합니다. 올바른 보관법으로 장비 수명을 늘려보세요.',
  '캠핑 팁',
  'camp5.jpg');
+ -- =========================
+-- 9. 이벤트 테이블
+-- =========================
+ CREATE TABLE events (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(200) NOT NULL,
+    summary VARCHAR(500),
+    content TEXT,
+    image VARCHAR(255),
+    start_date DATE,
+    end_date DATE,
+    status VARCHAR(20) NOT NULL DEFAULT 'ongoing',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO events (title, summary, content, image, start_date, end_date, status)
+VALUES
+('신규 가입 웰컴 쿠폰 이벤트',
+ '신규 가입 회원에게 할인 쿠폰을 지급하는 이벤트입니다.',
+ '캠프 메이트 신규 가입 회원 전원에게 쿠폰을 제공합니다.',
+ '/assets/img/event1.jpg',
+ '2026-04-01',
+ '2026-04-30',
+ 'ongoing'),
+
+('캠핑장 후기 작성 이벤트',
+ '후기를 작성하면 포인트를 지급하는 이벤트입니다.',
+ '후기 작성 회원에게 포인트를 지급합니다.',
+ '/assets/img/event2.jpg',
+ '2026-04-05',
+ '2026-05-05',
+ 'ongoing'),
+
+('오픈 기념 가입 이벤트',
+ '캠프 메이트 오픈 기념 이벤트입니다.',
+ '서비스 오픈 기념 이벤트입니다.',
+ '/assets/img/event3.jpg',
+ '2026-03-01',
+ '2026-03-31',
+ 'ended');

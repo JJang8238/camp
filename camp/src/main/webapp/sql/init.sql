@@ -170,3 +170,60 @@ INSERT INTO events (title, summary, content, image, start_date, end_date, status
 ('신규 가입 웰컴 쿠폰 이벤트','신규 가입 회원 쿠폰 지급','내용 생략','/assets/img/event1.jpg','2026-04-01','2026-04-30','ongoing'),
 ('캠핑장 후기 작성 이벤트','후기 작성 시 포인트 지급','내용 생략','/assets/img/event2.jpg','2026-04-05','2026-05-05','ongoing'),
 ('오픈 기념 가입 이벤트','서비스 오픈 기념 이벤트','내용 생략','/assets/img/event3.jpg','2026-03-01','2026-03-31','ended');
+
+
+DROP TABLE news;
+DROP TABLE events;
+-- =====================================================
+-- 이벤트 뉴스 통합
+-- =====================================================
+CREATE TABLE posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_type VARCHAR(30) NOT NULL,             -- news, event, notice 등
+    title VARCHAR(200) NOT NULL,
+    summary VARCHAR(500),
+    content TEXT NOT NULL,
+
+    category VARCHAR(50),                       -- 캠핑 팁, 안전 정보, 프로모션 등
+    thumbnail VARCHAR(255),                     -- 대표 이미지 경로
+
+    author_id INT,                              -- 작성자(관리자 회원 id)
+    view_count INT DEFAULT 0,
+
+    status VARCHAR(20) DEFAULT 'draft',         -- draft, published, hidden, deleted
+    is_pinned TINYINT(1) DEFAULT 0,             -- 상단 고정 여부
+    display_order INT DEFAULT 0,                -- 수동 정렬 우선순위
+
+    published_at DATETIME NULL,                 -- 공개 시점
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    deleted_at DATETIME NULL
+);
+
+CREATE TABLE event_details (
+    post_id INT PRIMARY KEY,
+    start_date DATE,
+    end_date DATE,
+    event_status VARCHAR(20) DEFAULT 'upcoming',   -- upcoming, ongoing, ended
+    apply_url VARCHAR(255),                        -- 신청 링크
+    coupon_code VARCHAR(100),                      -- 쿠폰 이벤트면 사용 가능
+    max_participants INT NULL,                     -- 모집형 이벤트 대비
+    winner_announce_at DATETIME NULL,              -- 당첨 발표일
+
+    CONSTRAINT fk_event_post
+        FOREIGN KEY (post_id) REFERENCES posts(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE post_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    image_path VARCHAR(255) NOT NULL,
+    image_type VARCHAR(30) DEFAULT 'content',   -- thumbnail, banner, content
+    sort_order INT DEFAULT 0,
+
+    CONSTRAINT fk_post_image
+        FOREIGN KEY (post_id) REFERENCES posts(id)
+        ON DELETE CASCADE
+);

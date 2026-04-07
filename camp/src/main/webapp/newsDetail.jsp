@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="dao.NewsDAO" %>
-<%@ page import="dto.News" %>
+<%@ page import="dao.PostDAO" %>
+<%@ page import="dto.Post" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
@@ -14,21 +14,33 @@
 
     int id = Integer.parseInt(idStr);
 
-    NewsDAO.increaseViews(id);
-    News n = NewsDAO.getById(id);
+    PostDAO dao = new PostDAO();
+    dao.increaseViewCount(id);
 
-    if (n == null) {
+    Post n = dao.getPostById(id);
+
+    if (n == null || !"news".equals(n.getPostType())) {
         response.sendRedirect(ctx + "/newsList.jsp");
         return;
     }
 
-    News prevNews = NewsDAO.getPrevNews(id);
-    News nextNews = NewsDAO.getNextNews(id);
+    Post prevNews = dao.getPrevNewsPost(id);
+    Post nextNews = dao.getNextNewsPost(id);
 
-    String img = n.getImage();
-    String imgPath = (img != null && !img.trim().isEmpty())
-            ? ctx + "/assets/img/" + img
-            : ctx + "/assets/img/default.jpg";
+    String imgPath = ctx + "/assets/img/default.jpg";
+    String thumb = n.getThumbnail();
+
+    if (thumb != null && !thumb.trim().isEmpty()) {
+        if (thumb.startsWith("http://") || thumb.startsWith("https://")) {
+            imgPath = thumb;
+        } else if (thumb.startsWith(ctx + "/")) {
+            imgPath = thumb;
+        } else if (thumb.startsWith("/")) {
+            imgPath = ctx + thumb;
+        } else {
+            imgPath = ctx + "/assets/img/" + thumb;
+        }
+    }
 %>
 
 <!DOCTYPE html>
@@ -50,14 +62,14 @@
             <div class="news-detail-wrap">
                 <div class="news-detail-top">
                     <div class="news-detail-category">
-                        <%= n.getCategory() != null ? n.getCategory() : "캠핑 소식" %>
+                        <%= n.getCategory() != null && !n.getCategory().trim().isEmpty() ? n.getCategory() : "캠핑 소식" %>
                     </div>
 
                     <h2 class="news-detail-title"><%= n.getTitle() %></h2>
 
                     <div class="news-detail-meta">
-                        <span>작성일 <%= n.getCreatedAt() %></span>
-                        <span>조회 <%= n.getViews() %></span>
+                        <span>작성일 <%= n.getCreatedAt() != null ? n.getCreatedAt() : "" %></span>
+                        <span>조회 <%= n.getViewCount() %></span>
                     </div>
                 </div>
 
@@ -75,29 +87,29 @@
                     <%= n.getContent() != null ? n.getContent().replace("\n", "<br>") : "" %>
                 </div>
 
-<div class="news-detail-nav">
-    <div class="news-detail-nav-item">
-        <div class="news-detail-nav-label">이전글</div>
-        <% if (prevNews != null) { %>
-            <a href="<%=ctx%>/newsDetail.jsp?id=<%=prevNews.getId()%>" class="news-detail-nav-link">
-                <%= prevNews.getTitle() %>
-            </a>
-        <% } else { %>
-            <div class="news-detail-nav-empty">이전 글이 없습니다.</div>
-        <% } %>
-    </div>
+                <div class="news-detail-nav">
+                    <div class="news-detail-nav-item">
+                        <div class="news-detail-nav-label">이전글</div>
+                        <% if (prevNews != null) { %>
+                            <a href="<%=ctx%>/newsDetail.jsp?id=<%=prevNews.getId()%>" class="news-detail-nav-link">
+                                <%= prevNews.getTitle() %>
+                            </a>
+                        <% } else { %>
+                            <div class="news-detail-nav-empty">이전 글이 없습니다.</div>
+                        <% } %>
+                    </div>
 
-    <div class="news-detail-nav-item">
-        <div class="news-detail-nav-label">다음글</div>
-        <% if (nextNews != null) { %>
-            <a href="<%=ctx%>/newsDetail.jsp?id=<%=nextNews.getId()%>" class="news-detail-nav-link">
-                <%= nextNews.getTitle() %>
-            </a>
-        <% } else { %>
-            <div class="news-detail-nav-empty">다음 글이 없습니다.</div>
-        <% } %>
-    </div>
-</div>
+                    <div class="news-detail-nav-item">
+                        <div class="news-detail-nav-label">다음글</div>
+                        <% if (nextNews != null) { %>
+                            <a href="<%=ctx%>/newsDetail.jsp?id=<%=nextNews.getId()%>" class="news-detail-nav-link">
+                                <%= nextNews.getTitle() %>
+                            </a>
+                        <% } else { %>
+                            <div class="news-detail-nav-empty">다음 글이 없습니다.</div>
+                        <% } %>
+                    </div>
+                </div>
 
                 <div class="news-detail-bottom">
                     <a href="<%=ctx%>/newsList.jsp" class="news-back-btn">목록으로</a>

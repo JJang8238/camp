@@ -2,9 +2,10 @@
 <%
     String headerCtx = request.getContextPath();
 
-    Integer userId = (Integer) session.getAttribute("userId"); // 숫자 PK
-    String username = (String) session.getAttribute("username"); // 로그인 아이디
-    String userName = (String) session.getAttribute("userName"); // 이름
+    Integer userId = (Integer) session.getAttribute("userId");
+    String username = (String) session.getAttribute("username");
+    String userName = (String) session.getAttribute("userName");
+    String role = (String) session.getAttribute("role"); // ⭐ 추가
 %>
 
 <header class="main-header">
@@ -50,6 +51,13 @@
                         ? userName 
                         : (username != null ? username : "사용자") %>님 환영합니다!
                 </span>
+
+                <!-- ⭐ 관리자 버튼 -->
+                <% if ("ADMIN".equals(role)) { %>
+                    <a href="<%=headerCtx%>/admin/dashboard.jsp" class="btn-admin">
+                        관리자
+                    </a>
+                <% } %>
 
                 <a href="<%=headerCtx%>/logout.jsp" class="btn-logout-custom">로그아웃</a>
 

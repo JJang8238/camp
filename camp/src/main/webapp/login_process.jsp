@@ -29,9 +29,11 @@
             return;
         }
 
-        session.setAttribute("userId", loginUser.getId());         // 숫자 PK
-        session.setAttribute("username", loginUser.getUserId());   // 로그인 아이디(username)
-        session.setAttribute("userName", loginUser.getName());     // 사용자 이름
+        session.setAttribute("userId", loginUser.getId());
+        session.setAttribute("username", loginUser.getUserId());
+        session.setAttribute("userName", loginUser.getName());
+        session.setAttribute("role", loginUser.getRole());
+        session.setAttribute("status", loginUser.getStatus());
 
         response.sendRedirect("main.jsp");
     } else {

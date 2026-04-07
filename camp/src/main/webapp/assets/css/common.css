@@ -838,3 +838,19 @@ a {
         flex: 1;
     }
 }
+.btn-admin {
+    border: 1px solid #1b4d3e;
+    color: #1b4d3e;
+    background: #fff;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-right: 8px;
+    transition: 0.2s ease;
+}
+
+.btn-admin:hover {
+    background: #eef4f1;
+}

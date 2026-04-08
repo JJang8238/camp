@@ -4,7 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLIntegrityConstraintViolationException;
-
+import java.util.ArrayList;
+import java.util.List;
 import dto.User;
 import util.DBUtil;
 import util.PasswordUtil;
@@ -130,7 +131,7 @@ public class UserDAO {
     public User getUserByUsername(String username) {
         User user = null;
 
-        String sql = "SELECT id, username, name, email, created_at FROM users WHERE username = ?";
+        String sql = "SELECT id, username, name, email, role, status, created_at FROM users WHERE username = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
@@ -139,9 +140,11 @@ public class UserDAO {
                 if (rs.next()) {
                     user = new User();
                     user.setId(rs.getInt("id"));
-                    user.setUserId(rs.getString("username")); // DB username -> DTO userId
+                    user.setUserId(rs.getString("username"));
                     user.setName(rs.getString("name"));
                     user.setEmail(rs.getString("email"));
+                    user.setRole(rs.getString("role"));
+                    user.setStatus(rs.getString("status"));
                     user.setCreatedAt(rs.getTimestamp("created_at"));
                 }
             }
@@ -170,5 +173,92 @@ public class UserDAO {
         }
 
         return name;
+    }
+    
+    public List<User> getAdminUserList(String keyword, String status, String userRole) {
+        List<User> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT id, username, name, email, role, status, created_at ");
+        sql.append("FROM users WHERE 1=1 ");
+
+        List<String> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (username LIKE ? OR name LIKE ?) ");
+            params.add("%" + keyword.trim() + "%");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND status = ? ");
+            params.add(status.trim());
+        }
+
+        if (userRole != null && !userRole.trim().isEmpty()) {
+            sql.append("AND role = ? ");
+            params.add(userRole.trim());
+        }
+
+        sql.append("ORDER BY id DESC");
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("id"));
+                    user.setUserId(rs.getString("username"));
+                    user.setName(rs.getString("name"));
+                    user.setEmail(rs.getString("email"));
+                    user.setRole(rs.getString("role"));
+                    user.setStatus(rs.getString("status"));
+                    user.setCreatedAt(rs.getTimestamp("created_at"));
+                    list.add(user);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+    
+    public boolean updateUserRoleAndStatus(int id, String newRole, String newStatus) {
+        String sql = "UPDATE users SET role = ?, status = ? WHERE id = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, newRole);
+            pstmt.setString(2, newStatus);
+            pstmt.setInt(3, id);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+    
+    public static int getTotalCount() {
+        int count = 0;
+
+        try (Connection conn = DBUtil.getConnection()) {
+            String sql = "SELECT COUNT(*) FROM users";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return count;
     }
 }

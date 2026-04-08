@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="dao.EventDAO" %>
-<%@ page import="dto.Event" %>
+<%@ page import="dao.PostDAO" %>
+<%@ page import="dto.Post" %>
+<%@ page import="dto.EventDetail" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
@@ -14,23 +15,48 @@
 
     int id = Integer.parseInt(idStr);
 
-    Event e = EventDAO.getEventById(id);
-    if (e == null) {
+    PostDAO dao = new PostDAO();
+    Post p = dao.getPostById(id);
+
+    if (p == null || !"event".equals(p.getPostType())) {
         response.sendRedirect(ctx + "/eventList.jsp");
         return;
     }
 
-    String imgPath = (e.getImage() != null && !e.getImage().trim().isEmpty())
-            ? ctx + e.getImage()
-            : ctx + "/assets/img/default.jpg";
+    EventDetail e = dao.getEventDetailByPostId(id);
+
+    String imgPath = ctx + "/assets/img/default.jpg";
+    String thumb = p.getThumbnail();
+
+    if (thumb != null && !thumb.trim().isEmpty()) {
+        if (thumb.startsWith("http://") || thumb.startsWith("https://")) {
+            imgPath = thumb;
+        } else if (thumb.startsWith(ctx + "/")) {
+            imgPath = thumb;
+        } else if (thumb.startsWith("/")) {
+            imgPath = ctx + thumb;
+        } else {
+            imgPath = ctx + "/assets/img/" + thumb;
+        }
+    }
 
     String statusText = "이벤트";
-    if ("ongoing".equals(e.getStatus())) {
+    String eventStatus = (e != null && e.getEventStatus() != null) ? e.getEventStatus() : "";
+
+    if ("upcoming".equals(eventStatus)) {
+        statusText = "진행예정";
+    } else if ("ongoing".equals(eventStatus)) {
         statusText = "진행중";
-    } else if ("ended".equals(e.getStatus())) {
+    } else if ("ended".equals(eventStatus)) {
         statusText = "종료";
-    } else if ("winner".equals(e.getStatus())) {
-        statusText = "당첨자 발표";
+    }
+
+    String startDate = (e != null && e.getStartDate() != null) ? e.getStartDate() : "-";
+    String endDate = (e != null && e.getEndDate() != null) ? e.getEndDate() : "-";
+
+    String createdDate = "-";
+    if (p.getCreatedAt() != null && p.getCreatedAt().length() >= 10) {
+        createdDate = p.getCreatedAt().substring(0, 10);
     }
 %>
 
@@ -54,11 +80,11 @@
 
             <div class="news-detail-top">
                 <div class="news-detail-category"><%= statusText %></div>
-                <h1 class="news-detail-title"><%= e.getTitle() %></h1>
+                <h1 class="news-detail-title"><%= p.getTitle() %></h1>
 
                 <div class="news-detail-meta">
-                    <span>진행 기간: <%= e.getStartDate() %> ~ <%= e.getEndDate() %></span>
-                    <span>등록일: <%= e.getCreatedAt() != null ? e.getCreatedAt().substring(0, 10) : "-" %></span>
+                    <span>진행 기간: <%= startDate %> ~ <%= endDate %></span>
+                    <span>등록일: <%= createdDate %></span>
                 </div>
             </div>
 
@@ -66,12 +92,14 @@
                 <img src="<%= imgPath %>" alt="이벤트 이미지" class="news-detail-img">
             </div>
 
-            <div class="news-detail-summary">
-                <%= e.getSummary() != null ? e.getSummary() : "" %>
-            </div>
+            <% if (p.getSummary() != null && !p.getSummary().trim().isEmpty()) { %>
+                <div class="news-detail-summary">
+                    <%= p.getSummary() %>
+                </div>
+            <% } %>
 
             <div class="news-detail-content">
-                <%= e.getContent() != null ? e.getContent().replace("\n", "<br>") : "" %>
+                <%= p.getContent() != null ? p.getContent().replace("\n", "<br>") : "" %>
             </div>
 
             <div class="news-detail-bottom">

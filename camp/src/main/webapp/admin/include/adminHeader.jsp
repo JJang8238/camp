@@ -19,7 +19,6 @@
     <div class="admin-header-left">
         <a href="<%=ctx%>/admin/dashboard.jsp" class="admin-logo">
             <span class="admin-logo-icon">🛠</span>
-            <span class="admin-logo-text">Camp Mate Admin</span>
         </a>
     </div>
 

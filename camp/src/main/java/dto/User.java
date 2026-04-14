@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 public class User {
     private int id;
-    private String userId;      // DB의 username
+    private String userId;      // username
     private String password;
     private String name;
     private String email;

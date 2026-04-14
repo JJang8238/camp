@@ -61,10 +61,10 @@ public class UserDAO {
             pstmt.setString(2, hashedPassword);
             pstmt.setString(3, name);
             pstmt.setString(4, email);
-            pstmt.setString(5, safeRole);
-            pstmt.setString(6, safeStatus);
+            pstmt.setString(5, role);
+            pstmt.setString(6, status);
 
-            if ("owner".equals(safeRole)) {
+            if ("owner".equalsIgnoreCase(role)) {
                 pstmt.setString(7, campName);
                 pstmt.setString(8, businessName);
                 pstmt.setString(9, businessNumber);
@@ -365,10 +365,9 @@ public class UserDAO {
     public static int getTotalCount() {
         int count = 0;
 
-        try (Connection conn = DBUtil.getConnection()) {
-            String sql = "SELECT COUNT(*) FROM users";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM users");
+             ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
                 count = rs.getInt(1);
@@ -379,5 +378,15 @@ public class UserDAO {
         }
 
         return count;
+    }
+
+    public void close() {
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -50,6 +50,7 @@
                 </div>
             </div>
 
+            <!-- 검색 -->
             <section class="admin-filter-card">
                 <form method="get" action="<%=ctx%>/admin/users.jsp" class="admin-search-form">
                     <div class="admin-form-row">
@@ -88,6 +89,7 @@
                 </form>
             </section>
 
+            <!-- 테이블 -->
             <section class="admin-table-wrap">
                 <div class="admin-table-top">
                     <div class="admin-table-title">회원 목록</div>

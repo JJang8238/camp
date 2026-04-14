@@ -2,234 +2,301 @@
 <% String ctx = request.getContextPath(); %>
 
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>Join Camp Mate</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --main-green: #1b4d3e;
-            --light-gray: #f8f9fa;
-            --error-red: #dc3545;
-            --success-green: #28a745;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camp Mate | Join Us</title>
 
-        body { background-color: var(--light-gray); font-family: 'Noto Sans KR', sans-serif; }
-        .signup-container { max-width: 700px; margin: 60px auto; padding: 0 20px; }
-        .form-card { background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(27, 77, 62, 0.05); margin-bottom: 25px; }
-        .form-control { height: 50px; border-radius: 12px; border: 1px solid #e1e1e1; }
-        
-        /* 🔥 비밀번호 조건부 실시간 색상 */
-        .pw-rules { list-style: none; padding: 0; margin-top: 8px; display: flex; gap: 15px; }
-        .pw-rules li { font-size: 12px; font-weight: 600; color: #6c757d; transition: 0.3s; }
-        .rule-invalid { color: var(--error-red) !important; }
-        .rule-valid { color: var(--success-green) !important; }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        .btn-main-solid { background: var(--main-green); color: white; border: none; height: 50px; border-radius: 12px; font-weight: 600; }
-        .btn-main-solid:disabled { background: #ccc; }
-        .eye-btn { background: transparent; border: 1px solid #e1e1e1; border-left: none; border-top-right-radius: 12px !important; border-bottom-right-radius: 12px !important; color: #777; }
-    </style>
+<style>
+:root {
+    --primary-green: #2D5A27;
+}
+
+body {
+    margin:0;
+    font-family:'Pretendard',sans-serif;
+    background: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),
+                url('assets/img/camp1.jpg') center/cover no-repeat;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.register-container {
+    background: rgba(255,255,255,0.95);
+    border-radius:25px;
+    padding:40px;
+    width:100%;
+    max-width:480px;
+}
+
+h2 {
+    text-align:center;
+    font-weight:800;
+    color:var(--primary-green);
+    margin-bottom:25px;
+}
+
+/* STEP */
+.step-box {
+    background:#f9faf9;
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.step-title {
+    font-size:14px;
+    font-weight:700;
+    color:var(--primary-green);
+    margin-bottom:15px;
+}
+
+/* 공통 */
+.form-group {
+    margin-bottom:15px;
+}
+
+.form-group label {
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:6px;
+    display:block;
+}
+
+/* 🔥 핵심 통일 */
+.input-flex {
+    display:flex;
+    gap:10px;
+}
+
+.input-flex input {
+    flex:1;
+    height:48px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    padding:0 15px;
+}
+
+.input-single {
+    width:100%;
+    height:48px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    padding:0 15px;
+}
+
+/* 버튼 */
+.input-flex button {
+    width:110px;
+    height:48px;
+    border-radius:12px;
+    background:var(--primary-green);
+    color:white;
+    border:none;
+    font-weight:600;
+}
+
+input:disabled {
+    background:#f1f3f2;
+}
+
+.status {
+    font-size:12px;
+    margin-top:5px;
+}
+
+/* 가입 버튼 */
+#btnRegister {
+    width:100%;
+    height:50px;
+    border-radius:12px;
+    border:none;
+    background:#ccc;
+    font-weight:700;
+}
+
+#btnRegister:not(:disabled) {
+    background:var(--primary-green);
+    color:white;
+}
+</style>
 </head>
+
 <body>
 
-<div class="signup-container">
-    <div class="form-card">
-        <h5 class="mb-4">📧 이메일 본인인증</h5>
-        <div class="mb-3">
-            <label class="form-label">이메일 주소</label>
-            <div class="input-group">
-                <input type="email" id="email" class="form-control" placeholder="example@mail.com">
-                <button class="btn btn-outline-success" type="button" id="btnSendCode" onclick="sendEmailCode()">인증코드 발송</button>
-            </div>
-        </div>
-        <div>
-            <label class="form-label">인증코드 입력</label>
-            <div class="input-group">
-                <input type="text" id="emailCode" class="form-control" maxlength="6" placeholder="코드 6자리">
-                <button class="btn btn-main-solid px-4" type="button" onclick="verifyEmailCode()">확인</button>
-            </div>
-        </div>
-    </div>
+<div class="register-container">
+<h2>Join Camp Mate</h2>
 
-    <div class="form-card">
-        <h5 class="mb-4">✍️ 회원정보 입력</h5>
-        <form action="register_process.jsp" method="post" onsubmit="return validateBeforeSubmit();">
-            <input type="hidden" id="emailVerified" name="emailVerified" value="0">
-            <input type="hidden" id="emailHidden" name="email">
+<form action="register_process.jsp" method="post" onsubmit="return validateBeforeSubmit()">
 
-			<div class="mb-4">
-                <label class="form-label">이름</label>
-                <input type="text" class="form-control" id="name" name="name" disabled placeholder="닉네임을 입력하세요">
-            </div>
-            <div class="mb-4">
-                <label class="form-label">아이디</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="username" name="username" disabled 
-                           placeholder="영문/숫자 4~12자" oninput="resetIdCheck()">
-                    <button class="btn btn-outline-success" id="btnCheckDup" type="button" disabled onclick="checkIdDup()">중복확인</button>
-                </div>
-                <div id="idHelp" style="font-size: 12px; margin-top: 5px;"></div>
-            </div>
+<input type="hidden" id="emailVerified" name="emailVerified" value="0">
+<input type="hidden" id="emailHidden" name="email">
 
-            <div class="mb-4">
-                <label class="form-label">비밀번호</label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="password" name="password" 
-                           disabled placeholder="비밀번호를 입력하세요" oninput="checkPasswordRules()">
-                    <button class="btn eye-btn" type="button" onclick="toggleEye('password')">👁</button>
-                </div>
-                <ul class="pw-rules">
-                    <li id="ruleLen">● 8~20자</li>
-                    <li id="ruleKinds">● 영문/숫자/특수문자 중 2종 이상</li>
-                </ul>
-            </div>
+<!-- STEP1 -->
+<div class="step-box">
+<div class="step-title">STEP 1. 본인 인증</div>
 
-            <div class="mb-4">
-                <label class="form-label">비밀번호 확인</label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="passwordConfirm" 
-                           disabled placeholder="한 번 더 입력하세요" oninput="checkPasswordMatch()">
-                    <button class="btn eye-btn" type="button" onclick="toggleEye('passwordConfirm')">👁</button>
-                </div>
-                <div id="pwHelp" style="font-size: 12px; margin-top: 5px;"></div>
-            </div>
+<div class="form-group">
+<label>이메일 주소</label>
+<div class="input-flex">
+<input type="email" id="email" placeholder="example@mail.com">
+<button type="button" onclick="sendEmailCode()">코드 발송</button>
+</div>
+</div>
 
+<div class="form-group">
+<label>인증번호</label>
+<div class="input-flex">
+<input type="text" id="emailCode" placeholder="6자리 숫자 입력">
+<button type="button" onclick="verifyEmailCode()">인증 확인</button>
+</div>
+</div>
 
-            <button type="submit" id="btnRegister" class="btn btn-main-solid w-100" disabled>가입 완료하기</button>
-        </form>
-    </div>
+<div id="emailMsg" class="status"></div>
+</div>
+
+<!-- STEP2 -->
+<div class="step-box" id="step2" style="opacity:0.5; pointer-events:none;">
+<div class="step-title">STEP 2. 정보 입력</div>
+
+<div class="form-group">
+<label>이름</label>
+<input type="text" id="name" name="name" class="input-single" disabled placeholder="실명 입력">
+</div>
+
+<div class="form-group">
+<label>아이디</label>
+<div class="input-flex">
+<input type="text" id="username" name="username" disabled oninput="resetIdCheck()" placeholder="아이디 입력">
+<button type="button" id="btnCheckDup" disabled onclick="checkIdDup()">중복 확인</button>
+</div>
+<div id="idHelp" class="status"></div>
+</div>
+
+<div class="form-group">
+<label>비밀번호</label>
+<input type="password" id="password" name="password" class="input-single" disabled oninput="checkPasswordMatch()" placeholder="비밀번호 입력">
+</div>
+
+<div class="form-group">
+<label>비밀번호 확인</label>
+<input type="password" id="passwordConfirm" class="input-single" disabled oninput="checkPasswordMatch()" placeholder="비밀번호 확인">
+<div id="pwHelp" class="status"></div>
+</div>
+
+<button type="submit" id="btnRegister" disabled>가입 완료</button>
+</div>
+
+</form>
 </div>
 
 <script>
-    let isIdChecked = false;
+let isIdChecked = false;
 
-    // 아이디 새로 입력 시 상태 초기화 (중복확인 다시 하게끔)
-    function resetIdCheck() {
-        isIdChecked = false;
-        document.getElementById('idHelp').innerText = "";
-        toggleRegisterBtn();
-    }
+function resetIdCheck() {
+    isIdChecked = false;
+    idHelp.innerText = "";
+    toggleRegisterBtn();
+}
 
-    async function sendEmailCode() {
-        const email = document.getElementById('email').value.trim();
-        if(!email) { alert('이메일을 입력하세요.'); return; }
-        try {
-            await fetch('<%=ctx%>/email/send', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: new URLSearchParams({ email })
-            });
-            alert('인증코드가 발송되었습니다.');
-        } catch (e) { alert('발송 실패'); }
-    }
+async function sendEmailCode() {
+    const email = document.getElementById('email').value.trim();
+    if(!email){ alert('이메일 입력'); return; }
 
-    async function verifyEmailCode() {
-        const email = document.getElementById('email').value;
-        const code = document.getElementById('emailCode').value;
-        try {
-            const res = await fetch('<%=ctx%>/email/verify', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: new URLSearchParams({ email, code })
-            });
-            const result = await res.json();
-            if (result.ok === true) {
-                alert('인증에 성공했습니다!');
-                document.getElementById('emailVerified').value = "1";
-                document.getElementById('emailHidden').value = email;
-                ['username', 'btnCheckDup', 'password', 'passwordConfirm', 'name'].forEach(id => {
-                    document.getElementById(id).disabled = false;
-                });
-            } else {
-                // 🔥 "코드 불일치" JSON 대신 한글 메시지 출력
-                alert('인증번호가 틀립니다. 다시 확인해주세요.');
-            }
-        } catch (e) { alert('인증 오류'); }
-    }
+    try {
+        await fetch('<%=ctx%>/email/send', {
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:new URLSearchParams({ email })
+        });
+        alert('인증코드 발송');
+    } catch(e){ alert('오류'); }
+}
 
-    async function checkIdDup() {
-        const username = document.getElementById('username').value.trim();
-        const help = document.getElementById('idHelp');
-        if(username.length < 4) { alert('4자 이상 입력하세요.'); return; }
+async function verifyEmailCode() {
+    const email = document.getElementById('email').value;
+    const code = document.getElementById('emailCode').value;
 
-        try {
-            const res = await fetch('<%=ctx%>/user/checkId?username=' + username);
-            const result = (await res.text()).trim();
+    try {
+        const res = await fetch('<%=ctx%>/email/verify', {
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:new URLSearchParams({ email, code })
+        });
 
-            // 🔥 서블릿 결과값과 일치하도록 수정
-            if(result === 'available') {
-                help.innerText = '사용 가능한 아이디입니다.';
-                help.style.color = 'var(--success-green)';
-                isIdChecked = true;
-            } else {
-                help.innerText = '이미 사용 중인 아이디입니다.';
-                help.style.color = 'var(--error-red)';
-                isIdChecked = false;
-            }
-            toggleRegisterBtn();
-        } catch (e) { alert('중복 확인 오류'); }
-    }
+        const result = await res.json();
 
-    function checkPasswordRules() {
-        const pw = document.getElementById('password').value;
-        const ruleLen = document.getElementById('ruleLen');
-        const ruleKinds = document.getElementById('ruleKinds');
+        if(result.ok){
+            alert('인증 성공');
 
-        // 🔥 조건 만족 시 초록색, 부족 시 빨간색
-        if(pw.length >= 8 && pw.length <= 20) {
-            ruleLen.className = 'rule-valid';
+            emailVerified.value="1";
+            emailHidden.value=email;
+
+            ['username','btnCheckDup','password','passwordConfirm','name']
+                .forEach(id => document.getElementById(id).disabled=false);
+
+            step2.style.opacity="1";
+            step2.style.pointerEvents="auto";
+
         } else {
-            ruleLen.className = pw.length > 0 ? 'rule-invalid' : '';
+            alert('인증 실패');
         }
 
-        let kinds = 0;
-        if(/[a-zA-Z]/.test(pw)) kinds++;
-        if(/[0-9]/.test(pw)) kinds++;
-        if(/[^a-zA-Z0-9]/.test(pw)) kinds++;
+    } catch(e){ alert('오류'); }
+}
 
-        if(kinds >= 2) {
-            ruleKinds.className = 'rule-valid';
-        } else {
-            ruleKinds.className = pw.length > 0 ? 'rule-invalid' : '';
+async function checkIdDup() {
+    const username = document.getElementById('username').value;
+
+    try {
+        const res = await fetch('<%=ctx%>/user/checkId?username='+username);
+        const result = (await res.text()).trim();
+
+        if(result === 'available'){
+            idHelp.innerText='사용 가능';
+            idHelp.style.color='green';
+            isIdChecked=true;
+        }else{
+            idHelp.innerText='이미 사용중';
+            idHelp.style.color='red';
+            isIdChecked=false;
         }
-        checkPasswordMatch();
+
         toggleRegisterBtn();
-    }
 
-    function checkPasswordMatch() {
-        const pw = document.getElementById('password').value;
-        const confirm = document.getElementById('passwordConfirm').value;
-        const help = document.getElementById('pwHelp');
-        if(!confirm) { help.innerText = ''; return; }
-        if(pw === confirm) {
-            help.innerText = '비밀번호가 일치합니다.';
-            help.style.color = 'var(--success-green)';
-        } else {
-            help.innerText = '비밀번호가 일치하지 않습니다.';
-            help.style.color = 'var(--error-red)';
-        }
-        toggleRegisterBtn();
-    }
+    } catch(e){ alert('오류'); }
+}
 
-    function toggleRegisterBtn() {
-        const isPwOk = document.getElementById('ruleLen').classList.contains('rule-valid') && 
-                       document.getElementById('ruleKinds').classList.contains('rule-valid');
-        const isMatch = document.getElementById('password').value === document.getElementById('passwordConfirm').value;
-        const isEmailOk = document.getElementById('emailVerified').value === "1";
-        
-        document.getElementById('btnRegister').disabled = !(isIdChecked && isPwOk && isMatch && isEmailOk);
+function checkPasswordMatch() {
+    if(password.value === passwordConfirm.value && password.value.length>=8){
+        pwHelp.innerText='일치';
+        pwHelp.style.color='green';
+    }else{
+        pwHelp.innerText='불일치';
+        pwHelp.style.color='red';
     }
+    toggleRegisterBtn();
+}
 
-    function toggleEye(id) {
-        const el = document.getElementById(id);
-        el.type = el.type === 'password' ? 'text' : 'password';
-    }
+function toggleRegisterBtn() {
+    const isMatch = password.value === passwordConfirm.value;
+    const isEmailOk = emailVerified.value === "1";
+    btnRegister.disabled = !(isIdChecked && isMatch && isEmailOk);
+}
 
-    function validateBeforeSubmit() {
-        if(!isIdChecked) { alert('아이디 중복 확인을 해주세요.'); return false; }
-        return true;
+function validateBeforeSubmit(){
+    if(!isIdChecked){
+        alert('아이디 확인 필요');
+        return false;
     }
+    return true;
+}
 </script>
+
 </body>
 </html>

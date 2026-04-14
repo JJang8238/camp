@@ -56,7 +56,7 @@ String roleBtnStyle = "padding:6px 15px; border-radius:20px; text-decoration:non
                 </span>
 
                 <%-- OWNER 전용 버튼 --%>
-<% if ("OWNER".equals(role)) { %>
+<% if ("owner".equals(role)) { %>
     <a href="<%=headerCtx%>/owner/dashboard.jsp"
        class="me-2"
        style="<%=roleBtnStyle%>">
@@ -65,7 +65,7 @@ String roleBtnStyle = "padding:6px 15px; border-radius:20px; text-decoration:non
 <% } %>
 
 <%-- ADMIN 전용 버튼 --%>
-<% if ("ADMIN".equals(role)) { %>
+<% if ("admin".equals(role)) { %>
     <a href="<%=headerCtx%>/admin/dashboard.jsp"
        class="me-2"
        style="<%=roleBtnStyle%>">

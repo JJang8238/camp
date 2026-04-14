@@ -9,7 +9,7 @@
     Integer adminUserId = (Integer) session.getAttribute("userId");
     String role = (String) session.getAttribute("role");
 
-    if (adminUserId == null || role == null || !"ADMIN".equals(role)) {
+    if (adminUserId == null || role == null || !"admin".equals(role)) {
         response.sendRedirect(ctx + "/login.jsp");
         return;
     }
@@ -50,7 +50,6 @@
                 </div>
             </div>
 
-            <!-- 검색 -->
             <section class="admin-filter-card">
                 <form method="get" action="<%=ctx%>/admin/users.jsp" class="admin-search-form">
                     <div class="admin-form-row">
@@ -64,20 +63,20 @@
                         <div class="admin-form-group">
                             <label>계정 상태</label>
                             <select name="status" class="admin-select">
-    							<option value="">전체</option>
-    							<option value="ACTIVE" <%= "ACTIVE".equals(status) ? "selected" : "" %>>ACTIVE</option>
-    							<option value="PENDING" <%= "PENDING".equals(status) ? "selected" : "" %>>PENDING</option>
-    							<option value="BLOCKED" <%= "BLOCKED".equals(status) ? "selected" : "" %>>BLOCKED</option>
-							</select>
+                                <option value="">전체</option>
+                                <option value="ACTIVE" <%= "ACTIVE".equals(status) ? "selected" : "" %>>ACTIVE</option>
+                                <option value="PENDING" <%= "PENDING".equals(status) ? "selected" : "" %>>PENDING</option>
+                                <option value="BLOCKED" <%= "BLOCKED".equals(status) ? "selected" : "" %>>BLOCKED</option>
+                            </select>
                         </div>
 
                         <div class="admin-form-group">
                             <label>회원 유형</label>
                             <select name="userRole" class="admin-select">
                                 <option value="">전체</option>
-                                <option value="USER" <%= "USER".equals(userRole) ? "selected" : "" %>>USER</option>
-                                <option value="OWNER" <%= "OWNER".equals(userRole) ? "selected" : "" %>>OWNER</option>
-                                <option value="ADMIN" <%= "ADMIN".equals(userRole) ? "selected" : "" %>>ADMIN</option>
+                                <option value="user" <%= "user".equals(userRole) ? "selected" : "" %>>USER</option>
+                                <option value="owner" <%= "owner".equals(userRole) ? "selected" : "" %>>OWNER</option>
+                                <option value="admin" <%= "admin".equals(userRole) ? "selected" : "" %>>ADMIN</option>
                             </select>
                         </div>
 
@@ -89,7 +88,6 @@
                 </form>
             </section>
 
-            <!-- 테이블 -->
             <section class="admin-table-wrap">
                 <div class="admin-table-top">
                     <div class="admin-table-title">회원 목록</div>
@@ -134,8 +132,8 @@
                                 <td>
                                     <span class="admin-badge
                                         <%= "ACTIVE".equals(u.getStatus()) ? "admin-badge-active" : "" %>
-                                        <%= "SUSPENDED".equals(u.getStatus()) ? "admin-badge-warn" : "" %>
-                                        <%= "WITHDRAWN".equals(u.getStatus()) ? "admin-badge-danger" : "" %>">
+                                        <%= "PENDING".equals(u.getStatus()) ? "admin-badge-warn" : "" %>
+                                        <%= "BLOCKED".equals(u.getStatus()) ? "admin-badge-danger" : "" %>">
                                         <%= u.getStatus() %>
                                     </span>
                                 </td>
@@ -145,25 +143,22 @@
                                 <td>
                                     <div class="admin-user-control">
 
-                                        <!-- 회원 유형 -->
                                         <select class="admin-mini-select admin-role-select">
-                                            <option value="USER" <%= "USER".equals(u.getRole()) ? "selected" : "" %>>USER</option>
-                                            <option value="OWNER" <%= "OWNER".equals(u.getRole()) ? "selected" : "" %>>OWNER</option>
-                                            <option value="ADMIN" <%= "ADMIN".equals(u.getRole()) ? "selected" : "" %>>ADMIN</option>
+                                            <option value="user" <%= "user".equals(u.getRole()) ? "selected" : "" %>>USER</option>
+                                            <option value="owner" <%= "owner".equals(u.getRole()) ? "selected" : "" %>>OWNER</option>
+                                            <option value="admin" <%= "admin".equals(u.getRole()) ? "selected" : "" %>>ADMIN</option>
                                         </select>
 
-                                        <!-- 상태 -->
-										<select class="admin-mini-select admin-status-select">
-    										<option value="ACTIVE" <%= "ACTIVE".equals(u.getStatus()) ? "selected" : "" %>>ACTIVE</option>
-    										<option value="PENDING" <%= "PENDING".equals(u.getStatus()) ? "selected" : "" %>>PENDING</option>
-    										<option value="BLOCKED" <%= "BLOCKED".equals(u.getStatus()) ? "selected" : "" %>>BLOCKED</option>
-										</select>
+                                        <select class="admin-mini-select admin-status-select">
+                                            <option value="ACTIVE" <%= "ACTIVE".equals(u.getStatus()) ? "selected" : "" %>>ACTIVE</option>
+                                            <option value="PENDING" <%= "PENDING".equals(u.getStatus()) ? "selected" : "" %>>PENDING</option>
+                                            <option value="BLOCKED" <%= "BLOCKED".equals(u.getStatus()) ? "selected" : "" %>>BLOCKED</option>
+                                        </select>
+
                                         <form method="post" action="<%=ctx%>/admin/userUpdate.jsp" class="admin-inline-form">
                                             <input type="hidden" name="id" value="<%=u.getId()%>">
-
                                             <input type="hidden" name="newRole" class="role-hidden">
                                             <input type="hidden" name="newStatus" class="status-hidden">
-
                                             <button type="submit" class="admin-btn admin-btn-sm admin-save-btn">저장</button>
                                         </form>
                                     </div>

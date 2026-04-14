@@ -56,7 +56,7 @@ String businessNumber = request.getParameter("businessNumber");
 String status = "ACTIVE";
 
 // 사장님 추가 검증
-if ("owner".equals(role)) {
+if ("owner".equalsIgnoreCase(role)) {
     if (campName == null || businessName == null || businessNumber == null ||
         campName.trim().isEmpty() || businessName.trim().isEmpty() || businessNumber.trim().isEmpty()) {
 %>

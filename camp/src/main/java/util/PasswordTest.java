@@ -3,9 +3,8 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class PasswordTest {
     public static void main(String[] args) {
-        String raw = "1234"; // 원하는 비밀번호
-        String hash = BCrypt.hashpw(raw, BCrypt.gensalt());
-
+    	String hash = PasswordUtil.hashPassword("1234");
+    
         System.out.println(hash);
     }
 }

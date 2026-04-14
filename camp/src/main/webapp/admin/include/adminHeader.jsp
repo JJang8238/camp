@@ -5,7 +5,7 @@
     String role = (String) session.getAttribute("role");
     String userName = (String) session.getAttribute("userName");
 
-    if (adminUserId == null || role == null || !"ADMIN".equals(role)) {
+    if (adminUserId == null || role == null || !"admin".equals(role)) {
         response.sendRedirect(ctx + "/login.jsp");
         return;
     }

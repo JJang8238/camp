@@ -9,6 +9,8 @@ public class Camp {
     private String tags;
     private int price;
     private String image;
+    private String description;
+    private String status;
 
     // getter / setter
     public int getId() { return id; }
@@ -31,4 +33,20 @@ public class Camp {
 
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
+    
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

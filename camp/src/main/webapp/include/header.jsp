@@ -19,7 +19,7 @@ String roleBtnStyle = "padding:6px 15px; border-radius:20px; text-decoration:non
                 <span class="logo-text">Camp Mate</span>
             </a>
         </div>
-<span>role: <%= role %></span>  <%-- 나중에 지우기! --%>
+
         <nav class="nav-menu">
             <a href="<%=headerCtx%>/campList.jsp">예약하기</a>
             <a href="<%=headerCtx%>/productList.jsp">캠핑용품</a>

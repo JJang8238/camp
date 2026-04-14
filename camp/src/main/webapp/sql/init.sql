@@ -88,6 +88,7 @@ INSERT INTO camps (name, address, type, tags, price, image, status) VALUES
 ('양평 별헤는 밤', '경기도 양평군 용문면', '차박/캠핑', '여유있는,별빛', 50000, 'camp3.jpg', 'open'),
 ('제주 숲속 풀빌라', '제주특별자치도 제주시', '풀빌라', '반려견,감성', 350000, 'camp4.jpg', 'open');
 
+ALTER TABLE camps ADD COLUMN description TEXT;
 
 -- =====================================================
 -- 4. 매칭

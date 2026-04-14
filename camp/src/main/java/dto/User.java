@@ -4,13 +4,19 @@ import java.sql.Timestamp;
 
 public class User {
     private int id;
-    private String userId;      // DB의 username
+    private String userId;      // username
     private String password;
     private String name;
     private String email;
     private String profileImage;
-    private String role;        // 추가
-    private String status;      // 추가
+    private String role;
+    private String status;
+
+    // 🔥 추가
+    private String campName;
+    private String businessName;
+    private String businessNumber;
+
     private Timestamp createdAt;
 
     public User() {}
@@ -77,6 +83,31 @@ public class User {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    // 🔥 추가 getter/setter
+    public String getCampName() {
+        return campName;
+    }
+
+    public void setCampName(String campName) {
+        this.campName = campName;
+    }
+
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getBusinessNumber() {
+        return businessNumber;
+    }
+
+    public void setBusinessNumber(String businessNumber) {
+        this.businessNumber = businessNumber;
     }
 
     public Timestamp getCreatedAt() {

@@ -1,5 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="dao.UserDAO" %>
+<%@ page import="dao.InquiryDAO" %>
+<%@ page import="java.util.*" %>
 <%
     request.setCharacterEncoding("UTF-8");
     String ctx = request.getContextPath();
@@ -11,6 +13,7 @@
         response.sendRedirect(ctx + "/login.jsp");
         return;
     }
+
     int userCount = 0;
     int campCount = 0;
     int reservationCount = 0;
@@ -18,13 +21,11 @@
     int postCount = 0;
     int reportCount = 0;
 
-    // 나중에 DAO 연결 예시
-     userCount = UserDAO.getTotalCount();
-    // campCount = AdminCampDAO.getTotalCount();
-    // reservationCount = AdminReservationDAO.getTotalCount();
-    // productCount = AdminProductDAO.getTotalCount();
-    // postCount = AdminPostDAO.getTotalCount();
-    // reportCount = AdminReportDAO.getPendingCount();
+    userCount = UserDAO.getTotalCount();
+
+    // 🔥 문의 데이터 가져오기
+    InquiryDAO inquiryDAO = new InquiryDAO();
+    List<Map<String,String>> inquiryList = inquiryDAO.getAllInquiry();
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -49,6 +50,7 @@
                 </div>
             </div>
 
+            <!-- 기존 카드 그대로 유지 -->
             <section class="admin-card-grid">
                 <div class="admin-stat-card">
                     <div class="admin-stat-label">전체 회원</div>
@@ -88,6 +90,8 @@
             </section>
 
             <section class="admin-panel-row">
+
+                <!-- 빠른 작업 그대로 유지 -->
                 <div class="admin-panel">
                     <div class="admin-panel-header">
                         <h2>빠른 작업</h2>
@@ -102,17 +106,40 @@
                     </div>
                 </div>
 
+                <!-- 🔥 운영 메모 → 문의 목록으로 변경 -->
                 <div class="admin-panel">
                     <div class="admin-panel-header">
-                        <h2>운영 메모</h2>
+                        <h2>최근 문의</h2>
                     </div>
-                    <div class="admin-empty-box">
-                        최근 등록된 신고, 새 소식, 예약 현황, 관리자 로그를
-                        이 영역에 순차적으로 붙이면 된다.
+
+                    <div style="max-height:300px; overflow-y:auto;">
+
+                    <% if(inquiryList.size() == 0) { %>
+                        <div class="admin-empty-box">
+                            등록된 문의가 없습니다.
+                        </div>
+                    <% } else { %>
+
+                        <% for(Map<String,String> i : inquiryList) { %>
+                        <div style="padding:10px; border-bottom:1px solid #eee;">
+                            <strong><%=i.get("title")%></strong><br>
+                            <span style="color:#666; font-size:13px;">
+                                <%=i.get("username")%> | <%=i.get("created_at")%>
+                            </span><br>
+                            <div style="margin-top:5px;">
+                                <%=i.get("content")%>
+                            </div>
+                        </div>
+                        <% } %>
+
+                    <% } %>
+
                     </div>
                 </div>
+
             </section>
 
+            <!-- 기존 그대로 -->
             <section class="admin-panel">
                 <div class="admin-panel-header">
                     <h2>확장 예정 메뉴</h2>
@@ -126,6 +153,7 @@
                     <span class="admin-chip">공지 팝업</span>
                 </div>
             </section>
+
         </main>
     </div>
 </body>

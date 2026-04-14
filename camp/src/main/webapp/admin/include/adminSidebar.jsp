@@ -13,6 +13,7 @@
     boolean isPostWrite = currentUri.contains("/admin/postWrite.jsp");
     boolean isReports = currentUri.contains("/admin/reports.jsp");
     boolean isLogs = currentUri.contains("/admin/logs.jsp");
+    boolean isInquiry = currentUri.contains("/admin/inquiry.jsp");
 %>
 
 <aside class="admin-sidebar">
@@ -54,5 +55,8 @@
         <a href="<%=ctx%>/admin/logs.jsp" class="admin-nav-link <%= isLogs ? "active" : "" %>">
             관리자 로그
         </a>
+        <a href="<%=ctx%>/admin/inquiry.jsp" class="admin-nav-link <%= isInquiry ? "active" : "" %>">
+        문의 관리
+		</a>
     </nav>
 </aside>

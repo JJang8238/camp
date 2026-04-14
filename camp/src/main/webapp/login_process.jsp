@@ -9,7 +9,8 @@
     String username = request.getParameter("username");
     String password = request.getParameter("password");
 
-    if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+    if (username == null || username.trim().isEmpty() ||
+        password == null || password.trim().isEmpty()) {
         response.sendRedirect("login.jsp?error=" + URLEncoder.encode("아이디와 비밀번호를 모두 입력해주세요.", "UTF-8"));
         return;
     }
@@ -29,11 +30,19 @@
             return;
         }
 
+        String status = loginUser.getStatus();
+
+        if ("BLOCKED".equals(status)) {
+            String msg = URLEncoder.encode("이용이 제한된 계정입니다.", "UTF-8");
+            response.sendRedirect("login.jsp?error=" + msg);
+            return;
+        }
+
         session.setAttribute("userId", loginUser.getId());
         session.setAttribute("username", loginUser.getUserId());
         session.setAttribute("userName", loginUser.getName());
         session.setAttribute("role", loginUser.getRole());
-        session.setAttribute("status", loginUser.getStatus());
+        session.setAttribute("status", status);
 
         response.sendRedirect("main.jsp");
     } else {

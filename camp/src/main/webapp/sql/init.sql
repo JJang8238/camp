@@ -253,15 +253,6 @@ CREATE TABLE reports (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-
-
-
-USE camp_DB;
-
-SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS users;
-SET FOREIGN_KEY_CHECKS = 1;
-
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username      VARCHAR(50)  NOT NULL UNIQUE,
@@ -282,3 +273,19 @@ CREATE TABLE users (
 -- 관리자 계정 미리 생성 (데모용)
 INSERT INTO users (username, password, name, email, role, status)
 VALUES ('admin', '1234', '관리자', 'admin@camp.com', 'ADMIN', 'ACTIVE');
+
+ALTER TABLE users ADD COLUMN camp_name VARCHAR(100) NULL;
+ALTER TABLE users ADD COLUMN business_name VARCHAR(100) NULL;
+ALTER TABLE users ADD COLUMN business_number VARCHAR(50) NULL;
+
+--0414 추가내용 (cs.jsp 문의건)
+CREATE TABLE inquiries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    username VARCHAR(50),
+    title VARCHAR(255),
+    content TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT '대기'
+);
+ㅋ

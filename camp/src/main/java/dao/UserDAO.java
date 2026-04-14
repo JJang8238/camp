@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
+
 import dto.User;
 import util.DBUtil;
 import util.PasswordUtil;
@@ -28,6 +29,7 @@ public class UserDAO {
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     name = rs.getString("name");
@@ -41,8 +43,13 @@ public class UserDAO {
     }
 
     // 회원가입
-    public boolean registerUser(String username, String password, String name, String email) {
-        String sql = "INSERT INTO users (username, password, name, email) VALUES (?, ?, ?, ?)";
+    public boolean registerUser(String username, String password, String name, String email,
+                                String role, String status,
+                                String campName, String businessName, String businessNumber) {
+
+        String sql = "INSERT INTO users "
+                   + "(username, password, name, email, role, status, camp_name, business_name, business_number) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             String hashedPassword = PasswordUtil.hashPassword(password);
@@ -51,8 +58,21 @@ public class UserDAO {
             pstmt.setString(2, hashedPassword);
             pstmt.setString(3, name);
             pstmt.setString(4, email);
+            pstmt.setString(5, role);
+            pstmt.setString(6, status);
+
+            if ("owner".equalsIgnoreCase(role)) {
+                pstmt.setString(7, campName);
+                pstmt.setString(8, businessName);
+                pstmt.setString(9, businessNumber);
+            } else {
+                pstmt.setNull(7, java.sql.Types.VARCHAR);
+                pstmt.setNull(8, java.sql.Types.VARCHAR);
+                pstmt.setNull(9, java.sql.Types.VARCHAR);
+            }
 
             return pstmt.executeUpdate() == 1;
+
         } catch (SQLIntegrityConstraintViolationException e) {
             System.out.println("❌ 중복된 아이디 또는 이메일");
         } catch (Exception e) {
@@ -101,11 +121,12 @@ public class UserDAO {
         return false;
     }
 
-    // 판매자 id 기준 조회
+    // 회원번호(id) 기준 사용자 조회
     public User getUserById(int id) {
         User user = null;
 
-        String sql = "SELECT id, username, name, email, created_at FROM users WHERE id = ?";
+        String sql = "SELECT id, username, name, email, role, status, camp_name, business_name, business_number, created_at "
+                   + "FROM users WHERE id = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
@@ -114,9 +135,20 @@ public class UserDAO {
                 if (rs.next()) {
                     user = new User();
                     user.setId(rs.getInt("id"));
-                    user.setUserId(rs.getString("username")); // DB username -> DTO userId
+                    user.setUserId(rs.getString("username"));
                     user.setName(rs.getString("name"));
                     user.setEmail(rs.getString("email"));
+                    user.setRole(rs.getString("role"));
+                    user.setStatus(rs.getString("status"));
+
+                    // DTO에 해당 필드/세터가 있으면 사용
+                    try {
+                        user.setCampName(rs.getString("camp_name"));
+                        user.setBusinessName(rs.getString("business_name"));
+                        user.setBusinessNumber(rs.getString("business_number"));
+                    } catch (Exception ignore) {
+                    }
+
                     user.setCreatedAt(rs.getTimestamp("created_at"));
                 }
             }
@@ -131,7 +163,8 @@ public class UserDAO {
     public User getUserByUsername(String username) {
         User user = null;
 
-        String sql = "SELECT id, username, name, email, role, status, created_at FROM users WHERE username = ?";
+        String sql = "SELECT id, username, name, email, role, status, camp_name, business_name, business_number, created_at "
+                   + "FROM users WHERE username = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
@@ -145,6 +178,15 @@ public class UserDAO {
                     user.setEmail(rs.getString("email"));
                     user.setRole(rs.getString("role"));
                     user.setStatus(rs.getString("status"));
+
+                    // DTO에 해당 필드/세터가 있으면 사용
+                    try {
+                        user.setCampName(rs.getString("camp_name"));
+                        user.setBusinessName(rs.getString("business_name"));
+                        user.setBusinessNumber(rs.getString("business_number"));
+                    } catch (Exception ignore) {
+                    }
+
                     user.setCreatedAt(rs.getTimestamp("created_at"));
                 }
             }
@@ -154,8 +196,8 @@ public class UserDAO {
 
         return user;
     }
-    
- // 회원번호(id)로 사용자의 실명 가져오기
+
+    // 회원번호(id)로 사용자의 실명 가져오기
     public String getNameByUserId(int id) {
         String name = "";
         String sql = "SELECT name FROM users WHERE id = ?";
@@ -174,7 +216,8 @@ public class UserDAO {
 
         return name;
     }
-    
+
+    // 관리자용 회원 목록 조회
     public List<User> getAdminUserList(String keyword, String status, String userRole) {
         List<User> list = new ArrayList<>();
 
@@ -185,7 +228,8 @@ public class UserDAO {
         List<String> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append("AND (username LIKE ? OR name LIKE ?) ");
+            sql.append("AND (username LIKE ? OR name LIKE ? OR email LIKE ?) ");
+            params.add("%" + keyword.trim() + "%");
             params.add("%" + keyword.trim() + "%");
             params.add("%" + keyword.trim() + "%");
         }
@@ -226,7 +270,8 @@ public class UserDAO {
 
         return list;
     }
-    
+
+    // 관리자용 권한/상태 수정
     public boolean updateUserRoleAndStatus(int id, String newRole, String newStatus) {
         String sql = "UPDATE users SET role = ?, status = ? WHERE id = ?";
 
@@ -242,14 +287,41 @@ public class UserDAO {
 
         return false;
     }
-    
+
+    // owner 승인 전용
+    public boolean approveOwner(int id) {
+        String sql = "UPDATE users SET status = 'ACTIVE' WHERE id = ? AND role = 'owner'";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            return pstmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // owner 차단 전용
+    public boolean blockUser(int id) {
+        String sql = "UPDATE users SET status = 'BLOCKED' WHERE id = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            return pstmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public static int getTotalCount() {
         int count = 0;
 
-        try (Connection conn = DBUtil.getConnection()) {
-            String sql = "SELECT COUNT(*) FROM users";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM users");
+             ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
                 count = rs.getInt(1);
@@ -260,5 +332,15 @@ public class UserDAO {
         }
 
         return count;
+    }
+
+    public void close() {
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

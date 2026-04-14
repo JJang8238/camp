@@ -66,34 +66,39 @@
     font-weight: 700;
 }
 
+/* 여기 수정 */
 .admin-top-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 96px;
-    height: 38px;
-    padding: 0 14px;
-    border-radius: 12px;
-    font-size: 14px;
+
+    min-width: 90px;
+    height: 36px;           /* ↓ 줄임 */
+    padding: 0 12px;        /* ↓ 줄임 */
+
+    border-radius: 999px;
+    font-size: 13px;        /* ↓ 줄임 */
     font-weight: 700;
+
     text-decoration: none;
     transition: 0.2s ease;
+    box-sizing: border-box;
 }
 
 .admin-top-btn-light {
     background: #fff;
-    color: var(--admin-green);
-    border: 1px solid var(--admin-green);
+    color: var(--main-green);
+    border: 1px solid var(--main-green);
 }
 
 .admin-top-btn-light:hover {
-    background: #f1f7f4;
+    background: #eef4f1;
 }
 
 .admin-top-btn-point {
-    background: var(--admin-point);
+    background: var(--point-orange);
     color: #fff;
-    border: 1px solid var(--admin-point);
+    border: 1px solid var(--point-orange);
 }
 
 .admin-top-btn-point:hover {

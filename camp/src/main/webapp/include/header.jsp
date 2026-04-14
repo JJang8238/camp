@@ -1,15 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%-- 1. 에러를 유발하는 JSTL taglib 줄을 삭제했습니다. --%>
 <%
     String headerCtx = request.getContextPath();
 
-    // 세션 정보 수신
     Integer userId = (Integer) session.getAttribute("userId");
     String username = (String) session.getAttribute("username");
     String userName = (String) session.getAttribute("userName");
-    String role = (String) session.getAttribute("role"); 
+    String role = (String) session.getAttribute("role");
 %>
-
+<%
+String roleBtnStyle = "padding:6px 15px; border-radius:20px; text-decoration:none; font-size:13px; font-weight:500; color:white; background-color:#2d5a27;";
+%>
 <header class="main-header">
     <div class="container-fluid px-5 d-flex justify-content-between align-items-center py-3">
 
@@ -19,7 +19,7 @@
                 <span class="logo-text">Camp Mate</span>
             </a>
         </div>
-
+<span>role: <%= role %></span>  <%-- 나중에 지우기! --%>
         <nav class="nav-menu">
             <a href="<%=headerCtx%>/campList.jsp">예약하기</a>
             <a href="<%=headerCtx%>/productList.jsp">캠핑용품</a>
@@ -36,6 +36,8 @@
             </div>
 
             <a href="<%=headerCtx%>/cs.jsp">고객센터</a>
+
+           
         </nav>
 
         <div class="nav-right d-flex align-items-center">
@@ -45,29 +47,31 @@
             <% } else { %>
 
                 <span class="welcome-msg me-3">
-                    👋 
+                    👋
                     <strong>
-                    <%= (userName != null && !userName.isEmpty()) 
-                        ? userName 
+                    <%= (userName != null && !userName.isEmpty())
+                        ? userName
                         : (username != null ? username : "사용자") %>
                     </strong>님 환영합니다!
                 </span>
 
-                <%-- 사장님 권한 확인 --%>
-                <% if ("OWNER".equals(role)) { %>
-                    <a href="<%=headerCtx%>/owner/dashboard.jsp" class="btn-owner-custom me-2" 
-                       style="background-color: #2d5a27; color: white; padding: 6px 15px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: 500;">
-                        내 캠핑장 관리
-                    </a>
-                <% } %>
+                <%-- OWNER 전용 버튼 --%>
+<% if ("OWNER".equals(role)) { %>
+    <a href="<%=headerCtx%>/owner/dashboard.jsp"
+       class="me-2"
+       style="<%=roleBtnStyle%>">
+        캠핑장 관리
+    </a>
+<% } %>
 
-                <%-- 관리자 권한 확인 --%>
-                <% if ("ADMIN".equals(role)) { %>
-                    <a href="<%=headerCtx%>/admin/dashboard.jsp" class="btn-admin me-2"
-                       style="background-color: #333; color: white; padding: 6px 15px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: 500;">
-                        관리자
-                    </a>
-                <% } %>
+<%-- ADMIN 전용 버튼 --%>
+<% if ("ADMIN".equals(role)) { %>
+    <a href="<%=headerCtx%>/admin/dashboard.jsp"
+       class="me-2"
+       style="<%=roleBtnStyle%>">
+        관리자
+    </a>
+<% } %>
 
                 <a href="<%=headerCtx%>/logout.jsp" class="btn-logout-custom">로그아웃</a>
             <% } %>

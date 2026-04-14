@@ -25,7 +25,13 @@
 
     <div class="admin-header-right">
         <span class="admin-welcome"><%= userName %> 관리자님</span>
-        <a href="<%=ctx%>/main.jsp" class="admin-top-btn admin-top-btn-light">사용자 페이지</a>
-        <a href="<%=ctx%>/logout.jsp" class="admin-top-btn admin-top-btn-point">로그아웃</a>
+
+        <a href="<%=ctx%>/main.jsp" class="admin-top-btn admin-top-btn-light">
+            사용자 페이지
+        </a>
+
+        <a href="<%=ctx%>/logout.jsp" class="admin-top-btn admin-top-btn-point">
+            로그아웃
+        </a>
     </div>
 </header>

@@ -25,6 +25,7 @@
     UserDAO dao = new UserDAO();
     List<User> userList = dao.getAdminUserList(keyword, status, userRole);
 %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -33,6 +34,7 @@
     <link rel="stylesheet" href="<%=ctx%>/assets/css/common.css">
     <link rel="stylesheet" href="<%=ctx%>/assets/css/admin.css">
 </head>
+
 <body class="admin-body">
 
     <jsp:include page="/admin/include/adminHeader.jsp" />
@@ -44,13 +46,15 @@
             <div class="admin-page-head">
                 <div>
                     <h1 class="admin-page-title">회원 관리</h1>
-                    <p class="admin-page-desc">회원 조회, 상태 변경, 관리자 권한 관리</p>
+                    <p class="admin-page-desc">회원 조회, 회원 유형 변경, 계정 상태 관리</p>
                 </div>
             </div>
 
+            <!-- 검색 -->
             <section class="admin-filter-card">
                 <form method="get" action="<%=ctx%>/admin/users.jsp" class="admin-search-form">
                     <div class="admin-form-row">
+
                         <div class="admin-form-group">
                             <label>검색어</label>
                             <input type="text" name="keyword" value="<%=keyword%>" class="admin-input"
@@ -58,21 +62,21 @@
                         </div>
 
                         <div class="admin-form-group">
-                            <label>상태</label>
+                            <label>계정 상태</label>
                             <select name="status" class="admin-select">
-                                <option value="">전체</option>
-                                <option value="ACTIVE" <%= "ACTIVE".equals(status) ? "selected" : "" %>>ACTIVE</option>
-                                <option value="SUSPENDED" <%= "SUSPENDED".equals(status) ? "selected" : "" %>>SUSPENDED</option>
-                                <option value="WITHDRAWN" <%= "WITHDRAWN".equals(status) ? "selected" : "" %>>WITHDRAWN</option>
-                            </select>
+    							<option value="">전체</option>
+    							<option value="ACTIVE" <%= "ACTIVE".equals(status) ? "selected" : "" %>>ACTIVE</option>
+    							<option value="PENDING" <%= "PENDING".equals(status) ? "selected" : "" %>>PENDING</option>
+    							<option value="BLOCKED" <%= "BLOCKED".equals(status) ? "selected" : "" %>>BLOCKED</option>
+							</select>
                         </div>
 
                         <div class="admin-form-group">
-                            <label>권한</label>
+                            <label>회원 유형</label>
                             <select name="userRole" class="admin-select">
                                 <option value="">전체</option>
                                 <option value="USER" <%= "USER".equals(userRole) ? "selected" : "" %>>USER</option>
-                                <option value="BUSINESS" <%= "BUSINESS".equals(userRole) ? "selected" : "" %>>BUSINESS</option>
+                                <option value="OWNER" <%= "OWNER".equals(userRole) ? "selected" : "" %>>OWNER</option>
                                 <option value="ADMIN" <%= "ADMIN".equals(userRole) ? "selected" : "" %>>ADMIN</option>
                             </select>
                         </div>
@@ -85,6 +89,7 @@
                 </form>
             </section>
 
+            <!-- 테이블 -->
             <section class="admin-table-wrap">
                 <div class="admin-table-top">
                     <div class="admin-table-title">회원 목록</div>
@@ -99,12 +104,13 @@
                                 <th>아이디</th>
                                 <th>이름</th>
                                 <th>이메일</th>
-                                <th>권한</th>
-                                <th>상태</th>
+                                <th>회원 유형</th>
+                                <th>계정 상태</th>
                                 <th>가입일</th>
-                                <th>관리</th>
+                                <th>유형/상태 변경</th>
                             </tr>
                         </thead>
+
                         <tbody>
                         <% if (userList == null || userList.isEmpty()) { %>
                             <tr>
@@ -120,9 +126,11 @@
                                 <td><%= u.getUserId() %></td>
                                 <td><%= u.getName() %></td>
                                 <td><%= u.getEmail() %></td>
+
                                 <td>
                                     <span class="admin-badge admin-badge-role"><%= u.getRole() %></span>
                                 </td>
+
                                 <td>
                                     <span class="admin-badge
                                         <%= "ACTIVE".equals(u.getStatus()) ? "admin-badge-active" : "" %>
@@ -131,26 +139,27 @@
                                         <%= u.getStatus() %>
                                     </span>
                                 </td>
+
                                 <td><%= u.getCreatedAt() != null ? u.getCreatedAt().toString().substring(0, 10) : "-" %></td>
+
                                 <td>
                                     <div class="admin-user-control">
+
+                                        <!-- 회원 유형 -->
                                         <select class="admin-mini-select admin-role-select">
                                             <option value="USER" <%= "USER".equals(u.getRole()) ? "selected" : "" %>>USER</option>
-                                            <option value="BUSINESS" <%= "BUSINESS".equals(u.getRole()) ? "selected" : "" %>>BUSINESS</option>
+                                            <option value="OWNER" <%= "OWNER".equals(u.getRole()) ? "selected" : "" %>>OWNER</option>
                                             <option value="ADMIN" <%= "ADMIN".equals(u.getRole()) ? "selected" : "" %>>ADMIN</option>
                                         </select>
 
-                                        <select class="admin-mini-select admin-status-select">
-                                            <option value="ACTIVE" <%= "ACTIVE".equals(u.getStatus()) ? "selected" : "" %>>ACTIVE</option>
-                                            <option value="SUSPENDED" <%= "SUSPENDED".equals(u.getStatus()) ? "selected" : "" %>>SUSPENDED</option>
-                                            <option value="WITHDRAWN" <%= "WITHDRAWN".equals(u.getStatus()) ? "selected" : "" %>>WITHDRAWN</option>
-                                        </select>
-
+                                        <!-- 상태 -->
+										<select class="admin-mini-select admin-status-select">
+    										<option value="ACTIVE" <%= "ACTIVE".equals(u.getStatus()) ? "selected" : "" %>>ACTIVE</option>
+    										<option value="PENDING" <%= "PENDING".equals(u.getStatus()) ? "selected" : "" %>>PENDING</option>
+    										<option value="BLOCKED" <%= "BLOCKED".equals(u.getStatus()) ? "selected" : "" %>>BLOCKED</option>
+										</select>
                                         <form method="post" action="<%=ctx%>/admin/userUpdate.jsp" class="admin-inline-form">
                                             <input type="hidden" name="id" value="<%=u.getId()%>">
-                                            <input type="hidden" name="keyword" value="<%=keyword%>">
-                                            <input type="hidden" name="statusFilter" value="<%=status%>">
-                                            <input type="hidden" name="roleFilter" value="<%=userRole%>">
 
                                             <input type="hidden" name="newRole" class="role-hidden">
                                             <input type="hidden" name="newStatus" class="status-hidden">
@@ -160,9 +169,7 @@
                                     </div>
                                 </td>
                             </tr>
-                        <%
-                            }
-                        } %>
+                        <% } } %>
                         </tbody>
                     </table>
                 </div>
@@ -182,5 +189,6 @@
         });
     });
     </script>
+
 </body>
 </html>

@@ -256,29 +256,11 @@ CREATE TABLE reports (
 
 
 
-USE camp_DB;
-
-SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS users;
-SET FOREIGN_KEY_CHECKS = 1;
-
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username      VARCHAR(50)  NOT NULL UNIQUE,
-    password      VARCHAR(255) NOT NULL,
-    name          VARCHAR(50)  NOT NULL,
-    email         VARCHAR(100) NOT NULL UNIQUE,
-    -- 권한: 'USER', 'OWNER', 'ADMIN'
-    role          VARCHAR(10)  NOT NULL DEFAULT 'USER', 
-    -- 사장님 전용 정보
-    business_no   VARCHAR(50),           -- 사업자 번호
-    business_img  VARCHAR(255),          -- 사업자 등록증 파일명
-    -- 상태: 'PENDING'(대기), 'ACTIVE'(승인), 'REJECTED'(거절)
-    status        VARCHAR(20)  DEFAULT 'ACTIVE', 
-    profileImage  VARCHAR(255),
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 관리자 계정 미리 생성 (데모용)
 INSERT INTO users (username, password, name, email, role, status)
 VALUES ('admin', '1234', '관리자', 'admin@camp.com', 'ADMIN', 'ACTIVE');
+--사장님 정보
+ALTER TABLE users ADD COLUMN camp_name VARCHAR(100) NULL;
+ALTER TABLE users ADD COLUMN business_name VARCHAR(100) NULL;
+ALTER TABLE users ADD COLUMN business_number VARCHAR(50) NULL;

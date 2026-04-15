@@ -519,10 +519,7 @@ function validateBeforeSubmit() {
 
     return true;
 }
-function selectRole(roleValue) {
-    currentRole = roleValue;
-    document.getElementById("role").value = roleValue.toUpperCase();
-}
+
 </script>
 
 </body>

@@ -18,7 +18,7 @@
 <header class="admin-header">
     <div class="admin-header-left">
         <a href="<%=ctx%>/admin/dashboard.jsp" class="admin-logo">
-            <span class="admin-logo-icon">🛠</span>
+            <span class="admin-logo-icon">🛠 Camp Mate</span>
         </a>
     </div>
 

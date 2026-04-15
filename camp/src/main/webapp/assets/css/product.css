@@ -16,6 +16,31 @@
     color: var(--main-green);
 }
 
+/* 판매완료 카드 */
+.soldout-card {
+    opacity: 0.6;
+}
+
+/* 판매완료 뱃지 */
+.soldout-badge {
+    background: #eee !important;
+    color: #888 !important;
+}
+
+.soldout-chip {
+    background: #f3f4f6 !important;
+    color: #6b7280 !important;
+}
+
+
+/* 비활성 버튼 */
+.btn-point.disabled {
+    background: #ccc;
+    color: #666;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
 /* =========================
    상품 상세 레이아웃
 ========================= */
@@ -233,6 +258,34 @@
     display: none;
 }
 
+.seller-other-thumb-wrap {
+    position: relative;
+}
+
+.seller-other-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 74px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    z-index: 2;
+}
+
+.seller-other-badge.soldout {
+    background: rgba(31, 41, 55, 0.88);
+    color: #fff;
+}
+
+.soldout-other-card {
+    opacity: 0.82;
+}
 /* =========================
    상품 등록 페이지
 ========================= */

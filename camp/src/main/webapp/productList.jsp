@@ -125,12 +125,20 @@
             </div>
         <% } else {
             for (Product p : list) {
-            	String imgFile = p.getImage();
-            	String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
-            			? ctx + "/assets/img/" + imgFile
-            	        : ctx + "/assets/img/default.jpg";
+                String imgFile = p.getImage();
+                String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
+                        ? ctx + "/assets/img/" + imgFile
+                        : ctx + "/assets/img/default.jpg";
+
+                String status = p.getStatus();
+                boolean isSoldOut = "soldout".equals(status);
+
+                String desc = p.getDescription();
+                if (desc != null && desc.length() > 80) {
+                    desc = desc.substring(0, 80) + "...";
+                }
         %>
-            <div class="horizontal-card">
+            <div class="horizontal-card <%= isSoldOut ? "soldout-card" : "" %>">
                 <div class="img-box">
                     <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="product-thumb-link">
                         <img src="<%=imgPath%>" alt="<%=p.getName()%>" onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
@@ -146,30 +154,33 @@
                                 </a>
                                 <div class="card-sub-text">Camp Mate 중고거래</div>
                             </div>
-                            <span class="badge-soft">중고거래</span>
+
+                            <span class="badge-soft <%= isSoldOut ? "soldout-badge" : "" %>">
+                                <%= isSoldOut ? "판매완료" : "중고거래" %>
+                            </span>
                         </div>
 
-						<%
-						String desc = p.getDescription();
-						if (desc != null && desc.length() > 80) {
-    						desc = desc.substring(0, 80) + "...";
-						}
-						%>
-
                         <div class="card-desc">
-                            <%= (p.getDescription() != null && !p.getDescription().isEmpty()) 
-        					? p.getDescription() 
-        					: "상품 설명이 없습니다." %>
+                            <%= (desc != null && !desc.isEmpty())
+                                    ? desc
+                                    : "상품 설명이 없습니다." %>
                         </div>
 
                         <div class="card-meta">
                             <% if (p.getCategory() != null) { %>
-                            <span class="meta-chip"><%= p.getCategory() %></span>
+                                <span class="meta-chip"><%= p.getCategory() %></span>
                             <% } %>
-                            <span class="meta-chip green">직거래 가능</span>
+
+                            <% if (isSoldOut) { %>
+                                <span class="meta-chip soldout-chip">거래불가</span>
+                            <% } else { %>
+                                <span class="meta-chip green">직거래 가능</span>
+                            <% } %>
+
                             <span class="meta-chip point">인기 상품</span>
+
                             <% if (p.isRecent()) { %>
-                            <span class="meta-chip point">최근 등록</span>
+                                <span class="meta-chip point">최근 등록</span>
                             <% } %>
                         </div>
                     </div>
@@ -177,12 +188,19 @@
                     <div class="card-bottom-line">
                         <div>
                             <p class="card-price"><%= String.format("%,d", p.getPrice()) %>원</p>
-                            <div class="card-extra">상세 페이지에서 상품 정보를 확인하세요.</div>
+                            <div class="card-extra">
+                                <%= isSoldOut ? "판매가 완료된 상품입니다." : "상세 페이지에서 상품 정보를 확인하세요." %>
+                            </div>
                         </div>
 
                         <div class="card-action-group">
                             <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn-soft">상세보기</a>
-                            <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn-point">거래하기</a>
+
+                            <% if (isSoldOut) { %>
+                                <span class="btn-point disabled">거래불가</span>
+                            <% } else { %>
+                                <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn-point">거래하기</a>
+                            <% } %>
                         </div>
                     </div>
                 </div>

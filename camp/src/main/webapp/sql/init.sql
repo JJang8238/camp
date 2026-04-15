@@ -34,7 +34,7 @@ CREATE TABLE users (
     profileImage VARCHAR(255),   -- ✅ 유지
 
     role VARCHAR(20) NOT NULL DEFAULT 'user',      -- user, owner, admin
-    status VARCHAR(20) NOT NULL DEFAULT 'active',  -- active, pending, rejected
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',  -- active, pending, rejected
 
     -- 사장님 정보
     camp_name VARCHAR(100),
@@ -52,7 +52,7 @@ VALUES (
     '테스트',
     'test1@test.com',
     'admin',
-    'active'
+    'ACTIVE'
 );
 
 
@@ -135,10 +135,10 @@ CREATE TABLE product (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO product (seller_id, name, description, category, location, price, image, status) VALUES
-(1, '캠핑 텐트', '거의 새상품', '텐트', '안양시', 120000, 'tent.jpg', 'selling'),
-(1, '캠핑 의자', '접이식 의자', '의자', '수원시', 30000, 'chair.jpg', 'selling');
-
-
+(1, '캠핑 텐트', '거의 새상품, 1회 사용했습니다.', '텐트', '안양시', 120000, 'tent.jpg', 'SELLING'),
+(1, '캠핑 의자', '접이식 의자입니다.', '의자', '수원시', 30000, 'chair.jpg', 'SELLING'),
+(1, '캠핑 테이블', '사용감 적은 테이블입니다.', '테이블', '성남시', 50000, 'table.jpg', 'SELLING'),
+(1, '랜턴', '야간 캠핑용 랜턴입니다.', '랜턴', '용인시', 20000, 'lantern.jpg', 'SELLING');
 -- =====================================================
 -- 7. 상품 이미지
 -- =====================================================
@@ -152,31 +152,42 @@ CREATE TABLE product_image (
     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 예시 데이터
+INSERT INTO product_image (product_id, image_path, sort_order) VALUES
+(1, 'tent.jpg', 1),
+(2, 'chair.jpg', 1),
+(3, 'table.jpg', 1),
+(4, 'lantern.jpg', 1);
 
 -- =====================================================
 -- 8. 게시글
 -- =====================================================
 CREATE TABLE posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    post_type VARCHAR(30) NOT NULL,
+    post_type VARCHAR(30) NOT NULL,             -- news, event, notice
     title VARCHAR(200) NOT NULL,
     summary VARCHAR(500),
     content TEXT NOT NULL,
-    category VARCHAR(50),
-    thumbnail VARCHAR(255),
 
-    author_id INT,
+    category VARCHAR(50),                       -- 캠핑 팁, 안전 정보, 프로모션 등
+    thumbnail VARCHAR(255),                     -- 대표 이미지 경로
+
+    author_id INT,                              -- 작성자(관리자 회원 id)
     view_count INT DEFAULT 0,
 
-    status VARCHAR(20) DEFAULT 'draft',
-    is_pinned TINYINT(1) DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'draft',         -- draft, published, hidden, deleted
+    is_pinned TINYINT(1) DEFAULT 0,             -- 상단 고정 여부
+    display_order INT DEFAULT 0,                -- 수동 정렬 우선순위
 
-    published_at DATETIME,
+    published_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
 
-    FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
+    CONSTRAINT fk_posts_author
+        FOREIGN KEY (author_id) REFERENCES users(id)
+        ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 -- =====================================================
 -- 9. 이벤트 상세
@@ -185,22 +196,48 @@ CREATE TABLE event_details (
     post_id INT PRIMARY KEY,
     start_date DATE,
     end_date DATE,
-    event_status VARCHAR(20) DEFAULT 'upcoming',
+    event_status VARCHAR(20) DEFAULT 'upcoming',   -- upcoming, ongoing, ended
+    apply_url VARCHAR(255),
+    coupon_code VARCHAR(100),
+    max_participants INT NULL,
+    winner_announce_at DATETIME NULL,
 
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+    CONSTRAINT fk_event_post
+        FOREIGN KEY (post_id) REFERENCES posts(id)
+        ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 -- =====================================================
--- 10. 관리자 로그
+-- 10. 게시글 이미지 (post_images)
+-- =====================================================
+CREATE TABLE post_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    image_path VARCHAR(255) NOT NULL,
+    image_type VARCHAR(30) DEFAULT 'content',   -- thumbnail, banner, content
+    sort_order INT DEFAULT 0,
+
+    CONSTRAINT fk_post_image
+        FOREIGN KEY (post_id) REFERENCES posts(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- =====================================================
+-- 11. 관리자 로그
 -- =====================================================
 CREATE TABLE admin_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     admin_id INT,
     action VARCHAR(100),
+    target_type VARCHAR(50),
+    target_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE SET NULL
+    CONSTRAINT fk_admin_logs_user
+        FOREIGN KEY (admin_id) REFERENCES users(id)
+        ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -247,7 +284,9 @@ ALTER TABLE users ADD COLUMN camp_name VARCHAR(100) NULL;
 ALTER TABLE users ADD COLUMN business_name VARCHAR(100) NULL;
 ALTER TABLE users ADD COLUMN business_number VARCHAR(50) NULL;
 
---0414 추가내용 (cs.jsp 문의건)
+-- =====================================================
+-- 12. 문의
+-- =====================================================
 CREATE TABLE inquiries (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,

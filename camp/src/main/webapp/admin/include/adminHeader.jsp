@@ -5,7 +5,7 @@
     String role = (String) session.getAttribute("role");
     String userName = (String) session.getAttribute("userName");
 
-    if (adminUserId == null || role == null || !"ADMIN".equals(role)) {
+    if (adminUserId == null || role == null || !"admin".equals(role)) {
         response.sendRedirect(ctx + "/login.jsp");
         return;
     }
@@ -18,7 +18,7 @@
 <header class="admin-header">
     <div class="admin-header-left">
         <a href="<%=ctx%>/admin/dashboard.jsp" class="admin-logo">
-            <span class="admin-logo-icon">🛠</span>
+            <span class="admin-logo-icon">🛠 Camp Mate</span>
         </a>
     </div>
 

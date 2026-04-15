@@ -20,11 +20,12 @@ public class ProductDAO {
 
 	    try (Connection conn = DBUtil.getConnection()) {
 	        String sql =
-	            "SELECT p.id, p.name, p.price, p.description, p.category, p.location, p.created_at, " +
+	            "SELECT p.id, p.name, p.price, p.description, p.category, p.location, p.created_at, p.status, " +
 	            "       COALESCE(p.image, pi.image_path) AS display_image " +
 	            "FROM product p " +
 	            "LEFT JOIN product_image pi " +
 	            "       ON p.id = pi.product_id AND pi.sort_order = 1 " +
+	            "WHERE p.status IS NULL OR p.status <> 'hidden' " +
 	            "ORDER BY p.id DESC";
 
 	        PreparedStatement ps = conn.prepareStatement(sql);
@@ -40,6 +41,7 @@ public class ProductDAO {
 	            p.setCategory(rs.getString("category"));
 	            p.setLocation(rs.getString("location"));
 	            p.setCreatedAt(rs.getString("created_at"));
+	            p.setStatus(rs.getString("status"));
 
 	            Timestamp created = rs.getTimestamp("created_at");
 	            if (created != null) {
@@ -55,63 +57,69 @@ public class ProductDAO {
 	        e.printStackTrace();
 	    }
 
+	    return list;
+	}
 
-        return list;
-    }
+	public Product getProductById(int id) {
+	    Product p = null;
 
-    public Product getProductById(int id) {
-        Product p = null;
+	    try (Connection conn = DBUtil.getConnection()) {
+	        String sql = "SELECT * FROM product WHERE id = ? AND (status IS NULL OR status <> 'hidden')";
+	        PreparedStatement ps = conn.prepareStatement(sql);
+	        ps.setInt(1, id);
 
-        try (Connection conn = DBUtil.getConnection()) {
-            String sql = "SELECT * FROM product WHERE id=?";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, id);
+	        ResultSet rs = ps.executeQuery();
 
-            ResultSet rs = ps.executeQuery();
+	        if (rs.next()) {
+	            p = new Product();
+	            p.setId(rs.getInt("id"));
+	            p.setName(rs.getString("name"));
+	            p.setPrice(rs.getInt("price"));
+	            p.setImage(rs.getString("image"));
+	            p.setSellerId(rs.getInt("seller_id"));
+	            p.setDescription(rs.getString("description"));
+	            p.setCategory(rs.getString("category"));
+	            p.setLocation(rs.getString("location"));
+	            p.setCreatedAt(rs.getString("created_at"));
+	            p.setStatus(rs.getString("status"));
+	        }
 
-            if (rs.next()) {
-                p = new Product();
-                p.setId(rs.getInt("id"));
-                p.setName(rs.getString("name"));
-                p.setPrice(rs.getInt("price"));
-                p.setImage(rs.getString("image")); 
-                p.setSellerId(rs.getInt("seller_id"));
-                p.setDescription(rs.getString("description"));
-            }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	    return p;
+	}
+	
+	public List<Product> getProductsBySeller(int sellerId) {
+	    List<Product> list = new ArrayList<>();
 
-        return p;
-    }
-    
-    public List<Product> getProductsBySeller(int sellerId) {
-        List<Product> list = new ArrayList<>();
+	    try (Connection conn = DBUtil.getConnection()) {
+	        String sql = "SELECT * FROM product " +
+	                     "WHERE seller_id = ? AND (status IS NULL OR status <> 'hidden') " +
+	                     "ORDER BY id DESC";
+	        PreparedStatement ps = conn.prepareStatement(sql);
+	        ps.setInt(1, sellerId);
 
-        try (Connection conn = DBUtil.getConnection()) {
-            String sql = "SELECT * FROM product WHERE seller_id = ?";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, sellerId);
+	        ResultSet rs = ps.executeQuery();
 
-            ResultSet rs = ps.executeQuery();
+	        while (rs.next()) {
+	            Product p = new Product();
+	            p.setId(rs.getInt("id"));
+	            p.setName(rs.getString("name"));
+	            p.setPrice(rs.getInt("price"));
+	            p.setImage(rs.getString("image"));
+	            p.setSellerId(rs.getInt("seller_id"));
+	            p.setStatus(rs.getString("status"));
+	            list.add(p);
+	        }
 
-            while (rs.next()) {
-                Product p = new Product();
-                p.setId(rs.getInt("id"));
-                p.setName(rs.getString("name"));
-                p.setPrice(rs.getInt("price"));
-                p.setImage(rs.getString("image"));
-                p.setSellerId(rs.getInt("seller_id"));
-                list.add(p);
-            }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return list;
-    }
+	    return list;
+	}
    
     /**
      * 캠핑장 검색 + 필터

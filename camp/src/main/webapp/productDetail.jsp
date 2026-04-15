@@ -31,6 +31,7 @@
     String sellerName = "";
     String sellerUsername = "";
     String mainImage = "";
+    String productStatus = "";
     int sellerId = 0;
 
     List<String> imageList = new ArrayList<>();
@@ -40,6 +41,7 @@
         String name;
         int price;
         String image;
+        String status;
     }
 
     List<OtherProduct> otherProducts = new ArrayList<>();
@@ -56,18 +58,18 @@
         conn = DBUtil.getConnection();
 
         String productSql =
-            "SELECT p.id, p.name, p.price, p.image, p.description, p.category, p.location, p.seller_id, " +
+            "SELECT p.id, p.name, p.price, p.image, p.description, p.category, p.location, p.status, p.seller_id, " +
             "       u.name AS seller_name, u.username AS seller_username " +
             "FROM product p " +
             "LEFT JOIN users u ON p.seller_id = u.id " +
-            "WHERE p.id = ?";
+            "WHERE p.id = ? AND (p.status IS NULL OR p.status <> 'hidden')";
 
         psProduct = conn.prepareStatement(productSql);
         psProduct.setInt(1, productId);
         rsProduct = psProduct.executeQuery();
 
         if (!rsProduct.next()) {
-            out.println("<script>alert('존재하지 않는 상품입니다.'); location.href='" + ctx + "/productList.jsp';</script>");
+            out.println("<script>alert('존재하지 않거나 숨김 처리된 상품입니다.'); location.href='" + ctx + "/productList.jsp';</script>");
             return;
         }
 
@@ -77,6 +79,7 @@
         productDescription = rsProduct.getString("description");
         productCategory = rsProduct.getString("category");
         productLocation = rsProduct.getString("location");
+        productStatus = rsProduct.getString("status");
         sellerId = rsProduct.getInt("seller_id");
         sellerName = rsProduct.getString("seller_name");
         sellerUsername = rsProduct.getString("seller_username");
@@ -87,6 +90,7 @@
         if (sellerName == null) sellerName = "";
         if (sellerUsername == null) sellerUsername = "";
         if (mainImage == null) mainImage = "";
+        if (productStatus == null) productStatus = "";
 
         String imageSql =
             "SELECT image_path " +
@@ -114,11 +118,11 @@
         }
 
         String otherSql =
-            "SELECT id, name, price, image " +
-            "FROM product " +
-            "WHERE seller_id = ? AND id <> ? " +
-            "ORDER BY id DESC " +
-            "LIMIT 4";
+        	    "SELECT id, name, price, image, status " +
+        	    "FROM product " +
+        	    "WHERE seller_id = ? AND id <> ? AND (status IS NULL OR status <> 'hidden') " +
+        	    "ORDER BY id DESC " +
+        	    "LIMIT 4";
 
         psOther = conn.prepareStatement(otherSql);
         psOther.setInt(1, sellerId);
@@ -131,6 +135,7 @@
             op.name = rsOther.getString("name");
             op.price = rsOther.getInt("price");
             op.image = rsOther.getString("image");
+            op.status = rsOther.getString("status");
 
             if (op.image == null || op.image.trim().isEmpty()) {
                 op.image = "/assets/img/default.jpg";
@@ -152,6 +157,8 @@
         try { if (psProduct != null) psProduct.close(); } catch (Exception ignore) {}
         try { if (conn != null) conn.close(); } catch (Exception ignore) {}
     }
+
+    boolean isSoldOut = "soldout".equals(productStatus);
 %>
 
 <!DOCTYPE html>
@@ -222,6 +229,9 @@
                 <% if (!productLocation.isEmpty()) { %>
                     <span class="product-meta-chip">거래지역 · <%= productLocation %></span>
                 <% } %>
+                <% if (isSoldOut) { %>
+                    <span class="product-meta-chip soldout-chip">판매완료</span>
+                <% } %>
             </div>
 
             <div class="price-box"><%= String.format("%,d", productPrice) %>원</div>
@@ -232,7 +242,12 @@
 
             <div class="product-action-group">
                 <button type="button" class="btn-soft" onclick="history.back()">목록으로</button>
-                <button type="button" class="btn-point">채팅하기</button>
+
+                <% if (isSoldOut) { %>
+                    <button type="button" class="btn-point disabled" disabled>거래불가</button>
+                <% } else { %>
+                    <button type="button" class="btn-point">채팅하기</button>
+                <% } %>
             </div>
         </div>
     </div>
@@ -278,16 +293,26 @@
                             String otherImg = op.image;
                             String otherImgPath = otherImg.startsWith("/") ? (ctx + otherImg) : (ctx + "/assets/img/" + otherImg);
                 %>
-                    <a href="<%=ctx%>/productDetail.jsp?id=<%=op.id%>" class="seller-product-link">
-                        <div class="product-card">
-                            <img src="<%=otherImgPath%>" alt="<%=op.name%>"
-                                 onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
-                            <div class="product-card-body">
-                                <div class="product-title"><%=op.name%></div>
-                                <div class="product-price"><%=String.format("%,d", op.price)%>원</div>
-                            </div>
-                        </div>
-                    </a>
+                    <%
+    boolean otherSoldOut = "soldout".equals(op.status);
+%>
+<a href="<%=ctx%>/productDetail.jsp?id=<%=op.id%>" class="seller-product-link">
+    <div class="product-card <%= otherSoldOut ? "soldout-other-card" : "" %>">
+        <div class="seller-other-thumb-wrap">
+            <img src="<%=otherImgPath%>" alt="<%=op.name%>"
+                 onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
+
+            <% if (otherSoldOut) { %>
+                <span class="seller-other-badge soldout">판매완료</span>
+            <% } %>
+        </div>
+
+        <div class="product-card-body">
+            <div class="product-title"><%=op.name%></div>
+            <div class="product-price"><%=String.format("%,d", op.price)%>원</div>
+        </div>
+    </div>
+</a>
                 <%
                         }
                     } else {

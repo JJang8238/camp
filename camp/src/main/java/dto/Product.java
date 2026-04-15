@@ -16,6 +16,8 @@ public class Product {
     private String location;	//거래 위치
     private String createdAt;	//등록시간
     private boolean recent;
+    
+    private String status; 
     // 기본 생성자
     public Product() {}
 
@@ -131,4 +133,13 @@ public class Product {
     public void setRecent(boolean recent) {
         this.recent = recent;
     }
+    
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 }

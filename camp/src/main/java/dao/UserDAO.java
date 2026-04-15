@@ -54,6 +54,9 @@ public class UserDAO {
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             String hashedPassword = PasswordUtil.hashPassword(password);
 
+            String safeRole = (role == null || role.trim().isEmpty()) ? "user" : role.trim().toLowerCase();
+            String safeStatus = (status == null || status.trim().isEmpty()) ? "active" : status.trim().toUpperCase();
+
             pstmt.setString(1, username);
             pstmt.setString(2, hashedPassword);
             pstmt.setString(3, name);
@@ -74,7 +77,7 @@ public class UserDAO {
             return pstmt.executeUpdate() == 1;
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            System.out.println("❌ 중복된 아이디 또는 이메일");
+            System.out.println("중복된 아이디 또는 이메일");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -125,7 +128,8 @@ public class UserDAO {
     public User getUserById(int id) {
         User user = null;
 
-        String sql = "SELECT id, username, name, email, role, status, camp_name, business_name, business_number, created_at "
+        String sql = "SELECT id, username, password, name, email, profileImage, role, status, "
+                   + "camp_name, business_name, business_number, created_at "
                    + "FROM users WHERE id = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -136,19 +140,15 @@ public class UserDAO {
                     user = new User();
                     user.setId(rs.getInt("id"));
                     user.setUserId(rs.getString("username"));
+                    user.setPassword(rs.getString("password"));
                     user.setName(rs.getString("name"));
                     user.setEmail(rs.getString("email"));
+                    user.setProfileImage(rs.getString("profileImage"));
                     user.setRole(rs.getString("role"));
                     user.setStatus(rs.getString("status"));
-
-                    // DTO에 해당 필드/세터가 있으면 사용
-                    try {
-                        user.setCampName(rs.getString("camp_name"));
-                        user.setBusinessName(rs.getString("business_name"));
-                        user.setBusinessNumber(rs.getString("business_number"));
-                    } catch (Exception ignore) {
-                    }
-
+                    user.setCampName(rs.getString("camp_name"));
+                    user.setBusinessName(rs.getString("business_name"));
+                    user.setBusinessNumber(rs.getString("business_number"));
                     user.setCreatedAt(rs.getTimestamp("created_at"));
                 }
             }
@@ -163,7 +163,8 @@ public class UserDAO {
     public User getUserByUsername(String username) {
         User user = null;
 
-        String sql = "SELECT id, username, name, email, role, status, camp_name, business_name, business_number, created_at "
+        String sql = "SELECT id, username, password, name, email, profileImage, role, status, "
+                   + "camp_name, business_name, business_number, created_at "
                    + "FROM users WHERE username = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -174,19 +175,15 @@ public class UserDAO {
                     user = new User();
                     user.setId(rs.getInt("id"));
                     user.setUserId(rs.getString("username"));
+                    user.setPassword(rs.getString("password"));
                     user.setName(rs.getString("name"));
                     user.setEmail(rs.getString("email"));
+                    user.setProfileImage(rs.getString("profileImage"));
                     user.setRole(rs.getString("role"));
                     user.setStatus(rs.getString("status"));
-
-                    // DTO에 해당 필드/세터가 있으면 사용
-                    try {
-                        user.setCampName(rs.getString("camp_name"));
-                        user.setBusinessName(rs.getString("business_name"));
-                        user.setBusinessNumber(rs.getString("business_number"));
-                    } catch (Exception ignore) {
-                    }
-
+                    user.setCampName(rs.getString("camp_name"));
+                    user.setBusinessName(rs.getString("business_name"));
+                    user.setBusinessNumber(rs.getString("business_number"));
                     user.setCreatedAt(rs.getTimestamp("created_at"));
                 }
             }
@@ -217,7 +214,7 @@ public class UserDAO {
         return name;
     }
 
-    // 관리자용 회원 목록 조회
+    // 관리자용 일반 회원 목록 조회
     public List<User> getAdminUserList(String keyword, String status, String userRole) {
         List<User> list = new ArrayList<>();
 
@@ -236,12 +233,12 @@ public class UserDAO {
 
         if (status != null && !status.trim().isEmpty()) {
             sql.append("AND status = ? ");
-            params.add(status.trim());
+            params.add(status.trim().toUpperCase());
         }
 
         if (userRole != null && !userRole.trim().isEmpty()) {
             sql.append("AND role = ? ");
-            params.add(userRole.trim());
+            params.add(userRole.trim().toLowerCase());
         }
 
         sql.append("ORDER BY id DESC");
@@ -271,13 +268,62 @@ public class UserDAO {
         return list;
     }
 
+    // 사업자 승인 대기 목록
+    public List<User> getPendingOwnerList(String keyword) {
+        List<User> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT id, username, name, email, role, status, camp_name, business_name, business_number, created_at ");
+        sql.append("FROM users ");
+        sql.append("WHERE role = 'owner' AND status = 'PENDING' ");
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (username LIKE ? OR name LIKE ? OR email LIKE ? OR camp_name LIKE ? OR business_name LIKE ? OR business_number LIKE ?) ");
+        }
+
+        sql.append("ORDER BY id DESC");
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String kw = "%" + keyword.trim() + "%";
+                pstmt.setString(1, kw);
+                pstmt.setString(2, kw);
+                pstmt.setString(3, kw);
+                pstmt.setString(4, kw);
+                pstmt.setString(5, kw);
+                pstmt.setString(6, kw);
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("id"));
+                    user.setUserId(rs.getString("username"));
+                    user.setName(rs.getString("name"));
+                    user.setEmail(rs.getString("email"));
+                    user.setRole(rs.getString("role"));
+                    user.setStatus(rs.getString("status"));
+                    user.setCampName(rs.getString("camp_name"));
+                    user.setBusinessName(rs.getString("business_name"));
+                    user.setBusinessNumber(rs.getString("business_number"));
+                    user.setCreatedAt(rs.getTimestamp("created_at"));
+                    list.add(user);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
     // 관리자용 권한/상태 수정
     public boolean updateUserRoleAndStatus(int id, String newRole, String newStatus) {
         String sql = "UPDATE users SET role = ?, status = ? WHERE id = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, newRole);
-            pstmt.setString(2, newStatus);
+            pstmt.setString(1, newRole == null ? "user" : newRole.trim().toLowerCase());
+            pstmt.setString(2, newStatus == null ? "ACTIVE" : newStatus.trim().toUpperCase());
             pstmt.setInt(3, id);
 
             return pstmt.executeUpdate() > 0;
@@ -288,9 +334,9 @@ public class UserDAO {
         return false;
     }
 
-    // owner 승인 전용
-    public boolean approveOwner(int id) {
-        String sql = "UPDATE users SET status = 'ACTIVE' WHERE id = ? AND role = 'owner'";
+    // 사업자 승인
+    public boolean approveOwnerRequest(int id) {
+        String sql = "UPDATE users SET status = 'ACTIVE' WHERE id = ? AND role = 'owner' AND status = 'PENDING'";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
@@ -302,9 +348,9 @@ public class UserDAO {
         return false;
     }
 
-    // owner 차단 전용
-    public boolean blockUser(int id) {
-        String sql = "UPDATE users SET status = 'BLOCKED' WHERE id = ?";
+    // 사업자 반려
+    public boolean rejectOwnerRequest(int id) {
+        String sql = "UPDATE users SET status = 'BLOCKED' WHERE id = ? AND role = 'owner' AND status = 'PENDING'";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);

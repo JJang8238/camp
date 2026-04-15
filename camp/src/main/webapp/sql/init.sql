@@ -34,8 +34,11 @@ CREATE TABLE users (
 
 -- 테스트 계정
 INSERT INTO users (username, password, name, email, role, status)
-VALUES ('test', '$2a$10$.iRWvuu756Z9g21WKfSKJ.magymk0wH73GkvhA7yF9lrfutIQsMBO', '테스트', 'test@test.com', 'ADMIN', 'ACTIVE');
+VALUES ('test', '$2a$10$.iRWvuu756Z9g21WKfSKJ.magymk0wH73GkvhA7yF9lrfutIQsMBO', '테스트', 'test@test.com', 'admin', 'ACTIVE');
 
+UPDATE users
+SET role = 'admin'
+WHERE username = 'test';
 -- =====================================================
 -- 2. 이메일 인증 (email_verification)
 -- =====================================================
@@ -272,7 +275,7 @@ CREATE TABLE users (
 
 -- 관리자 계정 미리 생성 (데모용)
 INSERT INTO users (username, password, name, email, role, status)
-VALUES ('admin', '1234', '관리자', 'admin@camp.com', 'ADMIN', 'ACTIVE');
+VALUES ('admin', '1234', '관리자', 'admin@camp.com', 'admin', 'ACTIVE');
 
 ALTER TABLE users ADD COLUMN camp_name VARCHAR(100) NULL;
 ALTER TABLE users ADD COLUMN business_name VARCHAR(100) NULL;

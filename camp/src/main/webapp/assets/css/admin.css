@@ -17,13 +17,20 @@
     --card-shadow: 0 10px 30px rgba(18, 38, 63, 0.08);
 }
 
+/* =========================
+   공통
+========================= */
+
 .admin-body {
+    margin: 0;
     background: var(--admin-bg);
     color: var(--admin-text);
-    margin: 0;
 }
 
-/* 상단 헤더 */
+/* =========================
+   상단 헤더
+========================= */
+
 .admin-header {
     height: 72px;
     background: #fff;
@@ -35,6 +42,7 @@
     position: sticky;
     top: 0;
     z-index: 1000;
+    box-sizing: border-box;
 }
 
 .admin-logo {
@@ -66,20 +74,16 @@
     font-weight: 700;
 }
 
-/* 여기 수정 */
 .admin-top-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     min-width: 90px;
-    height: 36px;           /* ↓ 줄임 */
-    padding: 0 12px;        /* ↓ 줄임 */
-
+    height: 36px;
+    padding: 0 12px;
     border-radius: 999px;
-    font-size: 13px;        /* ↓ 줄임 */
+    font-size: 13px;
     font-weight: 700;
-
     text-decoration: none;
     transition: 0.2s ease;
     box-sizing: border-box;
@@ -105,15 +109,25 @@
     filter: brightness(0.97);
 }
 
-/* 전체 레이아웃 */
+/* =========================
+   관리자 레이아웃
+========================= */
+
 .admin-layout {
-    display: flex;
+    width: 100%;
     min-height: calc(100vh - 72px);
 }
 
-/* 사이드바 */
+.admin-main-wrap {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    min-height: calc(100vh - 72px);
+}
+
 .admin-sidebar {
     width: 260px;
+    min-width: 260px;
     background: var(--admin-sidebar);
     color: #fff;
     padding: 24px 18px;
@@ -121,12 +135,13 @@
     min-height: calc(100vh - 72px);
     position: sticky;
     top: 72px;
+    box-sizing: border-box;
 }
 
 .admin-sidebar-title {
     font-size: 13px;
     font-weight: 800;
-    color: rgba(255,255,255,0.65);
+    color: rgba(255, 255, 255, 0.65);
     margin-bottom: 14px;
     padding: 0 10px;
     letter-spacing: 0.08em;
@@ -142,7 +157,7 @@
     display: block;
     padding: 13px 14px;
     border-radius: 14px;
-    color: rgba(255,255,255,0.92);
+    color: rgba(255, 255, 255, 0.92);
     text-decoration: none;
     font-size: 15px;
     font-weight: 700;
@@ -159,33 +174,60 @@
     color: var(--admin-green);
 }
 
-/* 본문 */
 .admin-content {
     flex: 1;
+    min-width: 0;
     padding: 32px;
+    background: #f8f9fb;
+    box-sizing: border-box;
 }
 
-.admin-page-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 26px;
+/* =========================
+   페이지 공통
+========================= */
+
+.admin-page-head,
+.admin-page-header {
+    margin-bottom: 22px;
 }
 
 .admin-page-title {
-    font-size: 30px;
+    margin: 0;
+    font-size: 28px;
     font-weight: 800;
-    color: var(--admin-text);
-    margin: 0 0 8px;
+    color: var(--admin-green);
 }
 
 .admin-page-desc {
-    margin: 0;
-    color: var(--admin-sub);
-    font-size: 15px;
+    margin-top: 8px;
+    font-size: 14px;
+    color: #6b7280;
 }
 
-/* 카드형 통계 */
+.admin-alert {
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin-alert.success {
+    background: #ecfdf3;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.admin-alert.error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+/* =========================
+   대시보드 공통 카드/패널
+========================= */
+
 .admin-card-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(220px, 1fr));
@@ -223,7 +265,6 @@
     text-decoration: none;
 }
 
-/* 패널 */
 .admin-panel-row {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
@@ -260,7 +301,6 @@
     font-size: 14px;
 }
 
-/* 빠른작업 */
 .admin-quick-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(140px, 1fr));
@@ -287,7 +327,6 @@
     color: var(--admin-green);
 }
 
-/* chip */
 .admin-chip-wrap {
     display: flex;
     flex-wrap: wrap;
@@ -307,22 +346,34 @@
     font-weight: 700;
 }
 
-/* 공통 박스 */
+/* =========================
+   공통 박스 / 폼
+========================= */
+
 .admin-table-wrap,
 .admin-form-card,
-.admin-filter-card {
+.admin-filter-card,
+.admin-card {
     background: var(--admin-card);
     border: 1px solid var(--admin-border);
     border-radius: 22px;
     box-shadow: var(--admin-shadow);
+    box-sizing: border-box;
 }
 
 .admin-filter-card {
     padding: 20px;
 }
 
+.admin-form-card,
+.admin-card {
+    padding: 24px;
+}
+
 .admin-table-wrap {
     padding: 18px;
+    width: 100%;
+    overflow-x: auto;
 }
 
 .admin-search-form {
@@ -357,6 +408,7 @@
     background: #fff;
     color: var(--admin-text);
     outline: none;
+    box-sizing: border-box;
 }
 
 .admin-input,
@@ -415,11 +467,23 @@
     border-radius: 10px;
 }
 
-.admin-table-top {
+/* =========================
+   공통 테이블
+========================= */
+
+.admin-table-top,
+.admin-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 18px;
+}
+
+.admin-card-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1f2937;
 }
 
 .admin-table-title {
@@ -428,9 +492,11 @@
     color: var(--admin-text);
 }
 
-.admin-table-count {
+.admin-table-count,
+.admin-count {
     font-size: 14px;
     color: var(--admin-sub);
+    font-weight: 700;
 }
 
 .admin-table-scroll {
@@ -439,41 +505,37 @@
 
 .admin-table {
     width: 100%;
-    border-collapse: collapse;
     min-width: 1100px;
+    border-collapse: collapse;
 }
 
-.admin-table thead th {
-    background: #f7f9fb;
-    color: var(--admin-text);
+.admin-table thead th,
+.admin-table th {
+    background: #f8fafc;
+    color: #475569;
     font-size: 13px;
     font-weight: 800;
-    padding: 6px 6px;
+    padding: 12px 10px;
     border-bottom: 1px solid var(--admin-border);
     text-align: center;
-}
-
-.admin-table tbody td {
-    padding: 6px 6px;
-    border-bottom: 1px solid #eef2f6;
-    text-align: center;
-    font-size: 13px;
-    color: #44515c;
     vertical-align: middle;
 }
 
-/* 관리 이외 컬럼 여백 더 축소 */
-.admin-table td:not(:last-child),
-.admin-table th:not(:last-child) {
-    padding-left: 4px;
-    padding-right: 4px;
+.admin-table tbody td,
+.admin-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #edf1f5;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 13px;
+    color: #44515c;
 }
 
 .admin-inline-form {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
+    justify-content: center;
+    gap: 10px;
     flex-wrap: nowrap;
     margin: 0;
 }
@@ -519,55 +581,21 @@
     font-size: 13px;
 }
 
-/* 회원 테이블 컬럼 폭 */
-.admin-table th:nth-child(1),
-.admin-table td:nth-child(1) {
-    width: 60px;
-}
-
-.admin-table th:nth-child(2),
-.admin-table td:nth-child(2) {
-    width: 100px;
-}
-
-.admin-table th:nth-child(3),
-.admin-table td:nth-child(3) {
-    width: 90px;
-}
-
-.admin-table th:nth-child(4),
-.admin-table td:nth-child(4) {
-    width: 150px;
-}
-
-.admin-table th:nth-child(5),
-.admin-table td:nth-child(5) {
-    width: 90px;
-}
-
-.admin-table th:nth-child(6),
-.admin-table td:nth-child(6) {
-    width: 90px;
-}
-
-.admin-table th:nth-child(7),
-.admin-table td:nth-child(7) {
-    width: 90px;
-}
-
-.admin-table th:nth-child(8),
-.admin-table td:nth-child(8) {
-    width: 180px;
+.admin-empty {
+    text-align: center !important;
+    color: #94a3b8;
+    padding: 42px 20px !important;
 }
 
 /* users.jsp control */
 .admin-user-control {
     display: flex;
     align-items: center;
-    justify-content: center;   /* ⭐ 가운데 정렬 */
+    justify-content: center;
     gap: 6px;
     width: 100%;
 }
+
 .admin-role-select,
 .admin-status-select {
     min-width: 82px;
@@ -576,7 +604,6 @@
 }
 
 .admin-save-btn {
-    
     height: 36px;
     padding: 0 10px;
     font-size: 13px;
@@ -596,9 +623,310 @@
     filter: brightness(0.95);
 }
 
-/* ===============================
+/* =========================
+   products.jsp
+========================= */
+
+.admin-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+}
+
+.admin-title-cell {
+    text-align: left !important;
+}
+
+.admin-title-main {
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.admin-title-sub {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.admin-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.admin-status-badge.is-selling {
+    background: #ecfdf3;
+    color: #15803d;
+}
+
+.admin-status-badge.is-hidden {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.admin-status-badge.is-soldout {
+    background: #fff1f2;
+    color: #e11d48;
+}
+
+.admin-action-btn {
+    min-width: 72px;
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    background: var(--admin-green);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 14px;
+}
+
+.admin-action-btn:hover {
+    opacity: 0.92;
+}
+
+/* =========================
+   camps.jsp
+========================= */
+
+.camp-manage-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.camp-manage-title h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.camp-manage-title p {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.camp-manage-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
+    background: #1b4d3e;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+}
+
+.camp-manage-add-btn:hover {
+    background: #163d31;
+    color: #fff;
+}
+
+.camp-manage-filter-card {
+    background: #fff;
+    border: 1px solid #edf0f3;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    padding: 20px;
+    margin-bottom: 18px;
+}
+
+.camp-manage-filter-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.camp-manage-filter-form input[type="text"],
+.camp-manage-filter-form select {
+    height: 44px;
+    border: 1px solid #d9dee5;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-size: 14px;
+    background: #fff;
+    color: #222;
+    box-sizing: border-box;
+}
+
+.camp-manage-filter-form input[type="text"] {
+    flex: 1;
+    min-width: 240px;
+}
+
+.camp-manage-filter-form select {
+    min-width: 160px;
+}
+
+.camp-manage-search-btn,
+.camp-manage-reset-btn {
+    height: 44px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.camp-manage-search-btn {
+    background: #1b4d3e;
+    color: #fff;
+}
+
+.camp-manage-reset-btn {
+    background: #eef2f5;
+    color: #374151;
+}
+
+.camp-manage-count {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 10px 0 18px;
+}
+
+.camp-manage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.camp-manage-card {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #edf0f3;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+    display: flex;
+    flex-direction: column;
+}
+
+.camp-manage-thumb {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    background: #f3f4f6;
+    display: block;
+}
+
+.camp-manage-body {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.camp-manage-name {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.camp-manage-meta {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+.camp-manage-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.camp-manage-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    background: #f4f1ea;
+    color: #1b4d3e;
+}
+
+.camp-manage-price {
+    margin-top: 4px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #ff6b35;
+}
+
+.camp-manage-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.camp-manage-actions a {
+    flex: 1;
+    height: 42px;
+    border-radius: 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.camp-manage-detail-btn {
+    background: #eef2f7;
+    color: #374151;
+}
+
+.camp-manage-edit-btn {
+    background: #e8f3ef;
+    color: #1b4d3e;
+}
+
+.camp-manage-delete-btn {
+    background: #fff1f2;
+    color: #dc2626;
+}
+
+.camp-manage-empty {
+    background: #fff;
+    border: 1px solid #edf0f3;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    padding: 70px 20px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 15px;
+}
+
+/* =========================
    ADMIN WRITE PAGE
-================================= */
+========================= */
 
 .write-page {
     background: #f8f9fa;
@@ -801,7 +1129,10 @@ textarea.form-control {
     background: var(--point-orange);
 }
 
-/* 반응형 */
+/* =========================
+   반응형
+========================= */
+
 @media (max-width: 1200px) {
     .admin-card-grid {
         grid-template-columns: repeat(2, minmax(220px, 1fr));
@@ -818,17 +1149,20 @@ textarea.form-control {
     }
 }
 
-@media (max-width: 900px) {
-    .admin-layout {
+@media (max-width: 1024px) {
+    .admin-main-wrap {
         flex-direction: column;
     }
 
     .admin-sidebar {
         width: 100%;
+        min-width: 100%;
         min-height: auto;
         position: static;
     }
+}
 
+@media (max-width: 900px) {
     .admin-content {
         padding: 20px;
     }
@@ -881,5 +1215,27 @@ textarea.form-control {
     .btn-line,
     .btn-submit {
         width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-content {
+        padding: 20px;
+    }
+
+    .camp-manage-filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .camp-manage-filter-form input[type="text"],
+    .camp-manage-filter-form select,
+    .camp-manage-search-btn,
+    .camp-manage-reset-btn {
+        width: 100%;
+    }
+
+    .camp-manage-actions {
+        flex-direction: column;
     }
 }

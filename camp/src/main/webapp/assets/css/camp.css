@@ -2,11 +2,19 @@
    🔥 공통 레이아웃
 ========================= */
 
+.camp-main,
+.camp-desc-card,
+.review-section {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .camp-main {
     display: flex;
     gap: 40px;
-    max-width: 1200px;
-    margin: 40px auto;
+    margin-top: 40px;
+    margin-bottom: 40px;
 }
 
 
@@ -23,7 +31,7 @@
     height: 400px;
     object-fit: cover;
     border-radius: 20px;
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--shadow-sm);
 }
 
 
@@ -31,27 +39,21 @@
    🔥 오른쪽 카드
 ========================= */
 
-/* 🔥 카드 전체 */
 .camp-right-card {
     flex: 1;
     background: #fff;
     padding: 30px;
     border-radius: 20px;
-    box-shadow: var(--card-shadow);
-
+    box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 🔥 핵심 */
+    justify-content: space-between;
 }
 
-
-/* 🔥 아래 영역 */
 .camp-info-bottom {
     margin-top: 20px;
 }
 
-
-/* 버튼 간격 */
 .btn-main-lg {
     margin-top: 10px;
 }
@@ -65,6 +67,7 @@
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .tag-box span {
@@ -104,24 +107,58 @@
 
 
 /* =========================
+   🔥 캠핑장 소개
+========================= */
+
+.camp-desc-card {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    padding: 28px;
+}
+
+.camp-desc-card h3 {
+    margin: 0 0 16px;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--dark-text);
+}
+
+.camp-desc-card p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.8;
+    color: #555;
+    word-break: keep-all;
+}
+
+.camp-desc-card .empty {
+    color: #888;
+}
+
+
+/* =========================
    🔥 리뷰 영역
 ========================= */
 
 .review-section {
-    max-width: 1200px;
-    margin: 40px auto;
+    margin-top: 24px;
+    margin-bottom: 40px;
     background: #fff;
     border-radius: 24px;
     padding: 25px;
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--shadow-sm);
 }
 
 .review-section h3 {
-    margin-bottom: 20px;
+    margin: 0 0 20px;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--dark-text);
 }
 
 
 /* 리뷰 카드 */
+
 .review-card {
     border-bottom: 1px solid #eee;
     padding: 12px 0;
@@ -143,6 +180,7 @@
 
 
 /* 리뷰 입력 */
+
 .review-form textarea {
     width: 100%;
     height: 90px;
@@ -150,19 +188,60 @@
     border: 1px solid #ddd;
     padding: 10px;
     margin-top: 15px;
+    resize: vertical;
 }
 
 .review-bottom {
     display: flex;
     justify-content: space-between;
     margin-top: 10px;
+    gap: 10px;
 }
 
 .review-bottom select {
     border-radius: 10px;
-    padding: 5px;
+    padding: 5px 10px;
 }
 
 .empty {
     color: #999;
+}
+
+
+/* =========================
+   🔥 반응형
+========================= */
+
+@media (max-width: 992px) {
+    .camp-main {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .camp-main-img {
+        height: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .camp-main,
+    .camp-desc-card,
+    .review-section {
+        max-width: 100%;
+    }
+
+    .camp-right-card,
+    .camp-desc-card,
+    .review-section {
+        padding: 20px;
+    }
+
+    .camp-main-img {
+        height: 260px;
+    }
+
+    .review-bottom {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }

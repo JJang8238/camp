@@ -12,7 +12,6 @@ public class User {
     private String role;
     private String status;
 
-    // 🔥 추가
     private String campName;
     private String businessName;
     private String businessNumber;
@@ -85,7 +84,6 @@ public class User {
         this.status = status;
     }
 
-    // 🔥 추가 getter/setter
     public String getCampName() {
         return campName;
     }

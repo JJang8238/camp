@@ -240,7 +240,7 @@ CREATE TABLE admin_logs (
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
+ALTER TABLE admin_logs ADD detail TEXT;--추가! 04.17
 -- =====================================================
 -- 11. 신고
 -- =====================================================
@@ -296,4 +296,6 @@ CREATE TABLE inquiries (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20) DEFAULT '대기'
 );
+
+
 

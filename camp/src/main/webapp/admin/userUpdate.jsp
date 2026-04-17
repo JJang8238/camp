@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="dao.UserDAO" %>
+<%@ page import="dao.AdminLogDAO" %>
 <%@ page import="java.net.URLEncoder" %>
 <%
     request.setCharacterEncoding("UTF-8");
@@ -14,7 +15,7 @@
         return;
     }
 
-    // 2. 파라미터 수신 (업데이트 데이터)
+    // 2. 파라미터 수신
     String idStr = request.getParameter("id");
     String newRole = request.getParameter("newRole");
     String newStatus = request.getParameter("newStatus");
@@ -35,15 +36,30 @@
     }
 
     int id = Integer.parseInt(idStr);
+
+    if (newRole == null) newRole = "";
+    if (newStatus == null) newStatus = "";
+
+    newRole = newRole.trim();
+    newStatus = newStatus.trim();
+
     UserDAO dao = new UserDAO();
     boolean result = dao.updateUserRoleAndStatus(id, newRole, newStatus);
 
-    // 4. 결과에 따른 이동 (인코딩 처리 포함)
+    // 4. 결과에 따른 이동 URL
     String redirectUrl = ctx + "/admin/users.jsp?keyword=" + URLEncoder.encode(keyword, "UTF-8")
             + "&status=" + URLEncoder.encode(statusFilter, "UTF-8")
             + "&userRole=" + URLEncoder.encode(roleFilter, "UTF-8");
 
     if (result) {
+        // ✅ 성공했을 때만 로그 저장
+        AdminLogDAO logDAO = new AdminLogDAO();
+
+        String action = "회원 권한/상태 변경";
+        String targetType = "회원";
+        String detail = "권한: " + newRole + ", 상태: " + newStatus;
+
+        logDAO.insertLog(adminUserId, action, targetType, id, detail);
 %>
     <script>
         alert("성공적으로 변경(승인)되었습니다.");

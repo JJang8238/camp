@@ -74,10 +74,28 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">카테고리</label>
-                                <input type="text" name="category" class="form-control"
-                                       placeholder="<%= isEvent ? "프로모션, 쿠폰, 모집" : "캠핑 팁, 안전 정보, 추천 캠핑장" %>">
-                            </div>
+    <label class="form-label">카테고리</label>
+
+    <% if (isEvent) { %>
+        <select name="category" class="form-select" required>
+            <option value="">카테고리 선택</option>
+            <option value="프로모션">프로모션</option>
+            <option value="쿠폰">쿠폰</option>
+            <option value="모집">모집</option>
+            <option value="체험단">체험단</option>
+            <option value="이벤트">이벤트</option>
+        </select>
+    <% } else { %>
+        <select name="category" class="form-select" required>
+            <option value="">카테고리 선택</option>
+            <option value="캠핑 팁">캠핑 팁</option>
+            <option value="안전 정보">안전 정보</option>
+            <option value="추천 캠핑장">추천 캠핑장</option>
+            <option value="장비 가이드">장비 가이드</option>
+            <option value="공지">공지</option>
+        </select>
+    <% } %>
+</div>
 
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">게시 상태</label>
@@ -191,7 +209,8 @@
 
                     <div class="write-actions">
                         <button type="button" class="btn-line" onclick="history.back()">취소</button>
-                        <button type="submit" class="btn-submit">
+                        <button type="submit"
+    						class="btn btn-lg <%= isEvent ? "btn-point" : "btn-main-custom" %>">
                             <%= isEvent ? "이벤트 저장" : "소식 저장" %>
                         </button>
                     </div>

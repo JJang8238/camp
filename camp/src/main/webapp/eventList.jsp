@@ -59,88 +59,98 @@
                    class="event-filter-btn <%= "ended".equals(status) ? "active" : "" %>">종료</a>
             </div>
 
-            <div class="event-result-count">
-                총 <span><%= list != null ? list.size() : 0 %></span>건의 이벤트가 있습니다.
-            </div>
+<div class="event-result-count">
+    총 <span><%= list != null ? list.size() : 0 %></span>건의 이벤트가 있습니다.
+</div>
 
-            <div class="row g-4">
-                <%
-                    if (list == null || list.isEmpty()) {
-                %>
-                    <div class="col-12">
-                        <div class="event-empty-box">
-                            등록된 이벤트가 없습니다.
-                        </div>
-                    </div>
-                <%
+<% if (list == null || list.isEmpty()) { %>
+
+    <!-- 빈 상태 -->
+    <div class="event-empty-box">
+        등록된 이벤트가 없습니다.
+    </div>
+
+<% } else { %>
+
+    <!-- 리스트 있을 때만 row 시작 -->
+    <div class="row g-4">
+
+        <%
+            for (Map<String, Object> item : list) {
+
+                Post p = (Post) item.get("post");
+                EventDetail e = (EventDetail) item.get("event");
+
+                String imgPath = ctx + "/assets/img/default.jpg";
+                String thumb = p.getThumbnail();
+
+                if (thumb != null && !thumb.trim().isEmpty()) {
+                    if (thumb.startsWith("http")) {
+                        imgPath = thumb;
+                    } else if (thumb.startsWith("/")) {
+                        imgPath = ctx + thumb;
                     } else {
-                        for (Map<String, Object> item : list) {
-                            Post p = (Post) item.get("post");
-                            EventDetail e = (EventDetail) item.get("event");
-
-                            String imgPath = ctx + "/assets/img/default.jpg";
-                            String thumb = p.getThumbnail();
-
-                            if (thumb != null && !thumb.trim().isEmpty()) {
-                                if (thumb.startsWith("http://") || thumb.startsWith("https://")) {
-                                    imgPath = thumb;
-                                } else if (thumb.startsWith(ctx + "/")) {
-                                    imgPath = thumb;
-                                } else if (thumb.startsWith("/")) {
-                                    imgPath = ctx + thumb;
-                                } else {
-                                    imgPath = ctx + "/assets/img/" + thumb;
-                                }
-                            }
-
-                            String statusText = "이벤트";
-                            String eventStatus = (e != null && e.getEventStatus() != null) ? e.getEventStatus() : "";
-
-                            if ("upcoming".equals(eventStatus)) {
-                                statusText = "진행예정";
-                            } else if ("ongoing".equals(eventStatus)) {
-                                statusText = "진행중";
-                            } else if ("ended".equals(eventStatus)) {
-                                statusText = "종료";
-                            }
-
-                            String periodText = "";
-                            if (e != null) {
-                                String startDate = e.getStartDate() != null ? e.getStartDate() : "";
-                                String endDate = e.getEndDate() != null ? e.getEndDate() : "";
-
-                                if (!startDate.isEmpty() || !endDate.isEmpty()) {
-                                    periodText = startDate + " ~ " + endDate;
-                                }
-                            }
-                %>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="event-card">
-                            <a href="<%=ctx%>/eventDetail.jsp?id=<%=p.getId()%>" class="event-card-link">
-                                <div class="event-thumb-wrap">
-                                    <img src="<%=imgPath%>" alt="이벤트 이미지" class="event-img">
-                                </div>
-
-                                <div class="event-body">
-                                    <div class="event-category"><%= statusText %></div>
-
-                                    <h3 class="event-title-text"><%= p.getTitle() %></h3>
-
-                                    <p class="event-summary">
-                                        <%= p.getSummary() != null ? p.getSummary() : "" %>
-                                    </p>
-
-                                    <div class="event-meta">
-                                        <span><%= periodText %></span>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                <%
-                        }
+                        imgPath = ctx + "/assets/img/" + thumb;
                     }
-                %>
+                }
+
+                String statusText = "이벤트";
+                String eventStatus = (e != null) ? e.getEventStatus() : "";
+
+                if ("upcoming".equals(eventStatus)) {
+                    statusText = "진행예정";
+                } else if ("ongoing".equals(eventStatus)) {
+                    statusText = "진행중";
+                } else if ("ended".equals(eventStatus)) {
+                    statusText = "종료";
+                }
+
+                String periodText = "";
+                if (e != null) {
+                    String startDate = e.getStartDate() != null ? e.getStartDate() : "";
+                    String endDate = e.getEndDate() != null ? e.getEndDate() : "";
+
+                    if (!startDate.isEmpty() || !endDate.isEmpty()) {
+                        periodText = startDate + " ~ " + endDate;
+                    }
+                }
+        %>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="event-card">
+                <a href="<%=ctx%>/eventDetail.jsp?id=<%=p.getId()%>" class="event-card-link">
+
+                    <div class="event-thumb-wrap">
+                        <img src="<%=imgPath%>" class="event-img">
+                    </div>
+
+                    <div class="event-body">
+
+                        <div class="event-category"><%= statusText %></div>
+
+                        <h3 class="event-title-text"><%= p.getTitle() %></h3>
+
+                        <p class="event-summary">
+                            <%= p.getSummary() != null ? p.getSummary() : "" %>
+                        </p>
+
+                        <div class="event-meta">
+                            <span><%= periodText %></span>
+                        </div>
+
+                    </div>
+
+                </a>
+            </div>
+        </div>
+
+        <%
+            } // for 끝
+        %>
+
+    </div>
+
+<% } %>
             </div>
 
         </div>

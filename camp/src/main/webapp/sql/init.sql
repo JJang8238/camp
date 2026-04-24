@@ -291,4 +291,10 @@ CREATE TABLE inquiries (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20) DEFAULT '대기'
 );
-ㅋ
+
+-- 0424 toss
+ALTER TABLE reservations
+    ADD COLUMN order_id    VARCHAR(100) NULL COMMENT '토스 주문번호',
+    ADD COLUMN payment_key VARCHAR(200) NULL COMMENT '토스 결제키',
+    ADD COLUMN amount      INT          NULL COMMENT '결제금액';
+    

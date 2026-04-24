@@ -187,127 +187,81 @@ a {
     white-space: nowrap;
 }
 
-/* ================= BUTTON ================= */
+/* ================= BUTTON SYSTEM ================= */
 
-.btn-outline-custom,
-.btn-main-custom,
-.btn-logout,
-.btn-logout-custom {
+/* 🔥 기본 버튼 */
+.btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 16px;
-    min-height: 38px;
-    border-radius: 20px;
-    font-size: 14px;
-    transition: var(--transition-fast);
-}
+    min-width: 120px;
+    height: 44px;
+    padding: 0 16px;
 
-.btn-outline-custom {
-    border: 1px solid #ccc;
-    color: #555;
-    background: var(--white);
-}
-
-.btn-outline-custom:hover {
-    background: #f8f9fa;
-    color: #333;
-}
-
-.btn-main-custom {
-    background: var(--main-green);
-    color: var(--white);
-    border: none;
-}
-
-.btn-main-custom:hover {
-    background: #163d31;
-    color: var(--white);
-}
-
-.btn-logout,
-.btn-logout-custom {
-    border: 1px solid var(--point-orange);
-    color: var(--point-orange);
-    background: var(--white);
-    min-height: 35px;
-}
-
-.btn-logout:hover,
-.btn-logout-custom:hover {
-    background: var(--point-orange);
-    color: var(--white);
-}
-
-.btn-search,
-.btn-filter,
-.btn-submit-common {
-    width: 100%;
-    height: 46px;
-    border: none;
     border-radius: 14px;
-    background: var(--main-green);
-    color: var(--white);
+    border: none;
+
     font-size: 14px;
     font-weight: 700;
+
     cursor: pointer;
-    transition: var(--transition-fast);
+    transition: 0.2s ease;
 }
 
-.btn-submit-sm {
-    height: 38px;
-    padding: 0 16px;
-    border-radius: 10px;
+/* 🔥 primary (메인) */
+.btn-primary {
     background: var(--main-green);
     color: #fff;
-    border: none;
-    font-size: 13px;
 }
 
-.btn-search:hover,
-.btn-filter:hover,
-.btn-submit-common:hover {
-    background: var(--sub-green);
+.btn-primary:hover {
+    background: #163d31;
 }
 
-.btn-soft {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 42px;
-    padding: 0 16px;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    background: var(--white);
-    color: #555;
-    font-size: 14px;
-    font-weight: 500;
-    transition: var(--transition-fast);
-}
-
-.btn-soft:hover {
-    background: var(--bg-soft);
-}
-
+/* 🔥 event (주황) */
 .btn-point {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 42px;
-    padding: 0 16px;
-    border: none;
-    border-radius: 12px;
     background: var(--point-orange);
-    color: var(--white);
-    font-size: 14px;
-    font-weight: 700;
-    transition: var(--transition-fast);
+    color: #fff;
 }
 
 .btn-point:hover {
     opacity: 0.92;
-    color: var(--white);
 }
+
+/* 🔥 outline */
+.btn-outline {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    color: #555;
+}
+
+.btn-outline:hover {
+    background: #f8f9fa;
+}
+
+/* 🔥 danger */
+.btn-danger {
+    background: #dc2626;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+/* 🔥 사이즈 */
+.btn-lg {
+    height: 48px;
+    min-width: 140px;
+}
+
+.btn-sm {
+    height: 36px;
+    min-width: 90px;
+    font-size: 13px;
+}
+
+
 
 /* ================= LAYOUT ================= */
 

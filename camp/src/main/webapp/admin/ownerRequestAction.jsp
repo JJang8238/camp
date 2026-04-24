@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="dao.UserDAO" %>
+<%@ page import="dao.AdminLogDAO" %>
 <%
     request.setCharacterEncoding("UTF-8");
     String ctx = request.getContextPath();
@@ -30,17 +31,38 @@
     }
 
     UserDAO dao = new UserDAO();
+    AdminLogDAO logDAO = new AdminLogDAO();
+
     boolean success = false;
 
     if ("approve".equals(actionType)) {
         success = dao.approveOwnerRequest(id);
+
         if (success) {
+            logDAO.insertLog(
+                adminUserId,
+                "사업자 승인",
+                "사업자",
+                id,
+                "사업자 승인 요청을 승인 처리"
+            );
+
             response.sendRedirect(ctx + "/admin/ownerRequests.jsp?result=approved");
             return;
         }
+
     } else if ("reject".equals(actionType)) {
         success = dao.rejectOwnerRequest(id);
+
         if (success) {
+            logDAO.insertLog(
+                adminUserId,
+                "사업자 반려",
+                "사업자",
+                id,
+                "사업자 승인 요청을 반려 처리"
+            );
+
             response.sendRedirect(ctx + "/admin/ownerRequests.jsp?result=rejected");
             return;
         }

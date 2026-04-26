@@ -86,7 +86,7 @@ public class WriteProcessServlet extends HttpServlet {
             return;
         }
 
-        String uploadPath = getServletContext().getRealPath("/uploads/product");
+        String uploadPath = getServletContext().getRealPath("/assets/img/products");
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
@@ -112,7 +112,9 @@ public class WriteProcessServlet extends HttpServlet {
                 String fullPath = uploadPath + File.separator + savedFileName;
 
                 part.write(fullPath);
-                imagePaths.add("/uploads/product/" + savedFileName);
+
+                // DB 저장 경로 변경
+                imagePaths.add("/assets/img/products/" + savedFileName);
             }
 
             if (imagePaths.isEmpty()) {

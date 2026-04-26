@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import dao.AdminLogDAO;
 import dao.PostDAO;
 import dto.EventDetail;
 import dto.Post;
@@ -15,7 +16,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-import dao.AdminLogDAO;
 
 @WebServlet("/post/write")
 @MultipartConfig(
@@ -66,9 +66,11 @@ public class PostWriteServlet extends HttpServlet {
         }
 
         if (imagePart != null && imagePart.getSize() > 0) {
-            String originalFileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
-            String ext = "";
+            String originalFileName = Paths.get(imagePart.getSubmittedFileName())
+                    .getFileName()
+                    .toString();
 
+            String ext = "";
             int dotIdx = originalFileName.lastIndexOf(".");
             if (dotIdx > -1) {
                 ext = originalFileName.substring(dotIdx);
@@ -76,14 +78,21 @@ public class PostWriteServlet extends HttpServlet {
 
             String savedName = UUID.randomUUID().toString().replace("-", "") + ext;
 
-            String uploadDirPath = getServletContext().getRealPath("/assets/upload");
+            String uploadWebPath = "event".equals(postType)
+                    ? "/assets/img/events"
+                    : "/assets/img/posts";
+
+            String uploadDirPath = getServletContext().getRealPath(uploadWebPath);
+
             File uploadDir = new File(uploadDirPath);
             if (!uploadDir.exists()) {
                 uploadDir.mkdirs();
             }
 
             imagePart.write(uploadDirPath + File.separator + savedName);
-            thumbnail = request.getContextPath() + "/assets/upload/" + savedName;
+
+            // DB에는 contextPath 없이 웹 경로만 저장
+            thumbnail = uploadWebPath + "/" + savedName;
         }
 
         Post post = new Post();
@@ -106,22 +115,18 @@ public class PostWriteServlet extends HttpServlet {
             script(response, "게시물 저장에 실패했습니다.", "history.back();");
             return;
         }
-        
-        /* =========================
-        🔥 로그 추가 (여기!)
-     ========================= */
-     AdminLogDAO logDAO = new AdminLogDAO();
 
-     String typeText = "event".equals(postType) ? "이벤트" : "게시글";
+        AdminLogDAO logDAO = new AdminLogDAO();
 
-     logDAO.insertLog(
-         authorId,
-         typeText + " 작성",
-         "게시글",
-         postId,
-         title + " 등록"
-     );
-     /* ========================= */
+        String typeText = "event".equals(postType) ? "이벤트" : "게시글";
+
+        logDAO.insertLog(
+            authorId,
+            typeText + " 작성",
+            "게시글",
+            postId,
+            title + " 등록"
+        );
 
         if ("event".equals(postType)) {
             EventDetail event = new EventDetail();

@@ -125,11 +125,10 @@
             </div>
         <% } else {
             for (Product p : list) {
-                String imgFile = p.getImage();
-                String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
-                        ? ctx + "/assets/img/" + imgFile
-                        : ctx + "/assets/img/default.jpg";
-
+            	String imgFile = p.getImage();
+            	String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
+            	        ? ctx + imgFile
+            	        : ctx + "/assets/img/default.jpg";
                 String status = p.getStatus();
                 boolean isSoldOut = "soldout".equals(status);
 

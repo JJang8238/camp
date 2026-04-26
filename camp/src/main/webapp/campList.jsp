@@ -205,14 +205,17 @@
         <%
             if (campList != null && !campList.isEmpty()) {
                 for (Product p : campList) {
-                    String img = p.getImageUrl();
-                    if (img == null || img.isEmpty()) img = "default.jpg";
+                	String img = p.getImageUrl();
+
+                	String imgPath = (img != null && !img.trim().isEmpty())
+                	        ? ctx + img
+                	        : ctx + "/assets/img/default.jpg";
         %>
             <div class="horizontal-card">
                 <div class="img-box">
                     <a href="<%=ctx%>/campDetail.jsp?id=<%= p.getId() %>" class="camp-thumb-link">
-                        <img src="<%=ctx%>/assets/img/<%= img %>" alt="<%= p.getName() %>"
-                             onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
+                        <img src="<%=imgPath%>" alt="<%= p.getName() %>"
+     						onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
                     </a>
                 </div>
 

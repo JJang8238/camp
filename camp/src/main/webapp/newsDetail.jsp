@@ -38,7 +38,7 @@
         } else if (thumb.startsWith("/")) {
             imgPath = ctx + thumb;
         } else {
-            imgPath = ctx + "/assets/img/" + thumb;
+            imgPath = ctx + "/assets/img/posts/" + thumb;
         }
     }
 %>
@@ -74,7 +74,10 @@
                 </div>
 
                 <div class="news-detail-thumb">
-                    <img src="<%=imgPath%>" alt="캠핑 소식 이미지" class="news-detail-img">
+                    <img src="<%=imgPath%>"
+     					alt="캠핑 소식 이미지"
+     					class="news-detail-img"
+     					onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
                 </div>
 
                 <% if (n.getSummary() != null && !n.getSummary().trim().isEmpty()) { %>

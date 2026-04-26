@@ -46,16 +46,11 @@ CREATE TABLE users (
 
 -- 관리자 계정
 INSERT INTO users (username, password, name, email, role, status)
-VALUES (
-    'test1',
-    '$2a$10$HcTps.sThw2NuEG.gPs.2eDrLuJpAzrn8E9VHqlTS5dsEwqZSxbMa',
-    '테스트',
-    'test1@test.com',
-    'admin',
-    'ACTIVE'
-);
+VALUES ('test', '$2a$10$.iRWvuu756Z9g21WKfSKJ.magymk0wH73GkvhA7yF9lrfutIQsMBO', '테스트', 'test@test.com', 'admin', 'ACTIVE');
 
-
+UPDATE users
+SET role = 'admin'
+WHERE username = 'test';
 -- =====================================================
 -- 2. 이메일 인증
 -- =====================================================
@@ -278,7 +273,7 @@ CREATE TABLE users (
 
 -- 관리자 계정 미리 생성 (데모용)
 INSERT INTO users (username, password, name, email, role, status)
-VALUES ('admin', '1234', '관리자', 'admin@camp.com', 'ADMIN', 'ACTIVE');
+VALUES ('admin', '1234', '관리자', 'admin@camp.com', 'admin', 'ACTIVE');
 
 ALTER TABLE users ADD COLUMN camp_name VARCHAR(100) NULL;
 ALTER TABLE users ADD COLUMN business_name VARCHAR(100) NULL;
@@ -297,5 +292,9 @@ CREATE TABLE inquiries (
     status VARCHAR(20) DEFAULT '대기'
 );
 
-
-
+-- 0424 toss
+ALTER TABLE reservations
+    ADD COLUMN order_id    VARCHAR(100) NULL COMMENT '토스 주문번호',
+    ADD COLUMN payment_key VARCHAR(200) NULL COMMENT '토스 결제키',
+    ADD COLUMN amount      INT          NULL COMMENT '결제금액';
+    

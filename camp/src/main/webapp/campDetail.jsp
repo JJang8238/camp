@@ -37,6 +37,11 @@ if (matches == null) matches = new ArrayList<>();
 PlaceReviewDAO reviewDao = new PlaceReviewDAO();
 List<Map<String, Object>> reviews = reviewDao.listByPlace(name, "latest");
 if (reviews == null) reviews = new ArrayList<>();
+
+// 로그인 유저 정보
+Integer userId = (Integer) session.getAttribute("userId");
+String userName = (String) session.getAttribute("userName");
+if (userName == null) userName = "";
 %>
 
 <!DOCTYPE html>
@@ -47,6 +52,9 @@ if (reviews == null) reviews = new ArrayList<>();
 
     <link rel="stylesheet" href="<%=ctx%>/assets/css/common.css">
     <link rel="stylesheet" href="<%=ctx%>/assets/css/camp.css">
+
+    <!-- 토스페이먼츠 SDK -->
+    <script src="https://js.tosspayments.com/v1"></script>
 </head>
 
 <body>
@@ -82,7 +90,8 @@ if (reviews == null) reviews = new ArrayList<>();
                         ₩ <%=camp.getPrice()%>
                     </div>
 
-                    <button class="btn-main-lg">예약하기</button>
+                    <!-- 기존 버튼에 id 추가 -->
+                    <button class="btn-main-lg" id="pay-btn">예약하기</button>
                 </div>
             </div>
         </div>
@@ -137,6 +146,31 @@ if (reviews == null) reviews = new ArrayList<>();
 </div>
 
 <jsp:include page="/include/footer.jsp" />
+
+<!-- 토스페이먼츠 결제 스크립트 -->
+<script>
+const clientKey = "test_ck_6bJXmgo28e4dxgEbwWKArLAnGKWx"; // ← 본인 클라이언트 키로 교체
+const tossPayments = TossPayments(clientKey);
+
+document.getElementById("pay-btn").addEventListener("click", function () {
+    <% if (userId == null) { %>
+        alert("로그인 후 이용해주세요.");
+        location.href = "<%=ctx%>/login.jsp";
+        return;
+    <% } %>
+
+    const orderId = "ORDER-<%=id%>-" + Date.now();
+
+    tossPayments.requestPayment("카드", {
+        amount: <%=camp.getPrice()%>,
+        orderId: orderId,
+        orderName: "<%=name%>",
+        successUrl: window.location.origin + "<%=ctx%>/payment/success.jsp",
+        failUrl:    window.location.origin + "<%=ctx%>/payment/fail.jsp",
+        customerName: "<%=userName%>"
+    });
+});
+</script>
 
 </body>
 </html>

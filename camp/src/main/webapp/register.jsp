@@ -519,7 +519,6 @@ function validateBeforeSubmit() {
 
     return true;
 }
-
 </script>
 
 </body>

@@ -780,29 +780,7 @@ textarea.form-control {
     font-weight: 700;
 }
 
-.btn-submit {
-    min-width: 150px;
-    height: 48px;
-    border: none;
-    border-radius: 14px;
-    background: var(--main-green);
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
 
-.btn-submit:hover {
-    background: #163d31;
-}
-
-.btn-submit.event {
-    background: var(--point-orange);
-}
-
-.btn-submit.event:hover {
-    opacity: 0.92;
-}
 
 .event-only {
     display: none;

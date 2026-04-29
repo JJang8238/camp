@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" session="true"%>
-<%@ page import="java.util.*, dto.Product, dao.UserDAO" %>
+<%@ page import="java.util.*, dto.Product" %>
 <%
     String ctx = request.getContextPath();
 
@@ -12,7 +12,6 @@
     String keyword = request.getParameter("keyword");
     String tags = request.getParameter("tags");
 
-    // 필터 파라미터 수집
     String[] selectedTypes = request.getParameterValues("type");
     List<String> typeList = (selectedTypes != null) ? Arrays.asList(selectedTypes) : new ArrayList<>();
 
@@ -28,52 +27,80 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>캠프 메이트 | 캠핑장 예약</title>
 
     <%@ include file="/include/head.jsp" %>
     <link rel="stylesheet" href="<%=ctx%>/assets/css/camp.css">
+
     <style>
-        .filter-group { margin-bottom: 20px; }
-        .filter-subtitle { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; display: block; }
-        
-        /* 접고 펴기 스타일 */
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-subtitle {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+
         .collapsible-content {
-            display: none; /* 기본적으로 닫힘 */
+            display: none;
             overflow: hidden;
             border-top: 1px solid #eee;
             padding-top: 15px;
             margin-top: 10px;
         }
+
         .btn-toggle-filter {
             width: 100%;
-            background: none;
+            background: #fff;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 8px;
+            border-radius: 14px;
+            padding: 10px 12px;
             font-size: 13px;
+            font-weight: 700;
             color: #666;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 5px;
-            transition: all 0.2s;
+            gap: 6px;
+            transition: 0.2s ease;
             margin-bottom: 15px;
         }
-        .btn-toggle-filter:hover { background-color: #f9f9f9; }
-        .btn-toggle-filter.active { background-color: #f1f3f1; color: #2d5a27; border-color: #2d5a27; }
-        .toggle-icon { transition: transform 0.3s; }
-        .btn-toggle-filter.active .toggle-icon { transform: rotate(180deg); }
+
+        .btn-toggle-filter:hover {
+            background-color: #f8f9fa;
+            color: var(--main-green);
+        }
+
+        .btn-toggle-filter.active {
+            background-color: #eef4f1;
+            color: var(--main-green);
+            border-color: var(--main-green);
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s;
+        }
+
+        .btn-toggle-filter.active .toggle-icon {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
+
 <body>
 
 <jsp:include page="/include/header.jsp" />
 
 <div class="content-wrapper">
+
     <aside class="sidebar">
         <div class="sidebar-sticky">
+
             <div class="filter-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="filter-title m-0">필터</h3>
@@ -85,7 +112,11 @@
 
                     <div class="filter-group">
                         <label class="filter-label">검색어</label>
-                        <input type="text" name="keyword" class="filter-input" placeholder="캠핑장명, 지역, 키워드 검색" value="<%= (keyword != null) ? keyword : "" %>">
+                        <input type="text"
+                               name="keyword"
+                               class="filter-input"
+                               placeholder="캠핑장명, 지역, 키워드 검색"
+                               value="<%= (keyword != null) ? keyword : "" %>">
                     </div>
 
                     <div class="filter-group" id="typeTagGroup">
@@ -99,7 +130,10 @@
                                 <span class="common-tag <%= selected ? "active" : "" %>" data-value="<%=t%>"><%=t%></span>
                             <% } %>
                         </div>
-                        <input type="hidden" name="type" id="typeInput" value="<%= (selectedTypes != null) ? String.join(",", selectedTypes) : "" %>">
+                        <input type="hidden"
+                               name="type"
+                               id="typeInput"
+                               value="<%= (selectedTypes != null) ? String.join(",", selectedTypes) : "" %>">
                     </div>
 
                     <div class="filter-group" id="locTagGroup">
@@ -113,7 +147,10 @@
                                 <span class="common-tag <%= selected ? "active" : "" %>" data-value="<%=l%>"><%=l%></span>
                             <% } %>
                         </div>
-                        <input type="hidden" name="loc" id="locInput" value="<%= (selectedLocs != null) ? String.join(",", selectedLocs) : "" %>">
+                        <input type="hidden"
+                               name="loc"
+                               id="locInput"
+                               value="<%= (selectedLocs != null) ? String.join(",", selectedLocs) : "" %>">
                     </div>
 
                     <button type="button" class="btn-toggle-filter" id="filterToggleBtn">
@@ -123,11 +160,14 @@
 
                     <div class="collapsible-content" id="detailFilterArea">
                         <div id="facilityTagGroup">
+
                             <div class="filter-group">
                                 <span class="filter-subtitle">공용시설</span>
                                 <div class="common-tag-list">
-                                    <% String[] commonFaci = {"골프연습장", "공용개수대/화장실", "캠프파이어", "산책로", "카페", "찜질방", "족구장", "노래방", "세미나실", "포토존", "매점"};
-                                       for(String f : commonFaci) { %>
+                                    <%
+                                        String[] commonFaci = {"골프연습장", "공용개수대/화장실", "캠프파이어", "산책로", "카페", "찜질방", "족구장", "노래방", "세미나실", "포토존", "매점"};
+                                        for (String f : commonFaci) {
+                                    %>
                                         <span class="common-tag <%= facilityList.contains(f) ? "active" : "" %>" data-value="<%=f%>"><%=f%></span>
                                     <% } %>
                                 </div>
@@ -136,8 +176,10 @@
                             <div class="filter-group">
                                 <span class="filter-subtitle">바베큐장</span>
                                 <div class="common-tag-list">
-                                    <% String[] bbqFaci = {"개별바베큐장", "공용바베큐장", "단체바베큐장"};
-                                       for(String f : bbqFaci) { %>
+                                    <%
+                                        String[] bbqFaci = {"개별바베큐장", "공용바베큐장", "단체바베큐장"};
+                                        for (String f : bbqFaci) {
+                                    %>
                                         <span class="common-tag <%= facilityList.contains(f) ? "active" : "" %>" data-value="<%=f%>"><%=f%></span>
                                     <% } %>
                                 </div>
@@ -146,8 +188,10 @@
                             <div class="filter-group">
                                 <span class="filter-subtitle">스파/수영장</span>
                                 <div class="common-tag-list">
-                                    <% String[] poolFaci = {"스파", "야외수영장", "개별수영장", "실내수영장", "사계절수영장", "어린이수영장", "애견수영장"};
-                                       for(String f : poolFaci) { %>
+                                    <%
+                                        String[] poolFaci = {"스파", "야외수영장", "개별수영장", "실내수영장", "사계절수영장", "어린이수영장", "애견수영장"};
+                                        for (String f : poolFaci) {
+                                    %>
                                         <span class="common-tag <%= facilityList.contains(f) ? "active" : "" %>" data-value="<%=f%>"><%=f%></span>
                                     <% } %>
                                 </div>
@@ -156,18 +200,24 @@
                             <div class="filter-group">
                                 <span class="filter-subtitle">키즈/반려견시설</span>
                                 <div class="common-tag-list">
-                                    <% String[] extraFaci = {"어린이놀이터", "애견놀이터"};
-                                       for(String f : extraFaci) { %>
+                                    <%
+                                        String[] extraFaci = {"어린이놀이터", "애견놀이터"};
+                                        for (String f : extraFaci) {
+                                    %>
                                         <span class="common-tag <%= facilityList.contains(f) ? "active" : "" %>" data-value="<%=f%>"><%=f%></span>
                                     <% } %>
                                 </div>
                             </div>
-                            <input type="hidden" name="facility" id="facilityInput" value="<%= (selectedFacilities != null) ? String.join(",", selectedFacilities) : "" %>">
+
+                            <input type="hidden"
+                                   name="facility"
+                                   id="facilityInput"
+                                   value="<%= (selectedFacilities != null) ? String.join(",", selectedFacilities) : "" %>">
                         </div>
                     </div>
 
                     <div class="filter-group mt-3">
-                        <button type="submit" class="btn-search">검색하기</button>
+                        <button type="submit" class="btn btn-primary w-100">검색하기</button>
                     </div>
                 </form>
             </div>
@@ -180,6 +230,7 @@
                     <li><a href="<%=ctx%>/mypage.jsp">내 예약 보기</a></li>
                 </ul>
             </div>
+
         </div>
     </aside>
 
@@ -190,7 +241,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="camp-count small text-muted">
                 <% if (keyword != null && !keyword.isEmpty()) { %>
-                    "<%= keyword %>" · 
+                    "<%= keyword %>" ·
                 <% } %>
                 <%= (campList != null) ? campList.size() : 0 %>개
             </div>
@@ -205,17 +256,18 @@
         <%
             if (campList != null && !campList.isEmpty()) {
                 for (Product p : campList) {
-                	String img = p.getImageUrl();
+                    String img = p.getImageUrl();
 
-                	String imgPath = (img != null && !img.trim().isEmpty())
-                	        ? ctx + img
-                	        : ctx + "/assets/img/default.jpg";
+                    String imgPath = (img != null && !img.trim().isEmpty())
+                            ? ctx + img
+                            : ctx + "/assets/img/default.jpg";
         %>
             <div class="horizontal-card">
                 <div class="img-box">
                     <a href="<%=ctx%>/campDetail.jsp?id=<%= p.getId() %>" class="camp-thumb-link">
-                        <img src="<%=imgPath%>" alt="<%= p.getName() %>"
-     						onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
+                        <img src="<%=imgPath%>"
+                             alt="<%= p.getName() %>"
+                             onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
                     </a>
                 </div>
 
@@ -255,8 +307,8 @@
                         </div>
 
                         <div class="card-action-group">
-                            <a href="<%=ctx%>/campDetail.jsp?id=<%= p.getId() %>" class="btn-soft">상세보기</a>
-                            <a href="<%=ctx%>/campDetail.jsp?id=<%= p.getId() %>" class="btn-point">예약하기</a>
+                            <a href="<%=ctx%>/campDetail.jsp?id=<%= p.getId() %>" class="btn btn-outline">상세보기</a>
+                            <a href="<%=ctx%>/campDetail.jsp?id=<%= p.getId() %>" class="btn btn-point">예약하기</a>
                         </div>
                     </div>
                 </div>
@@ -275,26 +327,24 @@
 <jsp:include page="/include/footer.jsp" />
 
 <script>
-    // 필터 펼치기/접기 로직
     const toggleBtn = document.getElementById('filterToggleBtn');
     const filterArea = document.getElementById('detailFilterArea');
     const toggleText = document.getElementById('toggleText');
 
     toggleBtn.addEventListener('click', () => {
         const isOpen = filterArea.style.display === 'block';
+
         filterArea.style.display = isOpen ? 'none' : 'block';
         toggleBtn.classList.toggle('active');
         toggleText.innerText = isOpen ? '상세 시설 필터 펼치기' : '상세 시설 필터 접기';
     });
 
-    // 만약 상세 시설이 이미 선택되어 있다면 자동으로 펼쳐두기
     if (document.getElementById('facilityInput').value !== "") {
         filterArea.style.display = 'block';
         toggleBtn.classList.add('active');
         toggleText.innerText = '상세 시설 필터 접기';
     }
 
-    // 태그 선택 로직
     function setupTagGroup(groupId, inputId) {
         const group = document.getElementById(groupId);
         const input = document.getElementById(inputId);
@@ -312,7 +362,10 @@
 
         tags.forEach(tag => {
             const value = tag.dataset.value;
-            if (selected.has(value)) tag.classList.add("active");
+
+            if (selected.has(value)) {
+                tag.classList.add("active");
+            }
 
             tag.addEventListener("click", function () {
                 if (selected.has(value)) {
@@ -322,6 +375,7 @@
                     selected.add(value);
                     tag.classList.add("active");
                 }
+
                 input.value = Array.from(selected).join(",");
             });
         });

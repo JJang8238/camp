@@ -294,3 +294,35 @@
     background: #eef4f1;
     transform: translateY(-1px);
 }
+
+.owner-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.owner-summary-box {
+    border: 1px solid #eeeeee;
+    border-radius: 20px;
+    padding: 20px;
+    background: #fafafa;
+}
+
+.owner-summary-label {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.owner-summary-value {
+    font-size: 26px;
+    color: var(--dark-text);
+    font-weight: 800;
+}
+
+.owner-summary-sub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #888;
+}

@@ -2,8 +2,6 @@
 <%@ page import="java.util.*" %>
 <%@ page import="java.util.stream.Collectors" %>
 <%@ page import="dao.UserDAO, dao.ProductDAO, dto.Product" %>
-<%@ page import="java.time.*" %>
-<%@ page import="java.time.format.DateTimeFormatter" %>
 
 <%
     String ctx = request.getContextPath();
@@ -38,11 +36,8 @@
         list = list.stream()
                 .filter(p -> {
                     if (p.getCategory() == null) return false;
-
                     for (String cat : selectedCategoryList) {
-                        if (p.getCategory().equals(cat)) {
-                            return true;
-                        }
+                        if (p.getCategory().equals(cat)) return true;
                     }
                     return false;
                 })
@@ -66,6 +61,7 @@
 <div class="content-wrapper">
     <aside class="sidebar">
         <div class="sidebar-sticky">
+
             <div class="filter-card">
                 <h3 class="filter-title">상품 검색</h3>
 
@@ -96,7 +92,7 @@
                 </div>
 
                 <div class="filter-group">
-                    <button type="button" class="btn-search" onclick="searchProducts()">검색하기</button>
+                    <button type="button" class="btn btn-primary w-100" onclick="searchProducts()">검색하기</button>
                 </div>
             </div>
 
@@ -125,10 +121,11 @@
             </div>
         <% } else {
             for (Product p : list) {
-            	String imgFile = p.getImage();
-            	String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
-            	        ? ctx + imgFile
-            	        : ctx + "/assets/img/default.jpg";
+                String imgFile = p.getImage();
+                String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
+                        ? ctx + imgFile
+                        : ctx + "/assets/img/default.jpg";
+
                 String status = p.getStatus();
                 boolean isSoldOut = "soldout".equals(status);
 
@@ -160,9 +157,7 @@
                         </div>
 
                         <div class="card-desc">
-                            <%= (desc != null && !desc.isEmpty())
-                                    ? desc
-                                    : "상품 설명이 없습니다." %>
+                            <%= (desc != null && !desc.isEmpty()) ? desc : "상품 설명이 없습니다." %>
                         </div>
 
                         <div class="card-meta">
@@ -193,12 +188,12 @@
                         </div>
 
                         <div class="card-action-group">
-                            <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn-soft">상세보기</a>
+                            <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn btn-outline">상세보기</a>
 
                             <% if (isSoldOut) { %>
-                                <span class="btn-point disabled">거래불가</span>
+                                <button type="button" class="btn btn-outline" disabled>거래불가</button>
                             <% } else { %>
-                                <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn-point">거래하기</a>
+                                <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn btn-point">거래하기</a>
                             <% } %>
                         </div>
                     </div>
@@ -231,11 +226,9 @@ function updateTagStyle() {
     tags.forEach(tag => {
         const text = tag.textContent.trim();
         if (selected.includes(text)) {
-            tag.style.background = "var(--main-green)";
-            tag.style.color = "white";
+            tag.classList.add("active");
         } else {
-            tag.style.background = "";
-            tag.style.color = "";
+            tag.classList.remove("active");
         }
     });
 }

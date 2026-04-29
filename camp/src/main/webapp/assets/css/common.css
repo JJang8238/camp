@@ -189,11 +189,11 @@ a {
 
 /* ================= BUTTON SYSTEM ================= */
 
-/* 🔥 기본 버튼 */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     min-width: 120px;
     height: 44px;
     padding: 0 16px;
@@ -203,12 +203,18 @@ a {
 
     font-size: 14px;
     font-weight: 700;
+    line-height: 1;
 
     cursor: pointer;
     transition: 0.2s ease;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
-/* 🔥 primary (메인) */
+.btn:hover {
+    text-decoration: none;
+}
+
 .btn-primary {
     background: var(--main-green);
     color: #fff;
@@ -216,9 +222,9 @@ a {
 
 .btn-primary:hover {
     background: #163d31;
+    color: #fff;
 }
 
-/* 🔥 event (주황) */
 .btn-point {
     background: var(--point-orange);
     color: #fff;
@@ -226,9 +232,9 @@ a {
 
 .btn-point:hover {
     opacity: 0.92;
+    color: #fff;
 }
 
-/* 🔥 outline */
 .btn-outline {
     background: #fff;
     border: 1px solid var(--border-color);
@@ -237,9 +243,9 @@ a {
 
 .btn-outline:hover {
     background: #f8f9fa;
+    color: #222;
 }
 
-/* 🔥 danger */
 .btn-danger {
     background: #dc2626;
     color: #fff;
@@ -247,21 +253,81 @@ a {
 
 .btn-danger:hover {
     background: #b91c1c;
+    color: #fff;
 }
 
-/* 🔥 사이즈 */
 .btn-lg {
     height: 48px;
     min-width: 140px;
+    font-size: 15px;
 }
 
 .btn-sm {
     height: 36px;
     min-width: 90px;
     font-size: 13px;
+    border-radius: 12px;
 }
 
+/* 기존 페이지 호환용 */
+.btn-search {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
+    width: 100%;
+    min-width: 120px;
+    height: 44px;
+    padding: 0 16px;
+
+    border-radius: 14px;
+    border: none;
+
+    background: var(--main-green);
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btn-search:hover {
+    background: #163d31;
+    color: #fff;
+}
+
+.btn-soft {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 120px;
+    height: 44px;
+    padding: 0 16px;
+
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+
+    background: #fff;
+    color: #555;
+
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-soft:hover {
+    background: #f8f9fa;
+    color: #222;
+}
 
 /* ================= LAYOUT ================= */
 
@@ -277,6 +343,11 @@ a {
 .sidebar {
     width: 280px;
     flex-shrink: 0;
+}
+
+.sidebar-sticky {
+    position: sticky;
+    top: 110px;
 }
 
 .main-content {
@@ -416,6 +487,7 @@ a {
     font-size: 13px;
     font-weight: 500;
     transition: var(--transition-fast);
+    cursor: pointer;
 }
 
 .common-tag:hover {
@@ -640,6 +712,10 @@ a {
     text-align: center;
 }
 
+.mt-10 {
+    margin-top: 10px;
+}
+
 .mt-40 {
     margin-top: 40px;
 }
@@ -648,10 +724,34 @@ a {
     margin-bottom: 40px;
 }
 
+.w-100 {
+    width: 100%;
+}
+
 .flex-center {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* ================= ADMIN HEADER BUTTON ================= */
+
+.btn-admin {
+    border: 1px solid var(--main-green);
+    color: var(--main-green);
+    background: #fff;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-right: 8px;
+    transition: 0.2s ease;
+}
+
+.btn-admin:hover {
+    background: #eef4f1;
+    color: var(--main-green);
 }
 
 /* ================= RESPONSIVE ================= */
@@ -706,6 +806,11 @@ a {
         width: 100%;
     }
 
+    .sidebar-sticky,
+    .common-sidebar-sticky {
+        position: static;
+    }
+
     .horizontal-card {
         flex-direction: column;
     }
@@ -742,15 +847,6 @@ a {
         display: none;
     }
 
-    .btn-outline-custom,
-    .btn-main-custom,
-    .btn-logout,
-    .btn-logout-custom {
-        font-size: 13px;
-        padding: 6px 12px;
-        min-height: 34px;
-    }
-
     .content-wrapper {
         margin: 24px auto;
         padding: 0 14px;
@@ -769,6 +865,15 @@ a {
     .card-box {
         padding: 18px;
         border-radius: 20px;
+    }
+
+    .btn,
+    .btn-search,
+    .btn-soft {
+        font-size: 13px;
+        height: 40px;
+        padding: 0 12px;
+        min-width: 90px;
     }
 
     .card-main-title {
@@ -791,20 +896,4 @@ a {
     .card-action-group > * {
         flex: 1;
     }
-}
-.btn-admin {
-    border: 1px solid #1b4d3e;
-    color: #1b4d3e;
-    background: #fff;
-    padding: 8px 14px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    margin-right: 8px;
-    transition: 0.2s ease;
-}
-
-.btn-admin:hover {
-    background: #eef4f1;
 }

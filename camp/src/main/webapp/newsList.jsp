@@ -93,7 +93,7 @@
                             } else if (thumb.startsWith("/")) {
                                 imgPath = ctx + thumb;
                             } else {
-                                imgPath = ctx + "/assets/img/" + thumb;
+                            	imgPath = ctx + "/assets/img/posts/" + thumb;
                             }
                         }
                     %>
@@ -102,7 +102,10 @@
                         <div class="news-card">
                             <a href="<%=ctx%>/newsDetail.jsp?id=<%=n.getId()%>" class="news-card-link">
                                 <div class="news-thumb-wrap">
-                                    <img src="<%=imgPath%>" alt="캠핑 소식 이미지" class="news-img">
+                                    <img src="<%=imgPath%>"
+     									alt="캠핑 소식 이미지"
+     									class="news-img"
+     									onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
                                 </div>
 
                                 <div class="news-body">

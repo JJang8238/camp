@@ -363,11 +363,11 @@
                 </div>
 
                 <div class="owner-top-actions">
-    				<a href="<%=ctx%>/owner/editOwnerInfo.jsp" class="btn-soft">
-        				사업자 정보 수정
+    				<a href="<%=ctx%>/owner/editOwnerInfo.jsp" class="btn btn-outline">
+       				 사업자 정보 수정
     				</a>
 
-    				<a href="<%=ctx%>/owner/campForm.jsp" class="btn-main-custom">
+    				<a href="<%=ctx%>/owner/campForm.jsp" class="btn btn-primary">
         				캠핑장 등록
     				</a>
 				</div>

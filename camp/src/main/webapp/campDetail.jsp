@@ -43,7 +43,11 @@ Integer userId = (Integer) session.getAttribute("userId");
 String userName = (String) session.getAttribute("userName");
 if (userName == null) userName = "";
 %>
-
+<%
+String imgPath = (camp.getImage() != null && !camp.getImage().trim().isEmpty())
+        ? ctx + camp.getImage()
+        : ctx + "/assets/img/default.jpg";
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -68,9 +72,10 @@ if (userName == null) userName = "";
 
             <div class="camp-left">
                 <img 
-                    src="<%=ctx%>/assets/img/<%=camp.getImage()%>" 
-                    class="camp-main-img"
-                    alt="<%=name%>">
+    				src="<%=imgPath%>"
+    				class="camp-main-img"
+    				alt="<%=name%>"
+    				onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
             </div>
 
             <div class="camp-right-card">

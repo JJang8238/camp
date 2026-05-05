@@ -149,7 +149,7 @@
             </div>
 
             <div class="card-box camp-form-card">
-                <form action="<%=ctx%>/owner/campForm_process.jsp" method="post" enctype="multipart/form-data">
+                <form action="<%=ctx%>/owner/registerCamp" method="post" enctype="multipart/form-data">
                     <div class="camp-form-grid">
 
                         <div class="camp-form-group">

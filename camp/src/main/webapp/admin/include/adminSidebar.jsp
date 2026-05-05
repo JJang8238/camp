@@ -5,6 +5,7 @@
 
     boolean isDashboard = currentUri.contains("/admin/dashboard.jsp");
     boolean isUsers = currentUri.contains("/admin/users.jsp");
+    boolean isOwner = currentUri.contains("/admin/ownerRequests.jsp");
     boolean isCamps = currentUri.contains("/admin/camps.jsp");
     boolean isReservations = currentUri.contains("/admin/reservations.jsp");
     boolean isProducts = currentUri.contains("/admin/products.jsp");
@@ -26,6 +27,10 @@
 
         <a href="<%=ctx%>/admin/users.jsp" class="admin-nav-link <%= isUsers ? "active" : "" %>">
             회원 관리
+        </a>
+        
+         <a href="<%=ctx%>/admin/ownerRequests.jsp" class="admin-nav-link <%= isOwner ? "active" : "" %>">
+            캠핑장 오너 관리
         </a>
 
         <a href="<%=ctx%>/admin/camps.jsp" class="admin-nav-link <%= isCamps ? "active" : "" %>">

@@ -118,11 +118,11 @@
         }
 
         String otherSql =
-        	    "SELECT id, name, price, image, status " +
-        	    "FROM product " +
-        	    "WHERE seller_id = ? AND id <> ? AND (status IS NULL OR status <> 'hidden') " +
-        	    "ORDER BY id DESC " +
-        	    "LIMIT 4";
+            "SELECT id, name, price, image, status " +
+            "FROM product " +
+            "WHERE seller_id = ? AND id <> ? AND (status IS NULL OR status <> 'hidden') " +
+            "ORDER BY id DESC " +
+            "LIMIT 4";
 
         psOther = conn.prepareStatement(otherSql);
         psOther.setInt(1, sellerId);
@@ -159,6 +159,8 @@
     }
 
     boolean isSoldOut = "soldout".equals(productStatus);
+
+    // 이미지 경로 변환 함수 대신 JSP 내부에서 반복 사용
 %>
 
 <!DOCTYPE html>
@@ -184,7 +186,19 @@
                     <div class="product-slider-main" id="productSlider">
                         <% for (int i = 0; i < imageList.size(); i++) {
                             String imgPath = imageList.get(i);
-                            String finalPath = imgPath.startsWith("/") ? (ctx + imgPath) : (ctx + "/assets/img/" + imgPath);
+                            String finalPath = "";
+
+                            if (imgPath == null || imgPath.trim().isEmpty()) {
+                                finalPath = ctx + "/assets/img/default.jpg";
+                            } else if (imgPath.startsWith("http://") || imgPath.startsWith("https://")) {
+                                finalPath = imgPath;
+                            } else if (imgPath.startsWith(ctx + "/")) {
+                                finalPath = imgPath;
+                            } else if (imgPath.startsWith("/")) {
+                                finalPath = ctx + imgPath;
+                            } else {
+                                finalPath = ctx + "/assets/img/products/" + imgPath;
+                            }
                         %>
                             <div class="product-slide <%= (i == 0) ? "active" : "" %>">
                                 <img src="<%= finalPath %>" alt="상품 이미지 <%= i + 1 %>"
@@ -202,7 +216,19 @@
                         <div class="product-thumb-row" id="thumbRow">
                             <% for (int i = 0; i < imageList.size(); i++) {
                                 String imgPath = imageList.get(i);
-                                String finalPath = imgPath.startsWith("/") ? (ctx + imgPath) : (ctx + "/assets/img/" + imgPath);
+                                String finalPath = "";
+
+                                if (imgPath == null || imgPath.trim().isEmpty()) {
+                                    finalPath = ctx + "/assets/img/default.jpg";
+                                } else if (imgPath.startsWith("http://") || imgPath.startsWith("https://")) {
+                                    finalPath = imgPath;
+                                } else if (imgPath.startsWith(ctx + "/")) {
+                                    finalPath = imgPath;
+                                } else if (imgPath.startsWith("/")) {
+                                    finalPath = ctx + imgPath;
+                                } else {
+                                    finalPath = ctx + "/assets/img/products/" + imgPath;
+                                }
                             %>
                                 <button type="button"
                                         class="product-thumb-btn <%= (i == 0) ? "active" : "" %>"
@@ -291,28 +317,39 @@
                     if (otherProducts != null && !otherProducts.isEmpty()) {
                         for (OtherProduct op : otherProducts) {
                             String otherImg = op.image;
-                            String otherImgPath = otherImg.startsWith("/") ? (ctx + otherImg) : (ctx + "/assets/img/" + otherImg);
+                            String otherImgPath = "";
+
+                            if (otherImg == null || otherImg.trim().isEmpty()) {
+                                otherImgPath = ctx + "/assets/img/default.jpg";
+                            } else if (otherImg.startsWith("http://") || otherImg.startsWith("https://")) {
+                                otherImgPath = otherImg;
+                            } else if (otherImg.startsWith(ctx + "/")) {
+                                otherImgPath = otherImg;
+                            } else if (otherImg.startsWith("/")) {
+                                otherImgPath = ctx + otherImg;
+                            } else {
+                                otherImgPath = ctx + "/assets/img/products/" + otherImg;
+                            }
+
+                            boolean otherSoldOut = "soldout".equals(op.status);
                 %>
-                    <%
-    boolean otherSoldOut = "soldout".equals(op.status);
-%>
-<a href="<%=ctx%>/productDetail.jsp?id=<%=op.id%>" class="seller-product-link">
-    <div class="product-card <%= otherSoldOut ? "soldout-other-card" : "" %>">
-        <div class="seller-other-thumb-wrap">
-            <img src="<%=otherImgPath%>" alt="<%=op.name%>"
-                 onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
+                    <a href="<%=ctx%>/productDetail.jsp?id=<%=op.id%>" class="seller-product-link">
+                        <div class="product-card <%= otherSoldOut ? "soldout-other-card" : "" %>">
+                            <div class="seller-other-thumb-wrap">
+                                <img src="<%=otherImgPath%>" alt="<%=op.name%>"
+                                     onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
 
-            <% if (otherSoldOut) { %>
-                <span class="seller-other-badge soldout">판매완료</span>
-            <% } %>
-        </div>
+                                <% if (otherSoldOut) { %>
+                                    <span class="seller-other-badge soldout">판매완료</span>
+                                <% } %>
+                            </div>
 
-        <div class="product-card-body">
-            <div class="product-title"><%=op.name%></div>
-            <div class="product-price"><%=String.format("%,d", op.price)%>원</div>
-        </div>
-    </div>
-</a>
+                            <div class="product-card-body">
+                                <div class="product-title"><%=op.name%></div>
+                                <div class="product-price"><%=String.format("%,d", op.price)%>원</div>
+                            </div>
+                        </div>
+                    </a>
                 <%
                         }
                     } else {

@@ -36,7 +36,7 @@
         } else if (thumb.startsWith("/")) {
             imgPath = ctx + thumb;
         } else {
-            imgPath = ctx + "/assets/img/" + thumb;
+            imgPath = ctx + "/assets/img/events/" + thumb;
         }
     }
 
@@ -88,9 +88,10 @@
                 </div>
             </div>
 
-            <div class="news-detail-thumb">
-                <img src="<%= imgPath %>" alt="이벤트 이미지" class="news-detail-img">
-            </div>
+            <img src="<%= imgPath %>"
+     			alt="이벤트 이미지"
+     			class="news-detail-img"
+     			onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
 
             <% if (p.getSummary() != null && !p.getSummary().trim().isEmpty()) { %>
                 <div class="news-detail-summary">

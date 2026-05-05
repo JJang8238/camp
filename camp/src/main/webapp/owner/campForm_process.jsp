@@ -37,17 +37,53 @@ if (loginUser == null || !"owner".equalsIgnoreCase(loginUser.getRole())) {
     return;
 }
 
-// ======================
-// 파라미터 받기
-// ======================
-String name = request.getParameter("name");
-String address = request.getParameter("address");
-String type = request.getParameter("type");
-String tags = request.getParameter("tags");
-String priceStr = request.getParameter("price");
-String status = request.getParameter("status");
-String description = request.getParameter("description");
+//======================
+//파라미터 받기 (Multipart 방식 대응)
+//======================
 
+//헬퍼 함수: Part에서 텍스트 값 추출
+//(JSP 파일 안에 선언하기 어렵다면 아래처럼 직접 작성)
+String name = "";
+Part namePart = request.getPart("name");
+if (namePart != null) {
+ name = new String(namePart.getInputStream().readAllBytes(), "UTF-8");
+}
+
+String address = "";
+Part addrPart = request.getPart("address");
+if (addrPart != null) {
+ address = new String(addrPart.getInputStream().readAllBytes(), "UTF-8");
+}
+
+String type = "";
+Part typePart = request.getPart("type");
+if (typePart != null) {
+ type = new String(typePart.getInputStream().readAllBytes(), "UTF-8");
+}
+
+String tags = "";
+Part tagsPart = request.getPart("tags");
+if (tagsPart != null) {
+ tags = new String(tagsPart.getInputStream().readAllBytes(), "UTF-8");
+}
+
+String priceStr = "";
+Part pricePart = request.getPart("price");
+if (pricePart != null) {
+ priceStr = new String(pricePart.getInputStream().readAllBytes(), "UTF-8");
+}
+
+String status = "";
+Part statusPart = request.getPart("status");
+if (statusPart != null) {
+ status = new String(statusPart.getInputStream().readAllBytes(), "UTF-8");
+}
+
+String description = "";
+Part descPart = request.getPart("description");
+if (descPart != null) {
+ description = new String(descPart.getInputStream().readAllBytes(), "UTF-8");
+}
 if (name == null || name.trim().isEmpty() ||
     address == null || address.trim().isEmpty()) {
 %>

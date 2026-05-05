@@ -121,10 +121,25 @@
             </div>
         <% } else {
             for (Product p : list) {
-                String imgFile = p.getImage();
-                String imgPath = (imgFile != null && !imgFile.trim().isEmpty())
-                        ? ctx + imgFile
-                        : ctx + "/assets/img/default.jpg";
+            	String imgFile = p.getImage();
+            	String imgPath = ctx + "/assets/img/default.jpg";
+
+            	if (imgFile != null && !imgFile.trim().isEmpty()) {
+            	    imgFile = imgFile.trim();
+
+            	    // 1) 이미 /assets 또는 /uploads처럼 /로 시작하는 경로
+            	    if (imgFile.startsWith("/")) {
+            	        imgPath = ctx + imgFile;
+            	    }
+            	    // 2) http 이미지
+            	    else if (imgFile.startsWith("http://") || imgFile.startsWith("https://")) {
+            	        imgPath = imgFile;
+            	    }
+            	    // 3) DB에 파일명만 들어간 경우: tent.jpg
+            	    else {
+            	        imgPath = ctx + "/assets/img/" + imgFile;
+            	    }
+            	}
 
                 String status = p.getStatus();
                 boolean isSoldOut = "soldout".equals(status);

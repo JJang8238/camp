@@ -1352,3 +1352,28 @@ textarea.form-control {
     color: #94a3b8;
     padding: 42px 20px !important;
 }
+/* admin/posts.jsp */
+.post-filter-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: nowrap;
+}
+
+.post-filter-form .admin-select {
+    width: 150px;
+    min-width: 150px;
+    flex-shrink: 0;
+}
+
+.post-filter-form .admin-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.post-filter-form .admin-btn {
+    height: 48px;
+    padding: 0 22px;
+    flex-shrink: 0;
+}

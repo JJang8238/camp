@@ -125,23 +125,7 @@ public class PostDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    post = new Post();
-                    post.setId(rs.getInt("id"));
-                    post.setPostType(rs.getString("post_type"));
-                    post.setTitle(rs.getString("title"));
-                    post.setSummary(rs.getString("summary"));
-                    post.setContent(rs.getString("content"));
-                    post.setCategory(rs.getString("category"));
-                    post.setThumbnail(rs.getString("thumbnail"));
-                    post.setAuthorId((Integer) rs.getObject("author_id"));
-                    post.setViewCount(rs.getInt("view_count"));
-                    post.setStatus(rs.getString("status"));
-                    post.setIsPinned(rs.getInt("is_pinned"));
-                    post.setDisplayOrder(rs.getInt("display_order"));
-                    post.setPublishedAt(rs.getString("published_at"));
-                    post.setCreatedAt(rs.getString("created_at"));
-                    post.setUpdatedAt(rs.getString("updated_at"));
-                    post.setDeletedAt(rs.getString("deleted_at"));
+                    post = mapPost(rs);
                 }
             }
 
@@ -198,7 +182,7 @@ public class PostDAO {
 
         return false;
     }
-    
+
     public List<Post> getFilteredNewsPosts(String category, String keyword) {
         List<Post> list = new ArrayList<>();
 
@@ -236,24 +220,7 @@ public class PostDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Post post = new Post();
-                    post.setId(rs.getInt("id"));
-                    post.setPostType(rs.getString("post_type"));
-                    post.setTitle(rs.getString("title"));
-                    post.setSummary(rs.getString("summary"));
-                    post.setContent(rs.getString("content"));
-                    post.setCategory(rs.getString("category"));
-                    post.setThumbnail(rs.getString("thumbnail"));
-                    post.setAuthorId((Integer) rs.getObject("author_id"));
-                    post.setViewCount(rs.getInt("view_count"));
-                    post.setStatus(rs.getString("status"));
-                    post.setIsPinned(rs.getInt("is_pinned"));
-                    post.setDisplayOrder(rs.getInt("display_order"));
-                    post.setPublishedAt(rs.getString("published_at"));
-                    post.setCreatedAt(rs.getString("created_at"));
-                    post.setUpdatedAt(rs.getString("updated_at"));
-                    post.setDeletedAt(rs.getString("deleted_at"));
-                    list.add(post);
+                    list.add(mapPost(rs));
                 }
             }
 
@@ -281,23 +248,7 @@ public class PostDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Post post = new Post();
-                post.setId(rs.getInt("id"));
-                post.setPostType(rs.getString("post_type"));
-                post.setTitle(rs.getString("title"));
-                post.setSummary(rs.getString("summary"));
-                post.setContent(rs.getString("content"));
-                post.setCategory(rs.getString("category"));
-                post.setThumbnail(rs.getString("thumbnail"));
-                post.setAuthorId((Integer) rs.getObject("author_id"));
-                post.setViewCount(rs.getInt("view_count"));
-                post.setStatus(rs.getString("status"));
-                post.setIsPinned(rs.getInt("is_pinned"));
-                post.setDisplayOrder(rs.getInt("display_order"));
-                post.setPublishedAt(rs.getString("published_at"));
-                post.setCreatedAt(rs.getString("created_at"));
-                post.setUpdatedAt(rs.getString("updated_at"));
-                post.setDeletedAt(rs.getString("deleted_at"));
+                Post post = mapPost(rs);
 
                 EventDetail event = new EventDetail();
                 event.setPostId(rs.getInt("id"));
@@ -343,23 +294,7 @@ public class PostDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Post post = new Post();
-                    post.setId(rs.getInt("id"));
-                    post.setPostType(rs.getString("post_type"));
-                    post.setTitle(rs.getString("title"));
-                    post.setSummary(rs.getString("summary"));
-                    post.setContent(rs.getString("content"));
-                    post.setCategory(rs.getString("category"));
-                    post.setThumbnail(rs.getString("thumbnail"));
-                    post.setAuthorId((Integer) rs.getObject("author_id"));
-                    post.setViewCount(rs.getInt("view_count"));
-                    post.setStatus(rs.getString("status"));
-                    post.setIsPinned(rs.getInt("is_pinned"));
-                    post.setDisplayOrder(rs.getInt("display_order"));
-                    post.setPublishedAt(rs.getString("published_at"));
-                    post.setCreatedAt(rs.getString("created_at"));
-                    post.setUpdatedAt(rs.getString("updated_at"));
-                    post.setDeletedAt(rs.getString("deleted_at"));
+                    Post post = mapPost(rs);
 
                     EventDetail event = new EventDetail();
                     event.setPostId(rs.getInt("id"));
@@ -385,7 +320,7 @@ public class PostDAO {
 
         return list;
     }
-    
+
     public Post getPrevNewsPost(int currentId) {
         Post post = null;
 
@@ -404,23 +339,7 @@ public class PostDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    post = new Post();
-                    post.setId(rs.getInt("id"));
-                    post.setPostType(rs.getString("post_type"));
-                    post.setTitle(rs.getString("title"));
-                    post.setSummary(rs.getString("summary"));
-                    post.setContent(rs.getString("content"));
-                    post.setCategory(rs.getString("category"));
-                    post.setThumbnail(rs.getString("thumbnail"));
-                    post.setAuthorId((Integer) rs.getObject("author_id"));
-                    post.setViewCount(rs.getInt("view_count"));
-                    post.setStatus(rs.getString("status"));
-                    post.setIsPinned(rs.getInt("is_pinned"));
-                    post.setDisplayOrder(rs.getInt("display_order"));
-                    post.setPublishedAt(rs.getString("published_at"));
-                    post.setCreatedAt(rs.getString("created_at"));
-                    post.setUpdatedAt(rs.getString("updated_at"));
-                    post.setDeletedAt(rs.getString("deleted_at"));
+                    post = mapPost(rs);
                 }
             }
 
@@ -449,29 +368,121 @@ public class PostDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    post = new Post();
-                    post.setId(rs.getInt("id"));
-                    post.setPostType(rs.getString("post_type"));
-                    post.setTitle(rs.getString("title"));
-                    post.setSummary(rs.getString("summary"));
-                    post.setContent(rs.getString("content"));
-                    post.setCategory(rs.getString("category"));
-                    post.setThumbnail(rs.getString("thumbnail"));
-                    post.setAuthorId((Integer) rs.getObject("author_id"));
-                    post.setViewCount(rs.getInt("view_count"));
-                    post.setStatus(rs.getString("status"));
-                    post.setIsPinned(rs.getInt("is_pinned"));
-                    post.setDisplayOrder(rs.getInt("display_order"));
-                    post.setPublishedAt(rs.getString("published_at"));
-                    post.setCreatedAt(rs.getString("created_at"));
-                    post.setUpdatedAt(rs.getString("updated_at"));
-                    post.setDeletedAt(rs.getString("deleted_at"));
+                    post = mapPost(rs);
                 }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return post;
+    }
+
+    public List<Post> getAdminPosts(String type, String keyword) {
+        List<Post> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT * FROM posts ");
+        sql.append("WHERE post_type IN ('news', 'event') ");
+        sql.append("AND deleted_at IS NULL ");
+        sql.append("AND (status IS NULL OR status <> 'deleted') ");
+
+        if (type != null && !"all".equals(type)) {
+            sql.append("AND post_type = ? ");
+        }
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (title LIKE ? OR summary LIKE ? OR content LIKE ?) ");
+        }
+
+        sql.append("ORDER BY created_at DESC");
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int idx = 1;
+
+            if (type != null && !"all".equals(type)) {
+                ps.setString(idx++, type);
+            }
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String search = "%" + keyword.trim() + "%";
+                ps.setString(idx++, search);
+                ps.setString(idx++, search);
+                ps.setString(idx++, search);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapPost(rs));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public boolean updatePostStatus(int id, String status) {
+        String sql = "UPDATE posts SET status = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, status);
+            ps.setInt(2, id);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean deletePost(int id) {
+        String sql = "UPDATE posts "
+                   + "SET status = 'deleted', deleted_at = NOW(), updated_at = NOW() "
+                   + "WHERE id = ? AND deleted_at IS NULL";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    private Post mapPost(ResultSet rs) throws Exception {
+        Post post = new Post();
+
+        post.setId(rs.getInt("id"));
+        post.setPostType(rs.getString("post_type"));
+        post.setTitle(rs.getString("title"));
+        post.setSummary(rs.getString("summary"));
+        post.setContent(rs.getString("content"));
+        post.setCategory(rs.getString("category"));
+        post.setThumbnail(rs.getString("thumbnail"));
+        post.setAuthorId((Integer) rs.getObject("author_id"));
+        post.setViewCount(rs.getInt("view_count"));
+        post.setStatus(rs.getString("status"));
+        post.setIsPinned(rs.getInt("is_pinned"));
+        post.setDisplayOrder(rs.getInt("display_order"));
+        post.setPublishedAt(rs.getString("published_at"));
+        post.setCreatedAt(rs.getString("created_at"));
+        post.setUpdatedAt(rs.getString("updated_at"));
+        post.setDeletedAt(rs.getString("deleted_at"));
 
         return post;
     }

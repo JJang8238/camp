@@ -77,6 +77,8 @@ CREATE TABLE camps (
     status VARCHAR(20) DEFAULT 'open'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+ALTER TABLE camps MODIFY tags VARCHAR(500); --태그 길이 늘리기 05.05
+
 INSERT INTO camps (name, address, type, tags, price, image, status) VALUES
 ('가평 푸른숲 캠핑장', '경기도 가평군 북면', '글램핑', '물놀이,깨끗한', 150000, 'camp1.jpg', 'open'),
 ('속초 바다 카라반', '강원도 속초시 해안도로', '카라반', '바다,노을', 120000, 'camp2.jpg', 'open'),
@@ -298,3 +300,30 @@ ALTER TABLE reservations
     ADD COLUMN payment_key VARCHAR(200) NULL COMMENT '토스 결제키',
     ADD COLUMN amount      INT          NULL COMMENT '결제금액';
     
+show tables;
+DESC camps;
+
+--캠핑장 중복 지움
+SELECT name, address, COUNT(*) AS cnt
+FROM camps
+GROUP BY name, address
+HAVING COUNT(*) > 1;
+
+
+ROLLBACK;
+
+SET autocommit = 1;
+
+DELETE FROM camps
+WHERE id NOT IN (
+    SELECT min_id
+    FROM (
+        SELECT MIN(id) AS min_id
+        FROM camps
+        GROUP BY name, address
+    ) x
+)
+LIMIT 1000;
+
+ALTER TABLE camps
+ADD CONSTRAINT uq_camps_name_address UNIQUE (name, address);

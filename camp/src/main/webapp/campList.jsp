@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" session="true"%>
-<%@ page import="java.util.*, dto.Product" %>
+<%@ page import="java.util.*, java.net.URLEncoder, dto.Product" %>
 <%
     String ctx = request.getContextPath();
 
@@ -10,18 +10,46 @@
     }
 
     String keyword = request.getParameter("keyword");
-    String tags = request.getParameter("tags");
 
     String[] selectedTypes = request.getParameterValues("type");
-    List<String> typeList = (selectedTypes != null) ? Arrays.asList(selectedTypes) : new ArrayList<>();
+    List<String> typeList = new ArrayList<>();
+    if (selectedTypes != null) {
+        for (String v : selectedTypes) {
+            if (v != null && !v.trim().isEmpty()) {
+                typeList.addAll(Arrays.asList(v.split(",")));
+            }
+        }
+    }
 
     String[] selectedLocs = request.getParameterValues("loc");
-    List<String> locList = (selectedLocs != null) ? Arrays.asList(selectedLocs) : new ArrayList<>();
+    List<String> locList = new ArrayList<>();
+    if (selectedLocs != null) {
+        for (String v : selectedLocs) {
+            if (v != null && !v.trim().isEmpty()) {
+                locList.addAll(Arrays.asList(v.split(",")));
+            }
+        }
+    }
 
     String[] selectedFacilities = request.getParameterValues("facility");
-    List<String> facilityList = (selectedFacilities != null) ? Arrays.asList(selectedFacilities) : new ArrayList<>();
+    List<String> facilityList = new ArrayList<>();
+    if (selectedFacilities != null) {
+        for (String v : selectedFacilities) {
+            if (v != null && !v.trim().isEmpty()) {
+                facilityList.addAll(Arrays.asList(v.split(",")));
+            }
+        }
+    }
 
     List<Product> campList = (List<Product>) request.getAttribute("campList");
+
+    Integer totalCountObj = (Integer) request.getAttribute("totalCount");
+    Integer currentPageObj = (Integer) request.getAttribute("currentPage");
+    Integer totalPageObj = (Integer) request.getAttribute("totalPage");
+
+    int totalCount = (totalCountObj != null) ? totalCountObj : 0;
+    int currentPage = (currentPageObj != null) ? currentPageObj : 1;
+    int totalPage = (totalPageObj != null) ? totalPageObj : 1;
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -108,7 +136,6 @@
                 </div>
 
                 <form action="<%=ctx%>/campList" method="get">
-                    <input type="hidden" name="tags" value="<%= (tags != null) ? tags : "" %>">
 
                     <div class="filter-group">
                         <label class="filter-label">검색어</label>
@@ -240,10 +267,10 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="camp-count small text-muted">
-                <% if (keyword != null && !keyword.isEmpty()) { %>
+                <% if (keyword != null && !keyword.trim().isEmpty()) { %>
                     "<%= keyword %>" ·
                 <% } %>
-                <%= (campList != null) ? campList.size() : 0 %>개
+                <%= totalCount %>개
             </div>
 
             <select class="form-select camp-sort" style="width: 140px;">
@@ -286,13 +313,32 @@
                         </div>
 
                         <div class="camp-tag-wrap">
-                            <span class="meta-chip">#<%= p.getType() %></span>
                             <%
+                                String typeValue = p.getType();
+                                String typeTag = "";
+
+                                if (typeValue != null && !typeValue.trim().isEmpty()) {
+                                    typeTag = "#" + typeValue.trim().replace("#", "");
+                            %>
+                                <span class="meta-chip"><%= typeTag %></span>
+                            <%
+                                }
+
                                 String cTags = p.getTags();
                                 if (cTags != null && !cTags.trim().isEmpty()) {
-                                    for (String t : cTags.split(",")) {
+                                    String[] tagArr = cTags.trim().split("\\s+");
+
+                                    for (String t : tagArr) {
+                                        if (t == null || t.trim().isEmpty()) continue;
+
+                                        String cleanTag = t.trim();
+                                        if (!cleanTag.startsWith("#")) {
+                                            cleanTag = "#" + cleanTag;
+                                        }
+
+                                        if (cleanTag.equals(typeTag)) continue;
                             %>
-                                <span class="meta-chip green">#<%= t.trim().replace("#", "") %></span>
+                                <span class="meta-chip green"><%= cleanTag %></span>
                             <%
                                     }
                                 }
@@ -319,6 +365,65 @@
         %>
             <div class="camp-empty-box">
                 검색 조건에 맞는 캠핑장이 없습니다. 🏕️
+            </div>
+        <% } %>
+
+        <%
+            StringBuilder pageQuery = new StringBuilder();
+
+            String pageKeywordParam = request.getParameter("keyword");
+            String pageTypeParam = request.getParameter("type");
+            String pageLocParam = request.getParameter("loc");
+            String pageFacilityParam = request.getParameter("facility");
+
+            if (pageKeywordParam != null && !pageKeywordParam.trim().isEmpty()) {
+                pageQuery.append("&keyword=").append(URLEncoder.encode(pageKeywordParam, "UTF-8"));
+            }
+
+            if (pageTypeParam != null && !pageTypeParam.trim().isEmpty()) {
+                pageQuery.append("&type=").append(URLEncoder.encode(pageTypeParam, "UTF-8"));
+            }
+
+            if (pageLocParam != null && !pageLocParam.trim().isEmpty()) {
+                pageQuery.append("&loc=").append(URLEncoder.encode(pageLocParam, "UTF-8"));
+            }
+
+            if (pageFacilityParam != null && !pageFacilityParam.trim().isEmpty()) {
+                pageQuery.append("&facility=").append(URLEncoder.encode(pageFacilityParam, "UTF-8"));
+            }
+        %>
+
+        <% if (totalPage > 1) { %>
+            <div class="pagination-wrap">
+
+                <% if (currentPage > 1) { %>
+                    <a class="page-btn"
+                       href="<%=ctx%>/campList?page=<%= currentPage - 1 %><%= pageQuery.toString() %>">
+                        이전
+                    </a>
+                <% } %>
+
+                <%
+                    int startPage = Math.max(1, currentPage - 2);
+                    int endPage = Math.min(totalPage, currentPage + 2);
+
+                    for (int i = startPage; i <= endPage; i++) {
+                %>
+                    <a class="page-btn <%= (i == currentPage) ? "active" : "" %>"
+                       href="<%=ctx%>/campList?page=<%= i %><%= pageQuery.toString() %>">
+                        <%= i %>
+                    </a>
+                <%
+                    }
+                %>
+
+                <% if (currentPage < totalPage) { %>
+                    <a class="page-btn"
+                       href="<%=ctx%>/campList?page=<%= currentPage + 1 %><%= pageQuery.toString() %>">
+                        다음
+                    </a>
+                <% } %>
+
             </div>
         <% } %>
     </main>

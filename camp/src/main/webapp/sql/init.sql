@@ -299,3 +299,7 @@ CREATE TABLE IF NOT EXISTS wishlist (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (camp_id) REFERENCES camps(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+UPDATE camps SET image = '/assets/img/camp1.jpg' WHERE id % 3 = 1;
+UPDATE camps SET image = '/assets/img/camp2.jpg' WHERE id % 3 = 2;
+UPDATE camps SET image = '/assets/img/camp3.jpg' WHERE id % 3 = 0;

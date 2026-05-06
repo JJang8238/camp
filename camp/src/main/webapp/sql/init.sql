@@ -302,7 +302,7 @@ ALTER TABLE reservations
     
 show tables;
 DESC camps;
-
+SELECT * FROM camps;
 --캠핑장 중복 지움
 SELECT name, address, COUNT(*) AS cnt
 FROM camps

@@ -97,7 +97,7 @@ public class CampDAO {
         return false;
     }
     
-    public List<Product> getCampListPaging(String keyword, String type, String loc, String facility, int page, int pageSize) {
+    public List<Product> getCampListPaging(String keyword, String type, String loc, String facility, String sort, int page, int pageSize) {
         List<Product> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
 
@@ -108,7 +108,6 @@ public class CampDAO {
 
         List<String> params = new ArrayList<>();
 
-        // keyword
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append("AND (name LIKE ? OR address LIKE ? OR tags LIKE ?) ");
             String kw = "%" + keyword.trim() + "%";
@@ -117,7 +116,6 @@ public class CampDAO {
             params.add(kw);
         }
 
-        // type
         if (type != null && !type.trim().isEmpty()) {
             String[] types = type.split(",");
             sql.append("AND (");
@@ -129,25 +127,23 @@ public class CampDAO {
             sql.append(") ");
         }
 
-        // loc
         if (loc != null && !loc.trim().isEmpty()) {
-        	String[] locs = loc.split(",");
-        	List<String> expandedLocs = new ArrayList<>();
+            String[] locs = loc.split(",");
+            List<String> expandedLocs = new ArrayList<>();
 
-        	for (String l : locs) {
-        	    expandedLocs.addAll(expandLocationKeyword(l));
-        	}
+            for (String l : locs) {
+                expandedLocs.addAll(expandLocationKeyword(l));
+            }
 
-        	sql.append("AND (");
-        	for (int i = 0; i < expandedLocs.size(); i++) {
-        	    if (i > 0) sql.append(" OR ");
-        	    sql.append("address LIKE ?");
-        	    params.add("%" + expandedLocs.get(i).trim() + "%");
-        	}
-        	sql.append(") ");
+            sql.append("AND (");
+            for (int i = 0; i < expandedLocs.size(); i++) {
+                if (i > 0) sql.append(" OR ");
+                sql.append("address LIKE ?");
+                params.add("%" + expandedLocs.get(i).trim() + "%");
+            }
+            sql.append(") ");
         }
 
-        // facility
         if (facility != null && !facility.trim().isEmpty()) {
             String[] facilities = facility.split(",");
             sql.append("AND (");
@@ -159,7 +155,14 @@ public class CampDAO {
             sql.append(") ");
         }
 
-        sql.append("ORDER BY id DESC ");
+        if ("priceAsc".equals(sort)) {
+            sql.append("ORDER BY price ASC ");
+        } else if ("priceDesc".equals(sort)) {
+            sql.append("ORDER BY price DESC ");
+        } else {
+            sql.append("ORDER BY id DESC ");
+        }
+
         sql.append("LIMIT ? OFFSET ?");
 
         try (

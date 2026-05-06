@@ -28,6 +28,11 @@ public class CampListServlet extends HttpServlet {
         String loc = request.getParameter("loc");
         String facility = request.getParameter("facility");
 
+        String sort = request.getParameter("sort");
+        if (sort == null || sort.trim().isEmpty()) {
+            sort = "recommend";
+        }
+
         int page = 1;
         int pageSize = 10;
 
@@ -56,12 +61,21 @@ public class CampListServlet extends HttpServlet {
             page = totalPage;
         }
 
-        List<Product> campList = campDAO.getCampListPaging(keyword, type, loc, facility, page, pageSize);
+        List<Product> campList = campDAO.getCampListPaging(
+                keyword,
+                type,
+                loc,
+                facility,
+                sort,
+                page,
+                pageSize
+        );
 
         request.setAttribute("campList", campList);
         request.setAttribute("totalCount", totalCount);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPage", totalPage);
+        request.setAttribute("sort", sort);
 
         request.getRequestDispatcher("/campList.jsp").forward(request, response);
     }

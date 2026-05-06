@@ -45,6 +45,8 @@ public class CampCsvImporter {
                 int caravan = TagUtil.parseIntSafe(row[9]);
                 int personalCaravan = TagUtil.parseIntSafe(row[10]);
                 int dumpStation = TagUtil.parseIntSafe(row[12]);
+                
+                int price = TagUtil.parseIntSafe(row[34]);
 
                 String firePlace = row[23];
                 String facilities = row[24];
@@ -73,7 +75,7 @@ public class CampCsvImporter {
                 camp.setAddress(address);
                 camp.setTags(tags);
                 camp.setImage("/assets/img/default.jpg");
-                camp.setPrice(0);
+                camp.setPrice(price);
                 camp.setDescription(sido + " " + sigungu + "에 위치한 캠핑장입니다.");
 
                 if (glamping > 0) {

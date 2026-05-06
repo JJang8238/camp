@@ -11,6 +11,11 @@
 
     String keyword = request.getParameter("keyword");
 
+    String sort = request.getParameter("sort");
+    if (sort == null || sort.trim().isEmpty()) {
+        sort = "recommend";
+    }
+
     String[] selectedTypes = request.getParameterValues("type");
     List<String> typeList = new ArrayList<>();
     if (selectedTypes != null) {
@@ -135,7 +140,9 @@
                     <a href="<%=ctx%>/campList" class="text-decoration-none text-muted small">🔄 초기화</a>
                 </div>
 
-                <form action="<%=ctx%>/campList" method="get">
+                <form action="<%=ctx%>/campList" method="get" id="campFilterForm">
+
+                    <input type="hidden" name="sort" id="sortInput" value="<%= sort %>">
 
                     <div class="filter-group">
                         <label class="filter-label">검색어</label>
@@ -273,10 +280,10 @@
                 <%= totalCount %>개
             </div>
 
-            <select class="form-select camp-sort" style="width: 140px;">
-                <option>추천순</option>
-                <option>가격낮은순</option>
-                <option>평점순</option>
+            <select class="form-select camp-sort" style="width: 150px;">
+                <option value="recommend" <%= "recommend".equals(sort) ? "selected" : "" %>>추천순</option>
+                <option value="priceAsc" <%= "priceAsc".equals(sort) ? "selected" : "" %>>가격 낮은순</option>
+                <option value="priceDesc" <%= "priceDesc".equals(sort) ? "selected" : "" %>>가격 높은순</option>
             </select>
         </div>
 
@@ -375,6 +382,7 @@
             String pageTypeParam = request.getParameter("type");
             String pageLocParam = request.getParameter("loc");
             String pageFacilityParam = request.getParameter("facility");
+            String pageSortParam = request.getParameter("sort");
 
             if (pageKeywordParam != null && !pageKeywordParam.trim().isEmpty()) {
                 pageQuery.append("&keyword=").append(URLEncoder.encode(pageKeywordParam, "UTF-8"));
@@ -390,6 +398,10 @@
 
             if (pageFacilityParam != null && !pageFacilityParam.trim().isEmpty()) {
                 pageQuery.append("&facility=").append(URLEncoder.encode(pageFacilityParam, "UTF-8"));
+            }
+
+            if (pageSortParam != null && !pageSortParam.trim().isEmpty()) {
+                pageQuery.append("&sort=").append(URLEncoder.encode(pageSortParam, "UTF-8"));
             }
         %>
 
@@ -489,6 +501,17 @@
     setupTagGroup("typeTagGroup", "typeInput");
     setupTagGroup("locTagGroup", "locInput");
     setupTagGroup("facilityTagGroup", "facilityInput");
+
+    const sortSelect = document.querySelector(".camp-sort");
+    const sortInput = document.getElementById("sortInput");
+    const campFilterForm = document.getElementById("campFilterForm");
+
+    if (sortSelect && sortInput && campFilterForm) {
+        sortSelect.addEventListener("change", function () {
+            sortInput.value = this.value;
+            campFilterForm.submit();
+        });
+    }
 </script>
 
 </body>

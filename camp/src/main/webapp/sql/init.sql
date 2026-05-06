@@ -271,3 +271,31 @@ LIMIT 1000;
 
 ALTER TABLE camps
 ADD CONSTRAINT uq_camps_name_address UNIQUE (name, address);
+
+-- =====================================================
+-- 15.구매 내역 테이블 추가 (init.sql 또는 DB에 직접 실행)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS product_purchase (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    buyer_id   INT NOT NULL,
+    price      INT NOT NULL,
+    purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE,
+    FOREIGN KEY (buyer_id)   REFERENCES users(id)   ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =====================================================
+-- 16.찜한 캠핑장 테이블 추가 (DB에 직접 실행)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS wishlist (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT NOT NULL,
+    camp_id    INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uq_wishlist (user_id, camp_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (camp_id) REFERENCES camps(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

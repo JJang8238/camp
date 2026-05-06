@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" session="true"%>
-<%@ page import="java.util.*, java.net.URLEncoder, dto.Product" %>
+<%@ page import="java.util.*, java.net.URLEncoder, dto.Product, dao.WishlistDAO" %>
 <%
     String ctx = request.getContextPath();
 
@@ -10,6 +10,11 @@
     }
 
     String keyword = request.getParameter("keyword");
+
+    String sort = request.getParameter("sort");
+    if (sort == null || sort.trim().isEmpty()) {
+        sort = "recommend";
+    }
 
     String[] selectedTypes = request.getParameterValues("type");
     List<String> typeList = new ArrayList<>();
@@ -43,13 +48,13 @@
 
     List<Product> campList = (List<Product>) request.getAttribute("campList");
 
-    Integer totalCountObj = (Integer) request.getAttribute("totalCount");
+    Integer totalCountObj  = (Integer) request.getAttribute("totalCount");
     Integer currentPageObj = (Integer) request.getAttribute("currentPage");
-    Integer totalPageObj = (Integer) request.getAttribute("totalPage");
+    Integer totalPageObj   = (Integer) request.getAttribute("totalPage");
 
-    int totalCount = (totalCountObj != null) ? totalCountObj : 0;
+    int totalCount  = (totalCountObj  != null) ? totalCountObj  : 0;
     int currentPage = (currentPageObj != null) ? currentPageObj : 1;
-    int totalPage = (totalPageObj != null) ? totalPageObj : 1;
+    int totalPage   = (totalPageObj   != null) ? totalPageObj   : 1;
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -61,62 +66,46 @@
     <link rel="stylesheet" href="<%=ctx%>/assets/css/camp.css">
 
     <style>
-        .filter-group {
-            margin-bottom: 20px;
-        }
+        .filter-group { margin-bottom: 20px; }
 
         .filter-subtitle {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-            display: block;
+            font-size: 14px; font-weight: 600; color: #333;
+            margin-bottom: 10px; display: block;
         }
 
         .collapsible-content {
-            display: none;
-            overflow: hidden;
+            display: none; overflow: hidden;
             border-top: 1px solid #eee;
-            padding-top: 15px;
-            margin-top: 10px;
+            padding-top: 15px; margin-top: 10px;
         }
 
         .btn-toggle-filter {
-            width: 100%;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 14px;
-            padding: 10px 12px;
-            font-size: 13px;
-            font-weight: 700;
-            color: #666;
+            width: 100%; background: #fff;
+            border: 1px solid #ddd; border-radius: 14px;
+            padding: 10px 12px; font-size: 13px; font-weight: 700;
+            color: #666; cursor: pointer;
+            display: flex; justify-content: center;
+            align-items: center; gap: 6px;
+            transition: 0.2s ease; margin-bottom: 15px;
+        }
+        .btn-toggle-filter:hover { background-color: #f8f9fa; color: var(--main-green); }
+        .btn-toggle-filter.active { background-color: #eef4f1; color: var(--main-green); border-color: var(--main-green); }
+        .toggle-icon { transition: transform 0.3s; }
+        .btn-toggle-filter.active .toggle-icon { transform: rotate(180deg); }
+
+        /* ✅ 찜 버튼 */
+        .btn-wish {
+            background: none;
+            border: none;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-            transition: 0.2s ease;
-            margin-bottom: 15px;
+            font-size: 24px;
+            line-height: 1;
+            padding: 0 4px;
+            transition: transform 0.15s;
+            flex-shrink: 0;
         }
-
-        .btn-toggle-filter:hover {
-            background-color: #f8f9fa;
-            color: var(--main-green);
-        }
-
-        .btn-toggle-filter.active {
-            background-color: #eef4f1;
-            color: var(--main-green);
-            border-color: var(--main-green);
-        }
-
-        .toggle-icon {
-            transition: transform 0.3s;
-        }
-
-        .btn-toggle-filter.active .toggle-icon {
-            transform: rotate(180deg);
-        }
+        .btn-wish:hover { transform: scale(1.25); }
+        .btn-wish:disabled { cursor: not-allowed; opacity: 0.5; }
     </style>
 </head>
 
@@ -135,7 +124,9 @@
                     <a href="<%=ctx%>/campList" class="text-decoration-none text-muted small">🔄 초기화</a>
                 </div>
 
-                <form action="<%=ctx%>/campList" method="get">
+                <form action="<%=ctx%>/campList" method="get" id="campFilterForm">
+
+                    <input type="hidden" name="sort" id="sortInput" value="<%= sort %>">
 
                     <div class="filter-group">
                         <label class="filter-label">검색어</label>
@@ -157,9 +148,7 @@
                                 <span class="common-tag <%= selected ? "active" : "" %>" data-value="<%=t%>"><%=t%></span>
                             <% } %>
                         </div>
-                        <input type="hidden"
-                               name="type"
-                               id="typeInput"
+                        <input type="hidden" name="type" id="typeInput"
                                value="<%= (selectedTypes != null) ? String.join(",", selectedTypes) : "" %>">
                     </div>
 
@@ -174,9 +163,7 @@
                                 <span class="common-tag <%= selected ? "active" : "" %>" data-value="<%=l%>"><%=l%></span>
                             <% } %>
                         </div>
-                        <input type="hidden"
-                               name="loc"
-                               id="locInput"
+                        <input type="hidden" name="loc" id="locInput"
                                value="<%= (selectedLocs != null) ? String.join(",", selectedLocs) : "" %>">
                     </div>
 
@@ -236,9 +223,7 @@
                                 </div>
                             </div>
 
-                            <input type="hidden"
-                                   name="facility"
-                                   id="facilityInput"
+                            <input type="hidden" name="facility" id="facilityInput"
                                    value="<%= (selectedFacilities != null) ? String.join(",", selectedFacilities) : "" %>">
                         </div>
                     </div>
@@ -254,7 +239,7 @@
                 <ul class="side-menu">
                     <li><a href="<%=ctx%>/campList" class="active">전체 캠핑장</a></li>
                     <li><a href="<%=ctx%>/main.jsp">메인으로</a></li>
-                    <li><a href="<%=ctx%>/mypage.jsp">내 예약 보기</a></li>
+                    <li><a href="<%=ctx%>/mypage/reservation_list.jsp">내 예약 보기</a></li>
                 </ul>
             </div>
 
@@ -273,10 +258,10 @@
                 <%= totalCount %>개
             </div>
 
-            <select class="form-select camp-sort" style="width: 140px;">
-                <option>추천순</option>
-                <option>가격낮은순</option>
-                <option>평점순</option>
+            <select class="form-select camp-sort" style="width: 150px;">
+                <option value="recommend" <%= "recommend".equals(sort) ? "selected" : "" %>>추천순</option>
+                <option value="priceAsc"  <%= "priceAsc".equals(sort)  ? "selected" : "" %>>가격 낮은순</option>
+                <option value="priceDesc" <%= "priceDesc".equals(sort) ? "selected" : "" %>>가격 높은순</option>
             </select>
         </div>
 
@@ -284,10 +269,12 @@
             if (campList != null && !campList.isEmpty()) {
                 for (Product p : campList) {
                     String img = p.getImageUrl();
-
                     String imgPath = (img != null && !img.trim().isEmpty())
                             ? ctx + img
                             : ctx + "/assets/img/default.jpg";
+
+                    // ✅ 찜 여부 확인
+                    boolean isWished = WishlistDAO.isWished(userId, p.getId());
         %>
             <div class="horizontal-card">
                 <div class="img-box">
@@ -305,7 +292,19 @@
                                 <h3 class="card-main-title"><%= p.getName() %></h3>
                                 <div class="camp-location">📍 <%= p.getAddress() %></div>
                             </div>
-                            <span class="badge-soft">예약 가능</span>
+
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <%-- ✅ 찜 버튼: AJAX 방식 (/wishToggle 서블릿으로 요청) --%>
+                                <button type="button"
+                                        class="btn-wish"
+                                        data-camp-id="<%= p.getId() %>"
+                                        data-wished="<%= isWished %>"
+                                        onclick="toggleWish(this)"
+                                        title="<%= isWished ? "찜 해제" : "찜하기" %>">
+                                    <%= isWished ? "❤️" : "🤍" %>
+                                </button>
+                                <span class="badge-soft">예약 가능</span>
+                            </div>
                         </div>
 
                         <div class="card-desc">
@@ -327,15 +326,10 @@
                                 String cTags = p.getTags();
                                 if (cTags != null && !cTags.trim().isEmpty()) {
                                     String[] tagArr = cTags.trim().split("\\s+");
-
                                     for (String t : tagArr) {
                                         if (t == null || t.trim().isEmpty()) continue;
-
                                         String cleanTag = t.trim();
-                                        if (!cleanTag.startsWith("#")) {
-                                            cleanTag = "#" + cleanTag;
-                                        }
-
+                                        if (!cleanTag.startsWith("#")) cleanTag = "#" + cleanTag;
                                         if (cleanTag.equals(typeTag)) continue;
                             %>
                                 <span class="meta-chip green"><%= cleanTag %></span>
@@ -370,60 +364,42 @@
 
         <%
             StringBuilder pageQuery = new StringBuilder();
-
-            String pageKeywordParam = request.getParameter("keyword");
-            String pageTypeParam = request.getParameter("type");
-            String pageLocParam = request.getParameter("loc");
+            String pageKeywordParam  = request.getParameter("keyword");
+            String pageTypeParam     = request.getParameter("type");
+            String pageLocParam      = request.getParameter("loc");
             String pageFacilityParam = request.getParameter("facility");
+            String pageSortParam     = request.getParameter("sort");
 
-            if (pageKeywordParam != null && !pageKeywordParam.trim().isEmpty()) {
+            if (pageKeywordParam != null && !pageKeywordParam.trim().isEmpty())
                 pageQuery.append("&keyword=").append(URLEncoder.encode(pageKeywordParam, "UTF-8"));
-            }
-
-            if (pageTypeParam != null && !pageTypeParam.trim().isEmpty()) {
+            if (pageTypeParam != null && !pageTypeParam.trim().isEmpty())
                 pageQuery.append("&type=").append(URLEncoder.encode(pageTypeParam, "UTF-8"));
-            }
-
-            if (pageLocParam != null && !pageLocParam.trim().isEmpty()) {
+            if (pageLocParam != null && !pageLocParam.trim().isEmpty())
                 pageQuery.append("&loc=").append(URLEncoder.encode(pageLocParam, "UTF-8"));
-            }
-
-            if (pageFacilityParam != null && !pageFacilityParam.trim().isEmpty()) {
+            if (pageFacilityParam != null && !pageFacilityParam.trim().isEmpty())
                 pageQuery.append("&facility=").append(URLEncoder.encode(pageFacilityParam, "UTF-8"));
-            }
+            if (pageSortParam != null && !pageSortParam.trim().isEmpty())
+                pageQuery.append("&sort=").append(URLEncoder.encode(pageSortParam, "UTF-8"));
         %>
 
         <% if (totalPage > 1) { %>
             <div class="pagination-wrap">
-
                 <% if (currentPage > 1) { %>
-                    <a class="page-btn"
-                       href="<%=ctx%>/campList?page=<%= currentPage - 1 %><%= pageQuery.toString() %>">
-                        이전
-                    </a>
+                    <a class="page-btn" href="<%=ctx%>/campList?page=<%= currentPage - 1 %><%= pageQuery.toString() %>">이전</a>
                 <% } %>
 
                 <%
                     int startPage = Math.max(1, currentPage - 2);
-                    int endPage = Math.min(totalPage, currentPage + 2);
-
+                    int endPage   = Math.min(totalPage, currentPage + 2);
                     for (int i = startPage; i <= endPage; i++) {
                 %>
                     <a class="page-btn <%= (i == currentPage) ? "active" : "" %>"
-                       href="<%=ctx%>/campList?page=<%= i %><%= pageQuery.toString() %>">
-                        <%= i %>
-                    </a>
-                <%
-                    }
-                %>
+                       href="<%=ctx%>/campList?page=<%= i %><%= pageQuery.toString() %>"><%= i %></a>
+                <%  } %>
 
                 <% if (currentPage < totalPage) { %>
-                    <a class="page-btn"
-                       href="<%=ctx%>/campList?page=<%= currentPage + 1 %><%= pageQuery.toString() %>">
-                        다음
-                    </a>
+                    <a class="page-btn" href="<%=ctx%>/campList?page=<%= currentPage + 1 %><%= pageQuery.toString() %>">다음</a>
                 <% } %>
-
             </div>
         <% } %>
     </main>
@@ -432,13 +408,12 @@
 <jsp:include page="/include/footer.jsp" />
 
 <script>
-    const toggleBtn = document.getElementById('filterToggleBtn');
-    const filterArea = document.getElementById('detailFilterArea');
-    const toggleText = document.getElementById('toggleText');
+    const toggleBtn   = document.getElementById('filterToggleBtn');
+    const filterArea  = document.getElementById('detailFilterArea');
+    const toggleText  = document.getElementById('toggleText');
 
     toggleBtn.addEventListener('click', () => {
         const isOpen = filterArea.style.display === 'block';
-
         filterArea.style.display = isOpen ? 'none' : 'block';
         toggleBtn.classList.toggle('active');
         toggleText.innerText = isOpen ? '상세 시설 필터 펼치기' : '상세 시설 필터 접기';
@@ -467,10 +442,7 @@
 
         tags.forEach(tag => {
             const value = tag.dataset.value;
-
-            if (selected.has(value)) {
-                tag.classList.add("active");
-            }
+            if (selected.has(value)) tag.classList.add("active");
 
             tag.addEventListener("click", function () {
                 if (selected.has(value)) {
@@ -480,15 +452,51 @@
                     selected.add(value);
                     tag.classList.add("active");
                 }
-
                 input.value = Array.from(selected).join(",");
             });
         });
     }
 
-    setupTagGroup("typeTagGroup", "typeInput");
-    setupTagGroup("locTagGroup", "locInput");
+    setupTagGroup("typeTagGroup",     "typeInput");
+    setupTagGroup("locTagGroup",      "locInput");
     setupTagGroup("facilityTagGroup", "facilityInput");
+
+    const sortSelect     = document.querySelector(".camp-sort");
+    const sortInput      = document.getElementById("sortInput");
+    const campFilterForm = document.getElementById("campFilterForm");
+
+    if (sortSelect && sortInput && campFilterForm) {
+        sortSelect.addEventListener("change", function () {
+            sortInput.value = this.value;
+            campFilterForm.submit();
+        });
+    }
+
+    // ✅ 찜 AJAX 토글 → /wishToggle 서블릿으로 요청
+    function toggleWish(btn) {
+        const campId = btn.dataset.campId;
+        const wished = btn.dataset.wished === 'true';
+        const action = wished ? 'remove' : 'add';
+
+        btn.disabled = true; // 중복 클릭 방지
+
+        fetch('<%=ctx%>/wishToggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'campId=' + campId + '&action=' + action
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const nowWished = !wished;
+                btn.dataset.wished  = nowWished;
+                btn.textContent     = nowWished ? '❤️' : '🤍';
+                btn.title           = nowWished ? '찜 해제' : '찜하기';
+            }
+        })
+        .catch(err => console.error('찜 처리 오류:', err))
+        .finally(() => { btn.disabled = false; });
+    }
 </script>
 
 </body>

@@ -23,7 +23,7 @@
         }
     }
 
-    int loginUserId = userId; // 세션값 사용
+    int loginUserId = userId;
 
     String place = request.getParameter("place");
     if (place == null) place = "";
@@ -33,6 +33,34 @@
 
     MatchDAO matchDAO = new MatchDAO();
     PlaceReviewDAO reviewDAO = new PlaceReviewDAO();
+
+    // ✅ 수정/삭제 AJAX 처리
+    String action = request.getParameter("action");
+    if ("write".equals(action)) {
+        String content = request.getParameter("content");
+        int rating = 5;
+        try { rating = Integer.parseInt(request.getParameter("rating")); } catch (Exception e) {}
+        reviewDAO.insertReview(loginUserId, place, content, rating);
+        response.sendRedirect(ctx + "/review.jsp?place=" + java.net.URLEncoder.encode(place, "UTF-8") + "&sort=" + sort);
+        return;
+    }
+    if ("edit".equals(action)) {
+        int postId = 0;
+        int rating = 5;
+        String content = request.getParameter("content");
+        try { postId = Integer.parseInt(request.getParameter("id")); } catch (Exception e) {}
+        try { rating = Integer.parseInt(request.getParameter("rating")); } catch (Exception e) {}
+        reviewDAO.updateReview(postId, loginUserId, content, rating);
+        response.sendRedirect(ctx + "/review.jsp?place=" + java.net.URLEncoder.encode(place, "UTF-8") + "&sort=" + sort);
+        return;
+    }
+    if ("delete".equals(action)) {
+        int postId = 0;
+        try { postId = Integer.parseInt(request.getParameter("id")); } catch (Exception e) {}
+        reviewDAO.deleteReview(postId, loginUserId);
+        response.sendRedirect(ctx + "/review.jsp?place=" + java.net.URLEncoder.encode(place, "UTF-8") + "&sort=" + sort);
+        return;
+    }
 
     List<Map<String, Object>> reviewList = null;
     double avg = 0;
@@ -55,6 +83,7 @@
         }
     }
 
+    // ✅ 수정: reservations + camps 기준으로 전체 캠핑장 목록 가져오기
     Set<String> allPlaces = new LinkedHashSet<String>();
     List<Match> todayMatches = matchDAO.getTodayMatches();
     if (todayMatches != null) {
@@ -63,6 +92,7 @@
         }
     }
 
+    // ✅ 수정: 해당 캠핑장을 실제로 예약했는지 reservations 테이블로 확인
     boolean canWrite = false;
     if (!place.isEmpty()) {
         List<Match> matchesAtPlace = matchDAO.getTodayMatchesByPlace(place);
@@ -85,6 +115,89 @@
 
     <link rel="stylesheet" href="<%=ctx%>/assets/css/common.css">
     <link rel="stylesheet" href="<%=ctx%>/assets/css/community.css">
+
+    <style>
+        /* 모달 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: white;
+            border-radius: 16px;
+            padding: 32px 28px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        .modal-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .modal-textarea {
+            width: 100%;
+            height: 120px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .modal-textarea:focus { border-color: #2d5a27; }
+        .star-selector { display: flex; gap: 6px; margin-bottom: 16px; }
+        .star-selector span {
+            font-size: 28px;
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.15s;
+        }
+        .star-selector span.on { color: #f5a623; }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-btn-cancel {
+            flex: 1;
+            padding: 10px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #555;
+        }
+        .modal-btn-submit {
+            flex: 2;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #2d5a27;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .modal-btn-submit:hover { background: #1e3d1b; }
+    </style>
 </head>
 <body>
 
@@ -240,8 +353,126 @@
 
     <jsp:include page="/include/footer.jsp" />
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <%-- 리뷰 작성 모달 --%>
+    <div class="modal-overlay" id="writeModal">
+        <div class="modal-box">
+            <div class="modal-title">✍️ 후기 작성</div>
+            <form method="post" action="<%=ctx%>/review.jsp?place=<%=java.net.URLEncoder.encode(place, "UTF-8")%>&sort=<%=sort%>&action=write">
+                <label class="modal-label">별점</label>
+                <div class="star-selector" id="writeStars">
+                    <span data-v="1">★</span>
+                    <span data-v="2">★</span>
+                    <span data-v="3">★</span>
+                    <span data-v="4">★</span>
+                    <span data-v="5">★</span>
+                </div>
+                <input type="hidden" name="rating" id="writeRating" value="5">
 
-    <%-- 기존 openWriteModal, openEditModal, deleteReview JS는 그대로 아래에 붙이면 됨 --%>
+                <label class="modal-label">후기 내용</label>
+                <textarea class="modal-textarea" name="content" placeholder="솔직한 캠핑 후기를 남겨주세요." required></textarea>
+
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn-cancel" onclick="closeModal('writeModal')">취소</button>
+                    <button type="submit" class="modal-btn-submit">작성 완료</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <%-- 리뷰 수정 모달 --%>
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-box">
+            <div class="modal-title">✏️ 후기 수정</div>
+            <form method="post" action="<%=ctx%>/review.jsp?place=<%=java.net.URLEncoder.encode(place, "UTF-8")%>&sort=<%=sort%>&action=edit">
+                <input type="hidden" name="id" id="editPostId">
+
+                <label class="modal-label">별점</label>
+                <div class="star-selector" id="editStars">
+                    <span data-v="1">★</span>
+                    <span data-v="2">★</span>
+                    <span data-v="3">★</span>
+                    <span data-v="4">★</span>
+                    <span data-v="5">★</span>
+                </div>
+                <input type="hidden" name="rating" id="editRating" value="5">
+
+                <label class="modal-label">후기 내용</label>
+                <textarea class="modal-textarea" name="content" id="editContent" required></textarea>
+
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn-cancel" onclick="closeModal('editModal')">취소</button>
+                    <button type="submit" class="modal-btn-submit">수정 완료</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 모달 열기/닫기
+        function openWriteModal() {
+            setStars('writeStars', 'writeRating', 5);
+            document.getElementById('writeModal').classList.add('active');
+        }
+        function openEditModal(id, content, rating) {
+            document.getElementById('editPostId').value = id;
+            document.getElementById('editContent').value = content;
+            setStars('editStars', 'editRating', rating);
+            document.getElementById('editModal').classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // 별점 선택
+        function setStars(containerId, inputId, value) {
+            const stars = document.querySelectorAll('#' + containerId + ' span');
+            document.getElementById(inputId).value = value;
+            stars.forEach(s => {
+                s.classList.toggle('on', parseInt(s.dataset.v) <= value);
+            });
+        }
+
+        // 별점 클릭 이벤트 등록
+        ['writeStars', 'editStars'].forEach(containerId => {
+            const inputId = containerId === 'writeStars' ? 'writeRating' : 'editRating';
+            document.querySelectorAll('#' + containerId + ' span').forEach(star => {
+                star.addEventListener('click', () => {
+                    setStars(containerId, inputId, parseInt(star.dataset.v));
+                });
+                star.addEventListener('mouseover', () => {
+                    document.querySelectorAll('#' + containerId + ' span').forEach(s => {
+                        s.classList.toggle('on', parseInt(s.dataset.v) <= parseInt(star.dataset.v));
+                    });
+                });
+                star.addEventListener('mouseout', () => {
+                    const cur = parseInt(document.getElementById(inputId).value);
+                    setStars(containerId, inputId, cur);
+                });
+            });
+        });
+
+        // 삭제
+        function deleteReview(id) {
+            if (!confirm('이 후기를 삭제할까요?')) return;
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '<%=ctx%>/review.jsp?place=<%=java.net.URLEncoder.encode(place, "UTF-8")%>&sort=<%=sort%>&action=delete';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'id';
+            input.value = id;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('active');
+            });
+        });
+    </script>
 </body>
 </html>

@@ -3,7 +3,6 @@ USE camp_DB;
 -- =====================================================
 -- 기존 테이블 정리
 -- =====================================================
-
 DROP TABLE IF EXISTS reports;
 DROP TABLE IF EXISTS admin_logs;
 DROP TABLE IF EXISTS reservations;
@@ -15,12 +14,8 @@ DROP TABLE IF EXISTS product;
 DROP TABLE IF EXISTS matches;
 DROP TABLE IF EXISTS camps;
 DROP TABLE IF EXISTS email_verification;
-
--- 필요할 때만 실행 (없으면 에러남)
--- ALTER TABLE place_review DROP FOREIGN KEY fk_place_review_user;
-
+DROP TABLE IF EXISTS inquiries;
 DROP TABLE IF EXISTS users;
-
 
 -- =====================================================
 -- 1. 사용자 (users)
@@ -31,26 +26,20 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    profileImage VARCHAR(255),   -- ✅ 유지
-
-    role VARCHAR(20) NOT NULL DEFAULT 'user',      -- user, owner, admin
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',  -- active, pending, rejected
-
-    -- 사장님 정보
+    profileImage VARCHAR(255),
+    role VARCHAR(20) NOT NULL DEFAULT 'user',
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     camp_name VARCHAR(100),
     business_name VARCHAR(100),
     business_number VARCHAR(50),
-
+    business_no VARCHAR(50),
+    business_img VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 관리자 계정
 INSERT INTO users (username, password, name, email, role, status)
 VALUES ('test', '$2a$10$.iRWvuu756Z9g21WKfSKJ.magymk0wH73GkvhA7yF9lrfutIQsMBO', '테스트', 'test@test.com', 'admin', 'ACTIVE');
 
-UPDATE users
-SET role = 'admin'
-WHERE username = 'test';
 -- =====================================================
 -- 2. 이메일 인증
 -- =====================================================
@@ -61,7 +50,6 @@ CREATE TABLE email_verification (
     attempts INT DEFAULT 0,
     PRIMARY KEY (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 -- =====================================================
 -- 3. 캠핑장
@@ -74,18 +62,15 @@ CREATE TABLE camps (
     tags VARCHAR(255),
     price INT,
     image VARCHAR(255),
-    status VARCHAR(20) DEFAULT 'open'
+    status VARCHAR(20) DEFAULT 'open',
+    description TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-ALTER TABLE camps MODIFY tags VARCHAR(500); --태그 길이 늘리기 05.05
 
 INSERT INTO camps (name, address, type, tags, price, image, status) VALUES
 ('가평 푸른숲 캠핑장', '경기도 가평군 북면', '글램핑', '물놀이,깨끗한', 150000, 'camp1.jpg', 'open'),
 ('속초 바다 카라반', '강원도 속초시 해안도로', '카라반', '바다,노을', 120000, 'camp2.jpg', 'open'),
 ('양평 별헤는 밤', '경기도 양평군 용문면', '차박/캠핑', '여유있는,별빛', 50000, 'camp3.jpg', 'open'),
 ('제주 숲속 풀빌라', '제주특별자치도 제주시', '풀빌라', '반려견,감성', 350000, 'camp4.jpg', 'open');
-
-ALTER TABLE camps ADD COLUMN description TEXT;
 
 -- =====================================================
 -- 4. 매칭
@@ -94,7 +79,6 @@ CREATE TABLE matches (
     id INT AUTO_INCREMENT PRIMARY KEY,
     location VARCHAR(100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 -- =====================================================
 -- 5. 예약
@@ -107,11 +91,13 @@ CREATE TABLE reservations (
     people_count INT DEFAULT 1,
     status VARCHAR(30) DEFAULT 'reserved',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    order_id VARCHAR(100) NULL COMMENT '토스 주문번호',
+    payment_key VARCHAR(200) NULL COMMENT '토스 결제키',
+    amount INT NULL COMMENT '결제금액',
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (camp_id) REFERENCES camps(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 -- =====================================================
 -- 6. 상품
@@ -149,7 +135,6 @@ CREATE TABLE product_image (
     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 예시 데이터
 INSERT INTO product_image (product_id, image_path, sort_order) VALUES
 (1, 'tent.jpg', 1),
 (2, 'chair.jpg', 1),
@@ -161,21 +146,17 @@ INSERT INTO product_image (product_id, image_path, sort_order) VALUES
 -- =====================================================
 CREATE TABLE posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    post_type VARCHAR(30) NOT NULL,             -- news, event, notice
+    post_type VARCHAR(30) NOT NULL,
     title VARCHAR(200) NOT NULL,
     summary VARCHAR(500),
     content TEXT NOT NULL,
-
-    category VARCHAR(50),                       -- 캠핑 팁, 안전 정보, 프로모션 등
-    thumbnail VARCHAR(255),                     -- 대표 이미지 경로
-
-    author_id INT,                              -- 작성자(관리자 회원 id)
+    category VARCHAR(50),
+    thumbnail VARCHAR(255),
+    author_id INT,
     view_count INT DEFAULT 0,
-
-    status VARCHAR(20) DEFAULT 'draft',         -- draft, published, hidden, deleted
-    is_pinned TINYINT(1) DEFAULT 0,             -- 상단 고정 여부
-    display_order INT DEFAULT 0,                -- 수동 정렬 우선순위
-
+    status VARCHAR(20) DEFAULT 'draft',
+    is_pinned TINYINT(1) DEFAULT 0,
+    display_order INT DEFAULT 0,
     published_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -193,7 +174,7 @@ CREATE TABLE event_details (
     post_id INT PRIMARY KEY,
     start_date DATE,
     end_date DATE,
-    event_status VARCHAR(20) DEFAULT 'upcoming',   -- upcoming, ongoing, ended
+    event_status VARCHAR(20) DEFAULT 'upcoming',
     apply_url VARCHAR(255),
     coupon_code VARCHAR(100),
     max_participants INT NULL,
@@ -204,22 +185,20 @@ CREATE TABLE event_details (
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
 -- =====================================================
--- 10. 게시글 이미지 (post_images)
+-- 10. 게시글 이미지
 -- =====================================================
 CREATE TABLE post_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT NOT NULL,
     image_path VARCHAR(255) NOT NULL,
-    image_type VARCHAR(30) DEFAULT 'content',   -- thumbnail, banner, content
+    image_type VARCHAR(30) DEFAULT 'content',
     sort_order INT DEFAULT 0,
 
     CONSTRAINT fk_post_image
         FOREIGN KEY (post_id) REFERENCES posts(id)
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 -- =====================================================
 -- 11. 관리자 로그
@@ -231,15 +210,15 @@ CREATE TABLE admin_logs (
     target_type VARCHAR(50),
     target_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    detail TEXT,
 
     CONSTRAINT fk_admin_logs_user
         FOREIGN KEY (admin_id) REFERENCES users(id)
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE admin_logs ADD detail TEXT;--추가! 04.17
 -- =====================================================
--- 11. 신고
+-- 12. 신고
 -- =====================================================
 CREATE TABLE reports (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -255,34 +234,8 @@ CREATE TABLE reports (
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username      VARCHAR(50)  NOT NULL UNIQUE,
-    password      VARCHAR(255) NOT NULL,
-    name          VARCHAR(50)  NOT NULL,
-    email         VARCHAR(100) NOT NULL UNIQUE,
-    -- 권한: 'USER', 'OWNER', 'ADMIN'
-    role          VARCHAR(10)  NOT NULL DEFAULT 'USER', 
-    -- 사장님 전용 정보
-    business_no   VARCHAR(50),           -- 사업자 번호
-    business_img  VARCHAR(255),          -- 사업자 등록증 파일명
-    -- 상태: 'PENDING'(대기), 'ACTIVE'(승인), 'REJECTED'(거절)
-    status        VARCHAR(20)  DEFAULT 'ACTIVE', 
-    profileImage  VARCHAR(255),
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 관리자 계정 미리 생성 (데모용)
-INSERT INTO users (username, password, name, email, role, status)
-VALUES ('admin', '1234', '관리자', 'admin@camp.com', 'admin', 'ACTIVE');
-
-ALTER TABLE users ADD COLUMN camp_name VARCHAR(100) NULL;
-ALTER TABLE users ADD COLUMN business_name VARCHAR(100) NULL;
-ALTER TABLE users ADD COLUMN business_number VARCHAR(50) NULL;
-
 -- =====================================================
--- 12. 문의
+-- 13. 문의
 -- =====================================================
 CREATE TABLE inquiries (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -292,25 +245,15 @@ CREATE TABLE inquiries (
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20) DEFAULT '대기'
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 0424 toss
-ALTER TABLE reservations
-    ADD COLUMN order_id    VARCHAR(100) NULL COMMENT '토스 주문번호',
-    ADD COLUMN payment_key VARCHAR(200) NULL COMMENT '토스 결제키',
-    ADD COLUMN amount      INT          NULL COMMENT '결제금액';
-    
-show tables;
-DESC camps;
-SELECT * FROM camps;
---캠핑장 중복 지움
+-- =====================================================
+-- 14. 캠핑장 중복 지움
+-- =====================================================
 SELECT name, address, COUNT(*) AS cnt
 FROM camps
 GROUP BY name, address
 HAVING COUNT(*) > 1;
-
-
-ROLLBACK;
 
 SET autocommit = 1;
 
@@ -327,3 +270,35 @@ LIMIT 1000;
 
 ALTER TABLE camps
 ADD CONSTRAINT uq_camps_name_address UNIQUE (name, address);
+
+-- =====================================================
+-- 15.구매 내역 테이블 추가 (init.sql 또는 DB에 직접 실행)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS product_purchase (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    buyer_id   INT NOT NULL,
+    price      INT NOT NULL,
+    purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE,
+    FOREIGN KEY (buyer_id)   REFERENCES users(id)   ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =====================================================
+-- 16.찜한 캠핑장 테이블 추가 (DB에 직접 실행)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS wishlist (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT NOT NULL,
+    camp_id    INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uq_wishlist (user_id, camp_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (camp_id) REFERENCES camps(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+UPDATE camps SET image = '/assets/img/camp1.jpg' WHERE id % 3 = 1;
+UPDATE camps SET image = '/assets/img/camp2.jpg' WHERE id % 3 = 2;
+UPDATE camps SET image = '/assets/img/camp3.jpg' WHERE id % 3 = 0;

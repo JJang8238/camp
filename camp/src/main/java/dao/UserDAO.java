@@ -380,6 +380,55 @@ public class UserDAO {
         return count;
     }
 
+    // ✅ 이름 + 이메일 수정
+    public boolean updateProfile(int userId, String name, String email) {
+        String sql = "UPDATE users SET name = ?, email = ? WHERE id = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.setString(2, email);
+            pstmt.setInt(3, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // ✅ 비밀번호 변경 (현재 비밀번호 BCrypt 검증 후 변경)
+    public boolean updatePassword(int userId, String currentPassword, String newPassword) {
+        // 1) 현재 비밀번호 조회
+        String selectSql = "SELECT password FROM users WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(selectSql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String hashed = rs.getString("password");
+                    // 2) BCrypt 검증
+                    if (!PasswordUtil.checkPassword(currentPassword, hashed)) {
+                        return false; // 현재 비밀번호 불일치
+                    }
+                } else {
+                    return false; // 사용자 없음
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // 3) 새 비밀번호로 업데이트
+        String updateSql = "UPDATE users SET password = ? WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+            ps.setString(1, PasswordUtil.hashPassword(newPassword));
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public void close() {
         try {
             if (conn != null && !conn.isClosed()) {

@@ -7,10 +7,13 @@ import util.DBUtil;
 
 public class MatchDAO {
 
-    // 모든 캠핑장 장소 목록 가져오기 (리뷰 페이지 상단 드롭다운용)
+    // ✅ 수정: 내가 예약한 캠핑장 목록 가져오기 (reservations + camps 기준)
+    // 기존: matches 테이블에서 location 가져오기 → 데이터 없어서 드롭다운 비어있던 문제 해결
     public List<Match> getTodayMatches() {
         List<Match> list = new ArrayList<>();
-        String sql = "SELECT DISTINCT location FROM matches"; // matches 테이블 기준
+        String sql = "SELECT DISTINCT c.name AS location " +
+                     "FROM reservations r " +
+                     "JOIN camps c ON r.camp_id = c.id";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
@@ -23,16 +26,27 @@ public class MatchDAO {
         return list;
     }
 
-    // 특정 사용자가 해당 캠핑장을 예약(이용)했는지 확인 (리뷰 작성 권한)
+    // ✅ 수정: 특정 사용자가 해당 캠핑장을 실제로 예약했는지 확인 (reservations 기준)
+    // 기존: 항상 true 반환하는 임시 코드 → 실제 DB 조회로 변경
     public boolean isUserReserved(int userId, int matchId) {
-        // 실제 예약 테이블(예: reservations)이 있다면 해당 로직으로 수정 필요
-        return true; // 우선 테스트를 위해 true 반환
+        // matchId는 이제 camp_id로 사용
+        String sql = "SELECT COUNT(*) FROM reservations " +
+                     "WHERE user_id = ? AND camp_id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, matchId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
     }
-    
-    // 장소명으로 매치 정보 가져오기
+
+    // ✅ 수정: 캠핑장 이름으로 Match 정보 가져오기 (camps 기준)
+    // 기존: matches 테이블에서 location으로 검색 → camps 테이블로 변경
     public List<Match> getTodayMatchesByPlace(String place) {
         List<Match> list = new ArrayList<>();
-        String sql = "SELECT * FROM matches WHERE location = ?";
+        String sql = "SELECT id, name AS location FROM camps WHERE name = ?";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, place);

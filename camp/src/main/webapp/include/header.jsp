@@ -9,6 +9,7 @@
 %>
 <%
 String roleBtnStyle = "padding:6px 15px; border-radius:20px; text-decoration:none; font-size:13px; font-weight:500; color:white; background-color:#2d5a27;";
+String mypageBtnStyle = "padding:6px 15px; border-radius:20px; text-decoration:none; font-size:13px; font-weight:500; color:#2d5a27; border:1.5px solid #2d5a27; background:transparent; transition:background 0.2s;";
 %>
 <header class="main-header">
     <div class="container-fluid px-5 d-flex justify-content-between align-items-center py-3">
@@ -37,7 +38,7 @@ String roleBtnStyle = "padding:6px 15px; border-radius:20px; text-decoration:non
 
             <a href="<%=headerCtx%>/cs.jsp">고객센터</a>
 
-           
+
         </nav>
 
         <div class="nav-right d-flex align-items-center">
@@ -70,6 +71,21 @@ String roleBtnStyle = "padding:6px 15px; border-radius:20px; text-decoration:non
        class="me-2"
        style="<%=roleBtnStyle%>">
         관리자
+    </a>
+<% } %>
+
+                <%-- ✅ 마이페이지 버튼: role에 따라 다른 페이지로 이동 --%>
+<% if ("owner".equals(role)) { %>
+    <a href="<%=headerCtx%>/mypage/owner_mypage.jsp"
+       class="me-2"
+       style="<%=mypageBtnStyle%>">
+        👤 마이페이지
+    </a>
+<% } else if ("user".equals(role)) { %>
+    <a href="<%=headerCtx%>/mypage/user_mypage.jsp"
+       class="me-2"
+       style="<%=mypageBtnStyle%>">
+        👤 마이페이지
     </a>
 <% } %>
 

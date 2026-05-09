@@ -302,3 +302,47 @@ CREATE TABLE IF NOT EXISTS wishlist (
 UPDATE camps SET image = '/assets/img/camp1.jpg' WHERE id % 3 = 1;
 UPDATE camps SET image = '/assets/img/camp2.jpg' WHERE id % 3 = 2;
 UPDATE camps SET image = '/assets/img/camp3.jpg' WHERE id % 3 = 0;
+
+-- =====================================================
+-- 17.채팅방
+-- =====================================================
+CREATE TABLE chat_room (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    buyer_id INT NOT NULL,
+    seller_id INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uq_chat_room (product_id, buyer_id, seller_id),
+
+    CONSTRAINT fk_chat_room_product
+        FOREIGN KEY (product_id) REFERENCES product(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_chat_room_buyer
+        FOREIGN KEY (buyer_id) REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_chat_room_seller
+        FOREIGN KEY (seller_id) REFERENCES users(id)
+        ON DELETE CASCADE
+);
+-- =====================================================
+-- 17.채팅메세지
+-- =====================================================
+CREATE TABLE chat_message (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_chat_message_room
+        FOREIGN KEY (room_id) REFERENCES chat_room(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_chat_message_sender
+        FOREIGN KEY (sender_id) REFERENCES users(id)
+        ON DELETE CASCADE
+);

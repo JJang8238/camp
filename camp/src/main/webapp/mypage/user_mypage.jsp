@@ -144,6 +144,14 @@
             </div>
         </a>
 
+		<a href="<%=ctx%>/chat/list" class="mypage-card">
+    		<div class="card-icon">💬</div>
+    		<div class="card-info">
+        		<h4>거래 채팅</h4>
+        		<p>캠핑용품 구매 · 판매 채팅을 확인하세요</p>
+    		</div>
+		</a>
+
         <a href="<%=ctx%>/mypage/my_reviews.jsp" class="mypage-card">
             <div class="card-icon">⭐</div>
             <div class="card-info">

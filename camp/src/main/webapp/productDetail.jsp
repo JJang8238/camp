@@ -266,15 +266,28 @@
                 <%= productDescription.isEmpty() ? "등록된 상품 설명이 없습니다." : productDescription %>
             </div>
 
-            <div class="product-action-group">
-                <button type="button" class="btn-soft" onclick="history.back()">목록으로</button>
+            <%
+    Integer loginUserId = (Integer) session.getAttribute("userId");
+    boolean isLogin = loginUserId != null;
+    boolean isMyProduct = isLogin && loginUserId == sellerId;
+%>
 
-                <% if (isSoldOut) { %>
-                    <button type="button" class="btn-point disabled" disabled>거래불가</button>
-                <% } else { %>
-                    <button type="button" class="btn-point">채팅하기</button>
-                <% } %>
-            </div>
+<div class="product-action-group">
+    <button type="button" class="btn-soft" onclick="history.back()">목록으로</button>
+
+    <% if (isSoldOut) { %>
+        <button type="button" class="btn-point disabled" disabled>거래불가</button>
+
+    <% } else if (!isLogin) { %>
+        <a href="<%=ctx%>/login.jsp" class="btn-point">로그인 후 채팅하기</a>
+
+    <% } else if (isMyProduct) { %>
+        <button type="button" class="btn-point disabled" disabled>내 상품입니다</button>
+
+    <% } else { %>
+        <a href="<%=ctx%>/chat/start?productId=<%=productId%>" class="btn-point">채팅하기</a>
+    <% } %>
+</div>
         </div>
     </div>
 

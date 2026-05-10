@@ -102,28 +102,95 @@ public class CampDAO {
         int offset = (page - 1) * pageSize;
 
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT id, name, address, type, tags, price, image ");
+        List<String> scoreParams = new ArrayList<>();
+        List<String> whereParams = new ArrayList<>();
+
+        sql.append("SELECT id, name, address, type, tags, price, image, ");
+
+        if ("recommend".equals(sort)) {
+            sql.append("(");
+            sql.append("0 ");
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                sql.append("+ CASE WHEN name LIKE ? OR address LIKE ? OR tags LIKE ? THEN 20 ELSE 0 END ");
+                String kw = "%" + keyword.trim() + "%";
+                scoreParams.add(kw);
+                scoreParams.add(kw);
+                scoreParams.add(kw);
+            }
+
+            if (type != null && !type.trim().isEmpty()) {
+                String[] types = type.split(",");
+                for (String t : types) {
+                    if (t == null || t.trim().isEmpty()) continue;
+
+                    sql.append("+ CASE WHEN type LIKE ? OR tags LIKE ? THEN 30 ELSE 0 END ");
+                    String value = "%" + t.trim() + "%";
+                    scoreParams.add(value);
+                    scoreParams.add(value);
+                }
+            }
+
+            if (loc != null && !loc.trim().isEmpty()) {
+                String[] locs = loc.split(",");
+                for (String l : locs) {
+                    if (l == null || l.trim().isEmpty()) continue;
+
+                    List<String> expandedLocs = expandLocationKeyword(l);
+
+                    for (String expanded : expandedLocs) {
+                        sql.append("+ CASE WHEN address LIKE ? OR tags LIKE ? THEN 15 ELSE 0 END ");
+                        String value = "%" + expanded.trim() + "%";
+                        scoreParams.add(value);
+                        scoreParams.add(value);
+                    }
+                }
+            }
+
+            if (facility != null && !facility.trim().isEmpty()) {
+                String[] facilities = facility.split(",");
+                for (String f : facilities) {
+                    if (f == null || f.trim().isEmpty()) continue;
+
+                    sql.append("+ CASE WHEN tags LIKE ? THEN 10 ELSE 0 END ");
+                    scoreParams.add("%" + f.trim() + "%");
+                }
+            }
+
+            sql.append(") AS recommend_score ");
+        } else {
+            sql.append("0 AS recommend_score ");
+        }
+
         sql.append("FROM camps ");
         sql.append("WHERE status = 'active' ");
-
-        List<String> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append("AND (name LIKE ? OR address LIKE ? OR tags LIKE ?) ");
             String kw = "%" + keyword.trim() + "%";
-            params.add(kw);
-            params.add(kw);
-            params.add(kw);
+            whereParams.add(kw);
+            whereParams.add(kw);
+            whereParams.add(kw);
         }
 
         if (type != null && !type.trim().isEmpty()) {
             String[] types = type.split(",");
             sql.append("AND (");
-            for (int i = 0; i < types.length; i++) {
-                if (i > 0) sql.append(" OR ");
-                sql.append("type LIKE ?");
-                params.add("%" + types[i].trim() + "%");
+            boolean first = true;
+
+            for (String t : types) {
+                if (t == null || t.trim().isEmpty()) continue;
+
+                if (!first) sql.append(" OR ");
+                sql.append("type LIKE ? OR tags LIKE ?");
+
+                String value = "%" + t.trim() + "%";
+                whereParams.add(value);
+                whereParams.add(value);
+
+                first = false;
             }
+
             sql.append(") ");
         }
 
@@ -132,14 +199,17 @@ public class CampDAO {
             List<String> expandedLocs = new ArrayList<>();
 
             for (String l : locs) {
-                expandedLocs.addAll(expandLocationKeyword(l));
+                if (l == null || l.trim().isEmpty()) continue;
+                expandedLocs.addAll(expandLocationKeyword(l.trim()));
             }
 
             sql.append("AND (");
             for (int i = 0; i < expandedLocs.size(); i++) {
                 if (i > 0) sql.append(" OR ");
-                sql.append("address LIKE ?");
-                params.add("%" + expandedLocs.get(i).trim() + "%");
+                sql.append("address LIKE ? OR tags LIKE ?");
+                String value = "%" + expandedLocs.get(i).trim() + "%";
+                whereParams.add(value);
+                whereParams.add(value);
             }
             sql.append(") ");
         }
@@ -147,20 +217,28 @@ public class CampDAO {
         if (facility != null && !facility.trim().isEmpty()) {
             String[] facilities = facility.split(",");
             sql.append("AND (");
-            for (int i = 0; i < facilities.length; i++) {
-                if (i > 0) sql.append(" OR ");
+            boolean first = true;
+
+            for (String f : facilities) {
+                if (f == null || f.trim().isEmpty()) continue;
+
+                if (!first) sql.append(" OR ");
                 sql.append("tags LIKE ?");
-                params.add("%" + facilities[i].trim() + "%");
+
+                whereParams.add("%" + f.trim() + "%");
+
+                first = false;
             }
+
             sql.append(") ");
         }
 
         if ("priceAsc".equals(sort)) {
-            sql.append("ORDER BY price ASC ");
+            sql.append("ORDER BY price ASC, id DESC ");
         } else if ("priceDesc".equals(sort)) {
-            sql.append("ORDER BY price DESC ");
+            sql.append("ORDER BY price DESC, id DESC ");
         } else {
-            sql.append("ORDER BY id DESC ");
+            sql.append("ORDER BY recommend_score DESC, id DESC ");
         }
 
         sql.append("LIMIT ? OFFSET ?");
@@ -171,7 +249,11 @@ public class CampDAO {
         ) {
             int idx = 1;
 
-            for (String param : params) {
+            for (String param : scoreParams) {
+                ps.setString(idx++, param);
+            }
+
+            for (String param : whereParams) {
                 ps.setString(idx++, param);
             }
 

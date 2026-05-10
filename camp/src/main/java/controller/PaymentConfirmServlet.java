@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Base64;
+import java.time.LocalDate;
 
 @WebServlet("/payment/confirm")
 public class PaymentConfirmServlet extends HttpServlet {
@@ -39,9 +40,12 @@ public class PaymentConfirmServlet extends HttpServlet {
         }
 
         JsonObject requestBody = JsonParser.parseString(sb.toString()).getAsJsonObject();
-        String paymentKey = requestBody.get("paymentKey").getAsString();
-        String orderId    = requestBody.get("orderId").getAsString();
-        int    amount     = requestBody.get("amount").getAsInt();
+        String paymentKey  = requestBody.get("paymentKey").getAsString();
+        String orderId     = requestBody.get("orderId").getAsString();
+        int    amount      = requestBody.get("amount").getAsInt();
+        String reserveDate = requestBody.has("reserveDate") ? requestBody.get("reserveDate").getAsString() : "";
+        int    peopleCount = requestBody.has("peopleCount") ? Integer.parseInt(requestBody.get("peopleCount").getAsString()) : 1;
+        int    campId      = requestBody.has("campId")      ? Integer.parseInt(requestBody.get("campId").getAsString())      : 0;
 
         // ── 토스 결제 승인 API 호출 ──────────────────────────────
         URL url = new URL("https://api.tosspayments.com/v1/payments/confirm");
@@ -82,7 +86,7 @@ public class PaymentConfirmServlet extends HttpServlet {
 
             // ── DB에 예약 내역 저장 ──────────────────────────────
             Integer userId = (Integer) req.getSession().getAttribute("userId");
-            saveReservation(orderId, paymentKey, userId, orderName, amount);
+            saveReservation(orderId, paymentKey, userId, orderName, amount, reserveDate, peopleCount, campId);
 
             // 성공 응답
             JsonObject result = new JsonObject();
@@ -107,26 +111,37 @@ public class PaymentConfirmServlet extends HttpServlet {
 
     // reservations 테이블에 저장
     private void saveReservation(String orderId, String paymentKey,
-                                  Integer userId, String orderName, int amount) {
-        String sql = "INSERT INTO reservations (user_id, camp_id, reserve_date, status, order_id, payment_key, amount) " +
-                     "VALUES (?, ?, CURDATE(), 'RESERVED', ?, ?, ?)";
+                                  Integer userId, String orderName, int amount,
+                                  String reserveDate, int peopleCount, int campIdParam) {
 
-        // orderId에서 camp_id 추출 (예: "ORDER-1-1716000000000" → camp_id = 1)
-        int campId = 0;
-        try {
-            String[] parts = orderId.split("-");
-            if (parts.length >= 2) campId = Integer.parseInt(parts[1]);
-        } catch (Exception e) {
-            campId = 0;
+        // ✅ campId: 파라미터로 받은 값 우선, 없으면 orderId에서 추출
+        int campId = campIdParam;
+        if (campId == 0) {
+            try {
+                String[] parts = orderId.split("-");
+                if (parts.length >= 2) campId = Integer.parseInt(parts[1]);
+            } catch (Exception e) {
+                campId = 0;
+            }
         }
+
+        // ✅ reserveDate: 파라미터로 받은 날짜 우선, 없으면 오늘
+        String date = (reserveDate != null && !reserveDate.trim().isEmpty())
+                ? reserveDate.trim()
+                : java.time.LocalDate.now().toString();
+
+        String sql = "INSERT INTO reservations (user_id, camp_id, reserve_date, people_count, status, order_id, payment_key, amount) " +
+                     "VALUES (?, ?, ?, ?, 'RESERVED', ?, ?, ?)";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId != null ? userId : 0);
             ps.setInt(2, campId);
-            ps.setString(3, orderId);
-            ps.setString(4, paymentKey);
-            ps.setInt(5, amount);
+            ps.setString(3, date);
+            ps.setInt(4, peopleCount);
+            ps.setString(5, orderId);
+            ps.setString(6, paymentKey);
+            ps.setInt(7, amount);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

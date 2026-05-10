@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="dao.UserDAO" %>
-<%@ page import="dto.User" %>
+<%@ page import="dao.CampDAO, dao.OwnerReservationDAO" %>
+<%@ page import="dto.User, dto.ReservationDTO, java.util.List" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
@@ -39,6 +40,21 @@
     if (businessName == null) businessName = "";
     if (businessNumber == null) businessNumber = "";
     if (status == null) status = "";
+
+    // ✅ 운영 요약 데이터 DB에서 조회
+    // 등록 캠핑장 수
+    int campCount = CampDAO.getCampsByOwnerId(loginUserId).size();
+
+    // 오늘 예약 수
+    String today = java.time.LocalDate.now().toString();
+    List<ReservationDTO> allReservations = OwnerReservationDAO.getReservationsByOwnerId(loginUserId);
+    int todayReservationCount = 0;
+    for (ReservationDTO r : allReservations) {
+        if (today.equals(r.getReserveDate())) todayReservationCount++;
+    }
+
+    // 판매 상품 수 (seller_id = loginUserId)
+    int productCount = new dao.ProductDAO().getProductsBySeller(loginUserId).size();
 %>
 
 <!DOCTYPE html>
@@ -383,20 +399,20 @@
                         <div class="owner-summary-grid">
                             <div class="owner-summary-box">
                                 <div class="owner-summary-label">등록 캠핑장</div>
-                                <div class="owner-summary-value">1</div>
-                                <div class="owner-summary-sub">추후 DB 연동 가능</div>
+                                <div class="owner-summary-value"><%=campCount%></div>
+                                <div class="owner-summary-sub">내 캠핑장 관리에서 확인</div>
                             </div>
 
                             <div class="owner-summary-box">
                                 <div class="owner-summary-label">오늘 예약</div>
-                                <div class="owner-summary-value">0</div>
-                                <div class="owner-summary-sub">예약 관리 페이지와 연동</div>
+                                <div class="owner-summary-value"><%=todayReservationCount%></div>
+                                <div class="owner-summary-sub"><%=today%> 기준</div>
                             </div>
 
                             <div class="owner-summary-box">
                                 <div class="owner-summary-label">판매 상품</div>
-                                <div class="owner-summary-value">0</div>
-                                <div class="owner-summary-sub">상품 관리와 연동</div>
+                                <div class="owner-summary-value"><%=productCount%></div>
+                                <div class="owner-summary-sub">내가 등록한 상품 수</div>
                             </div>
                         </div>
                     </div>
@@ -443,7 +459,7 @@
                         <h2 class="owner-card-title">빠른 메뉴</h2>
 
                         <div class="owner-menu-grid">
-                            <a href="<%=ctx%>/owner/campManage.jsp" class="owner-menu-item">
+                            <a href="<%=ctx%>/mypage/camp_manage.jsp" class="owner-menu-item">
                                 <div class="owner-menu-icon">🏕</div>
                                 <div class="owner-menu-text">
                                     <strong>내 캠핑장 관리</strong>
@@ -451,7 +467,7 @@
                                 </div>
                             </a>
 
-                            <a href="<%=ctx%>/owner/reservationList.jsp" class="owner-menu-item">
+                            <a href="<%=ctx%>/mypage/reservation_status.jsp" class="owner-menu-item">
                                 <div class="owner-menu-icon">📅</div>
                                 <div class="owner-menu-text">
                                     <strong>예약 관리</strong>
@@ -495,7 +511,7 @@
                         <h2 class="owner-card-title">바로가기</h2>
                         <div class="owner-link-list">
                             <a href="<%=ctx%>/main.jsp" class="owner-link-btn">사용자 메인으로</a>
-                            <a href="<%=ctx%>/campList.jsp" class="owner-link-btn">캠핑장 목록 보기</a>
+                            <a href="<%=ctx%>/campList" class="owner-link-btn">캠핑장 목록 보기</a>
                             <a href="<%=ctx%>/productList.jsp" class="owner-link-btn">상품 목록 보기</a>
                         </div>
                     </div>

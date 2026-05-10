@@ -252,7 +252,6 @@ DESC inquiries; --05.10 문의 답변 저장할부분 추가
 ALTER TABLE inquiries
 ADD COLUMN reply TEXT NULL,
 ADD COLUMN replied_at DATETIME NULL;
-
 -- =====================================================
 -- 14. 캠핑장 중복 지움
 -- =====================================================
@@ -352,3 +351,9 @@ CREATE TABLE chat_message (
         FOREIGN KEY (sender_id) REFERENCES users(id)
         ON DELETE CASCADE
 );
+-- =====================================================
+-- 18.사장님용 예약 테이블 넣고 360번째 줄 데모
+-- =====================================================
+ALTER TABLE camps ADD COLUMN owner_id INT NULL,
+ADD CONSTRAINT fk_camps_owner FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL;
+UPDATE camps SET owner_id = 3 WHERE id = 10276;

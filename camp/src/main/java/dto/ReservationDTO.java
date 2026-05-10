@@ -14,6 +14,7 @@ public class ReservationDTO {
     private String orderId;
     private String paymentKey;
     private int amount;
+    private String guestName; // ✅ 추가: 예약자 이름 (사장님 페이지용)
 
     public int getId()                          { return id; }
     public void setId(int id)                   { this.id = id; }
@@ -47,4 +48,7 @@ public class ReservationDTO {
 
     public int getAmount()                      { return amount; }
     public void setAmount(int amount)           { this.amount = amount; }
+
+    public String getGuestName()                        { return guestName; }
+    public void setGuestName(String guestName)          { this.guestName = guestName; }
 }

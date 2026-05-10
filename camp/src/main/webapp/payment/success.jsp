@@ -1,9 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%
     String ctx = request.getContextPath();
-    String paymentKey = request.getParameter("paymentKey");
-    String orderId    = request.getParameter("orderId");
-    String amount     = request.getParameter("amount");
+    String paymentKey  = request.getParameter("paymentKey");
+    String orderId     = request.getParameter("orderId");
+    String amount      = request.getParameter("amount");
+    String reserveDate = request.getParameter("reserveDate");
+    String peopleCount = request.getParameter("peopleCount");
+    String campId      = request.getParameter("campId");
+
+    if (reserveDate == null) reserveDate = "";
+    if (peopleCount == null) peopleCount = "1";
+    if (campId == null)      campId = "0";
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -40,9 +47,12 @@ fetch("<%=ctx%>/payment/confirm", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-        paymentKey: "<%=paymentKey%>",
-        orderId:    "<%=orderId%>",
-        amount:     "<%=amount%>"
+        paymentKey:  "<%=paymentKey%>",
+        orderId:     "<%=orderId%>",
+        amount:      "<%=amount%>",
+        reserveDate: "<%=reserveDate%>",
+        peopleCount: "<%=peopleCount%>",
+        campId:      "<%=campId%>"
     })
 })
 .then(function(res) { return res.json(); })

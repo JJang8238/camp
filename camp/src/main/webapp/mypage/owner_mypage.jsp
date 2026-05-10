@@ -152,7 +152,7 @@
             </div>
         </a>
 
-        <a href="<%=ctx%>/mypage/edit_profile.jsp" class="mypage-card">
+        <a href="<%=ctx%>/mypage/edit_profile_owner.jsp" class="mypage-card">
             <div class="card-icon">⚙️</div>
             <div class="card-info">
                 <h4>회원정보 수정</h4>

@@ -208,6 +208,67 @@ int roundedAvg = (int) Math.round(avgRating);
         .btn-wish-detail:hover { border-color: #e74c3c; color: #e74c3c; }
         .btn-wish-detail.wished { border-color: #e74c3c; color: #e74c3c; background: #fff5f5; }
 
+        /* ── 날짜 선택 영역 ── */
+        .date-pick-wrap {
+            margin-bottom: 14px;
+        }
+        .date-pick-label {
+            font-size: 12px; color: #888; font-weight: 600;
+            margin-bottom: 6px; display: block;
+        }
+        .date-pick-row {
+            display: flex; gap: 8px; align-items: center;
+        }
+        .date-input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .date-input:focus { border-color: #2d5a27; }
+
+        .people-select {
+            padding: 9px 12px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn-check-avail {
+            width: 100%;
+            padding: 10px;
+            background: #f0f7ee;
+            color: #2d5a27;
+            border: 1.5px solid #2d5a27;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 10px;
+        }
+        .btn-check-avail:hover { background: #e0f0dc; }
+
+        .avail-result {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: none;
+            text-align: center;
+        }
+        .avail-ok     { background: #e8f5e9; color: #2d5a27; border: 1px solid #c8e6c9; }
+        .avail-no     { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
+        .avail-loading { background: #f1f3f5; color: #777; border: 1px solid #dee2e6; }
+
         /* ── 주소 클릭 버튼 ── */
         .detail-address {
             display: inline-flex;
@@ -416,6 +477,28 @@ int roundedAvg = (int) Math.round(avgRating);
             <div class="price-label">1박 기준 시작가</div>
             <div class="price-value">₩ <%=String.format("%,d", camp.getPrice())%></div>
 
+            <%-- ✅ 날짜 선택 + 예약 가능 여부 확인 --%>
+            <div class="date-pick-wrap">
+                <span class="date-pick-label">📅 예약 날짜 선택</span>
+                <div class="date-pick-row">
+                    <input type="date" id="reserveDate" class="date-input"
+                           min="<%=java.time.LocalDate.now().plusDays(1).toString()%>">
+                    <select id="peopleCount" class="people-select">
+                        <option value="1">1명</option>
+                        <option value="2">2명</option>
+                        <option value="3">3명</option>
+                        <option value="4">4명</option>
+                        <option value="5">5명+</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="button" class="btn-check-avail" onclick="checkAvailability()">
+                🔍 예약 가능 여부 확인
+            </button>
+
+            <div class="avail-result" id="availResult"></div>
+
             <button class="btn-book" id="pay-btn">예약하기</button>
 
             <button type="button"
@@ -514,19 +597,78 @@ document.getElementById("pay-btn").addEventListener("click", function () {
         return;
     <% } %>
 
+    const reserveDate = document.getElementById('reserveDate').value;
+    const peopleCount = document.getElementById('peopleCount').value;
+
+    if (!reserveDate) {
+        alert("예약 날짜를 선택해주세요.");
+        document.getElementById('reserveDate').focus();
+        return;
+    }
+
+    const availResult = document.getElementById('availResult');
+    if (availResult.classList.contains('avail-no')) {
+        alert("해당 날짜는 예약이 불가합니다. 다른 날짜를 선택해주세요.");
+        return;
+    }
+
     const orderId = "ORDER-<%=id%>-" + Date.now();
 
     tossPayments.requestPayment("카드", {
         amount: <%=camp.getPrice()%>,
         orderId: orderId,
-        orderName: "<%=name%>",
-        successUrl: window.location.origin + "<%=ctx%>/payment/success.jsp",
+        orderName: "<%=name%> (" + reserveDate + " / " + peopleCount + "명)",
+        successUrl: window.location.origin + "<%=ctx%>/payment/success.jsp?reserveDate=" + reserveDate + "&peopleCount=" + peopleCount + "&campId=<%=id%>",
         failUrl:    window.location.origin + "<%=ctx%>/payment/fail.jsp",
         customerName: "<%=userName%>"
     });
 });
 
-// 찜 AJAX
+// ── 예약 가능 여부 확인 ──
+function checkAvailability() {
+    <% if (userId == null) { %>
+        alert("로그인 후 이용해주세요.");
+        location.href = "<%=ctx%>/login.jsp";
+        return;
+    <% } %>
+
+    const reserveDate = document.getElementById('reserveDate').value;
+    if (!reserveDate) {
+        alert("날짜를 먼저 선택해주세요.");
+        document.getElementById('reserveDate').focus();
+        return;
+    }
+
+    const resultDiv = document.getElementById('availResult');
+    resultDiv.className = 'avail-result avail-loading';
+    resultDiv.style.display = 'block';
+    resultDiv.textContent = '⏳ 확인 중...';
+
+    // AJAX로 예약 가능 여부 체크
+    fetch('<%=ctx%>/checkAvailability?campId=<%=id%>&date=' + reserveDate)
+        .then(res => res.json())
+        .then(data => {
+            if (data.available) {
+                resultDiv.className = 'avail-result avail-ok';
+                resultDiv.textContent = '✅ ' + reserveDate + ' 예약 가능합니다!';
+            } else {
+                resultDiv.className = 'avail-result avail-no';
+                resultDiv.textContent = '❌ ' + reserveDate + ' 은 이미 예약된 날짜입니다.';
+            }
+        })
+        .catch(() => {
+            // 서버 오류 시 예약 가능으로 처리
+            resultDiv.className = 'avail-result avail-ok';
+            resultDiv.textContent = '✅ ' + reserveDate + ' 예약 가능합니다!';
+        });
+}
+
+// 날짜 변경 시 결과 초기화
+document.getElementById('reserveDate').addEventListener('change', function() {
+    const resultDiv = document.getElementById('availResult');
+    resultDiv.style.display = 'none';
+    resultDiv.className = 'avail-result';
+});
 function toggleWishDetail(btn) {
     <% if (userId == null) { %>
         alert("로그인 후 이용해주세요.");

@@ -248,6 +248,11 @@ CREATE TABLE inquiries (
     status VARCHAR(20) DEFAULT '대기'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+DESC inquiries; --05.10 문의 답변 저장할부분 추가
+
+ALTER TABLE inquiries
+ADD COLUMN reply TEXT NULL,
+ADD COLUMN replied_at DATETIME NULL;
 -- =====================================================
 -- 14. 캠핑장 중복 지움
 -- =====================================================
@@ -303,3 +308,53 @@ CREATE TABLE IF NOT EXISTS wishlist (
 UPDATE camps SET image = '/assets/img/camp1.jpg' WHERE id % 3 = 1;
 UPDATE camps SET image = '/assets/img/camp2.jpg' WHERE id % 3 = 2;
 UPDATE camps SET image = '/assets/img/camp3.jpg' WHERE id % 3 = 0;
+
+-- =====================================================
+-- 17.채팅방
+-- =====================================================
+CREATE TABLE chat_room (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    buyer_id INT NOT NULL,
+    seller_id INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uq_chat_room (product_id, buyer_id, seller_id),
+
+    CONSTRAINT fk_chat_room_product
+        FOREIGN KEY (product_id) REFERENCES product(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_chat_room_buyer
+        FOREIGN KEY (buyer_id) REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_chat_room_seller
+        FOREIGN KEY (seller_id) REFERENCES users(id)
+        ON DELETE CASCADE
+);
+-- =====================================================
+-- 17.채팅메세지
+-- =====================================================
+CREATE TABLE chat_message (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_chat_message_room
+        FOREIGN KEY (room_id) REFERENCES chat_room(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_chat_message_sender
+        FOREIGN KEY (sender_id) REFERENCES users(id)
+        ON DELETE CASCADE
+);
+-- =====================================================
+-- 18.사장님용 예약 테이블 넣고 360번째 줄 데모
+-- =====================================================
+ALTER TABLE camps ADD COLUMN owner_id INT NULL,
+ADD CONSTRAINT fk_camps_owner FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL;
+UPDATE camps SET owner_id = 3 WHERE id = 10276;

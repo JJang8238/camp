@@ -414,6 +414,7 @@
 
     toggleBtn.addEventListener('click', () => {
         const isOpen = filterArea.style.display === 'block';
+
         filterArea.style.display = isOpen ? 'none' : 'block';
         toggleBtn.classList.toggle('active');
         toggleText.innerText = isOpen ? '상세 시설 필터 펼치기' : '상세 시설 필터 접기';
@@ -442,7 +443,10 @@
 
         tags.forEach(tag => {
             const value = tag.dataset.value;
-            if (selected.has(value)) tag.classList.add("active");
+
+            if (selected.has(value)) {
+                tag.classList.add("active");
+            }
 
             tag.addEventListener("click", function () {
                 if (selected.has(value)) {
@@ -452,6 +456,7 @@
                     selected.add(value);
                     tag.classList.add("active");
                 }
+
                 input.value = Array.from(selected).join(",");
             });
         });

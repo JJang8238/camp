@@ -207,4 +207,46 @@ public class ProductDAO {
 
         return list;
     }
+
+    // ✅ 상품 수정 (본인 소유만)
+    public boolean updateProduct(int productId, int sellerId, String name, String description,
+                                  String category, String location, int price, String status) {
+        String sql = "UPDATE product SET name=?, description=?, category=?, location=?, " +
+                     "price=?, status=? WHERE id=? AND seller_id=?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, name);
+            ps.setString(2, description);
+            ps.setString(3, category);
+            ps.setString(4, location);
+            ps.setInt(5, price);
+            ps.setString(6, status);
+            ps.setInt(7, productId);
+            ps.setInt(8, sellerId);
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // ✅ 상품 삭제 (숨김 처리, 본인 소유만)
+    public boolean deleteProduct(int productId, int sellerId) {
+        String sql = "UPDATE product SET status='hidden' WHERE id=? AND seller_id=?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, productId);
+            ps.setInt(2, sellerId);
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="dao.ReviewDAO, dto.ReviewDTO, java.util.List" %>
+<%@ page import="dao.ReviewReplyDAO, java.util.Map" %>
 <%
     String ctx = request.getContextPath();
     Integer userId = (Integer) session.getAttribute("userId");
@@ -234,6 +235,26 @@
         .modal-date {
             margin-top: 20px; font-size: 12px; color: #bbb; text-align: right;
         }
+
+        /* ✅ 사장님 답글 */
+        .modal-reply-wrap {
+            margin-top: 16px;
+            padding: 14px 16px;
+            background: #eef4fb;
+            border-radius: 10px;
+            border-left: 3px solid #1a3a5c;
+        }
+        .modal-reply-label {
+            font-size: 12px; font-weight: 700;
+            color: #1a3a5c; margin-bottom: 6px;
+        }
+        .modal-reply-text {
+            font-size: 13px; color: #333;
+            line-height: 1.7; white-space: pre-wrap;
+        }
+        .modal-reply-date {
+            font-size: 11px; color: #aaa; margin-top: 6px; text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -292,6 +313,25 @@
             String contentEsc  = r.getContent()  != null ? r.getContent().replace("\\","\\\\").replace("'","\\'").replace("\n","\\n").replace("\r","") : "";
             String titleEsc    = r.getTitle()     != null ? r.getTitle().replace("'","\\'") : "";
             String categoryEsc = r.getCategory()  != null ? r.getCategory().replace("'","\\'") : "";
+
+            // ✅ 사장님 답글 조회
+            String replyContent = "";
+            String replyDate    = "";
+            try {
+                java.sql.Connection replyConn = util.DBUtil.getConnection();
+                java.sql.PreparedStatement replyPs = replyConn.prepareStatement(
+                    "SELECT content, created_at FROM review_reply WHERE post_id = ?");
+                replyPs.setInt(1, r.getId());
+                java.sql.ResultSet replyRs = replyPs.executeQuery();
+                if (replyRs.next()) {
+                    replyContent = replyRs.getString("content") != null ? replyRs.getString("content") : "";
+                    String ra = replyRs.getString("created_at");
+                    replyDate = (ra != null && ra.length() >= 10) ? ra.substring(0, 10) : "";
+                }
+                replyConn.close();
+            } catch (Exception ignored) {}
+
+            String replyEsc = replyContent.replace("\\","\\\\").replace("'","\\'").replace("\n","\\n").replace("\r","");
     %>
     <div class="review-card">
 
@@ -316,7 +356,7 @@
         <div class="review-actions">
             <%-- ✅ 내용 보기 버튼 --%>
             <button type="button" class="btn-view"
-                onclick="openViewModal('<%=titleEsc%>', '<%=categoryEsc%>', '<%=stars%>', '<%=contentEsc%>', '<%=createdDate%>')">
+                onclick="openViewModal('<%=titleEsc%>', '<%=categoryEsc%>', '<%=stars%>', '<%=contentEsc%>', '<%=createdDate%>', '<%=replyEsc%>', '<%=replyDate%>')">
                 👁 내용 보기
             </button>
             <a href="<%=ctx%>/review_edit.jsp?id=<%=r.getId()%>" class="btn-edit">수정</a>
@@ -343,18 +383,35 @@
         <hr class="modal-divider">
         <div class="modal-content-text" id="modalContent"></div>
         <div class="modal-date" id="modalDate"></div>
+        <%-- ✅ 사장님 답글 --%>
+        <div id="modalReplyWrap" class="modal-reply-wrap" style="display:none;">
+            <div class="modal-reply-label">💬 사장님 답글</div>
+            <div class="modal-reply-text" id="modalReplyText"></div>
+            <div class="modal-reply-date" id="modalReplyDate"></div>
+        </div>
     </div>
 </div>
 
 <jsp:include page="/include/footer.jsp" />
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function openViewModal(title, campName, stars, content, date) {
+    function openViewModal(title, campName, stars, content, date, reply, replyDate) {
         document.getElementById('modalCampName').textContent = '🏕️ ' + campName;
         document.getElementById('modalTitle').textContent    = title;
         document.getElementById('modalStars').textContent    = stars;
         document.getElementById('modalContent').textContent  = content;
         document.getElementById('modalDate').textContent     = '작성일: ' + date;
+
+        // ✅ 사장님 답글 표시
+        const replyWrap = document.getElementById('modalReplyWrap');
+        if (reply && reply.trim() !== '') {
+            document.getElementById('modalReplyText').textContent = reply.replace(/\\n/g, '\n');
+            document.getElementById('modalReplyDate').textContent = replyDate ? '답글 작성일: ' + replyDate : '';
+            replyWrap.style.display = 'block';
+        } else {
+            replyWrap.style.display = 'none';
+        }
+
         document.getElementById('viewModal').classList.add('active');
     }
 

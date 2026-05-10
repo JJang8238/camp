@@ -247,6 +247,12 @@ CREATE TABLE inquiries (
     status VARCHAR(20) DEFAULT '대기'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+DESC inquiries; --05.10 문의 답변 저장할부분 추가
+
+ALTER TABLE inquiries
+ADD COLUMN reply TEXT NULL,
+ADD COLUMN replied_at DATETIME NULL;
+
 -- =====================================================
 -- 14. 캠핑장 중복 지움
 -- =====================================================

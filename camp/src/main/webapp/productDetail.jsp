@@ -287,6 +287,17 @@
     <% } else { %>
         <a href="<%=ctx%>/chat/start?productId=<%=productId%>" class="btn-point">채팅하기</a>
     <% } %>
+
+    <%-- 신고 버튼: 로그인 + 본인 상품 아닐 때만 --%>
+    <% if (isLogin && !isMyProduct) { %>
+    <button type="button"
+            style="padding:9px 18px; border:1.5px solid #e74c3c; border-radius:20px; font-size:13px; font-weight:600; color:#e74c3c; background:white; cursor:pointer; transition:background .2s,color .2s;"
+            onmouseover="this.style.background='#e74c3c';this.style.color='white'"
+            onmouseout="this.style.background='white';this.style.color='#e74c3c'"
+            onclick="openReportModal('product', <%=productId%>, location.href)">
+        🚨 신고
+    </button>
+    <% } %>
 </div>
         </div>
     </div>
@@ -379,6 +390,7 @@
 </div>
 
 <jsp:include page="/include/footer.jsp" />
+<jsp:include page="/include/reportModal.jsp" />
 
 <script>
     (function () {

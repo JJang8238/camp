@@ -358,3 +358,91 @@ CREATE TABLE chat_message (
 ALTER TABLE camps ADD COLUMN owner_id INT NULL,
 ADD CONSTRAINT fk_camps_owner FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL;
 UPDATE camps SET owner_id = 3 WHERE id = 10276;
+
+UPDATE camps SET status = 'active' WHERE owner_id = 3;
+
+-- =====================================================
+-- 19. 리뷰 답글 테이블 추가
+-- =====================================================
+CREATE TABLE IF NOT EXISTS review_reply (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    post_id    INT NOT NULL,          -- posts 테이블의 리뷰 id
+    owner_id   INT NOT NULL,          -- 답글 작성한 사장님 id
+    content    TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uq_reply (post_id),    -- 리뷰 1개당 답글 1개
+    FOREIGN KEY (post_id)  REFERENCES posts(id)  ON DELETE CASCADE,
+    FOREIGN KEY (owner_id) REFERENCES users(id)  ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =====================================================
+-- 20. 리뷰 고도화 - posts에 숨김 컬럼 추가
+-- =====================================================
+ALTER TABLE posts
+    ADD COLUMN hidden_at    DATETIME NULL         COMMENT '신고 누적 숨김 처리 시각',
+    ADD COLUMN report_count INT      NOT NULL DEFAULT 0 COMMENT '누적 신고 수';
+
+-- =====================================================
+-- 신고/제재 - product에 숨김 컬럼 추가
+-- =====================================================
+ALTER TABLE product
+    ADD COLUMN hidden_at    DATETIME NULL         COMMENT '신고 누적 숨김 처리 시각',
+    ADD COLUMN report_count INT      NOT NULL DEFAULT 0 COMMENT '누적 신고 수';
+
+-- =====================================================
+-- 신고/제재 - reports 테이블 보강
+-- =====================================================
+ALTER TABLE reports
+    ADD COLUMN admin_note  TEXT     NULL COMMENT '관리자 처리 메모',
+    ADD COLUMN resolved_at DATETIME NULL COMMENT '처리 완료 시각',
+    ADD COLUMN resolved_by INT      NULL COMMENT '처리한 관리자 id',
+    ADD CONSTRAINT fk_reports_resolver
+        FOREIGN KEY (resolved_by) REFERENCES users(id) ON DELETE SET NULL;
+
+-- =====================================================
+-- 1. uq_report 인덱스가 존재하면 삭제
+--    (DROP INDEX IF EXISTS는 MySQL 8.0+ 에서만 지원)
+--    아래 프로시저로 버전 무관하게 처리합니다
+-- =====================================================
+DROP PROCEDURE IF EXISTS drop_index_if_exists;
+
+-- =====================================================
+-- STEP 2. reporter_username 컬럼 추가
+--   (이미 있으면 오류 → 무시하고 STEP 3로 진행)
+-- =====================================================
+ALTER TABLE reports ADD COLUMN reporter_username VARCHAR(50) NULL;
+
+-- =====================================================
+-- STEP 3. 기존 신고 데이터에 신고자 username 채우기
+-- =====================================================
+UPDATE reports r
+JOIN users u ON r.reporter_id = u.id
+SET r.reporter_username = u.username
+WHERE r.reporter_username IS NULL;
+
+-- =====================================================
+-- STEP 4. 신고 목록 뷰 생성
+-- =====================================================
+CREATE OR REPLACE VIEW v_reports AS
+SELECT
+    r.id,
+    r.reporter_id,
+    COALESCE(u.username, r.reporter_username, '탈퇴회원') AS reporter_name,
+    r.target_type,
+    r.target_id,
+    r.reason,
+    r.status,
+    r.created_at,
+    (
+        SELECT COUNT(*)
+        FROM reports r2
+        WHERE r2.target_type = r.target_type
+          AND r2.target_id   = r.target_id
+    ) AS report_count
+FROM reports r
+LEFT JOIN users u ON r.reporter_id = u.id;
+
+-- 완료 확인
+SELECT '패치 완료' AS result;

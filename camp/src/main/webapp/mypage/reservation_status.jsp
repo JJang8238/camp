@@ -304,6 +304,7 @@
             String badgeClass, badgeLabel;
 
             switch (status.toLowerCase()) {
+                case "pending":
                 case "reserved":  badgeClass = "badge-reserved";  badgeLabel = "⏳ 대기중";   break;
                 case "approved":  badgeClass = "badge-approved";  badgeLabel = "✅ 승인됨";   break;
                 case "rejected":  badgeClass = "badge-rejected";  badgeLabel = "❌ 거절됨";   break;
@@ -335,7 +336,7 @@
         </div>
 
         <%-- 대기 상태일 때만 승인/거절 버튼 표시 --%>
-        <% if ("reserved".equalsIgnoreCase(status)) { %>
+        <% if ("reserved".equalsIgnoreCase(status) || "pending".equalsIgnoreCase(status)) { %>
         <div class="action-buttons">
             <form method="post" action="" style="margin:0;" onsubmit="return confirm('이 예약을 승인할까요?');">
                 <input type="hidden" name="action" value="approve">

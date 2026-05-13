@@ -71,8 +71,11 @@ public class OwnerReservationDAO {
                 "WHERE c.owner_id = ? "
         );
 
-        if (status != null && !status.equals("all")) {
-            sql.append("AND r.status = ? ");
+        // "reserved" 필터는 pending + reserved 둘 다 대기로 처리
+        if (status != null && status.equals("reserved")) {
+            sql.append("AND LOWER(r.status) IN ('reserved', 'pending') ");
+        } else if (status != null && !status.equals("all")) {
+            sql.append("AND LOWER(r.status) = ? ");
         }
 
         sql.append("ORDER BY r.reserve_date DESC");
@@ -81,7 +84,7 @@ public class OwnerReservationDAO {
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             ps.setInt(1, ownerId);
-            if (status != null && !status.equals("all")) {
+            if (status != null && !status.equals("all") && !status.equals("reserved")) {
                 ps.setString(2, status);
             }
 
@@ -118,7 +121,7 @@ public class OwnerReservationDAO {
         String sql = "UPDATE reservations r " +
                      "JOIN camps c ON r.camp_id = c.id " +
                      "SET r.status = 'approved' " +
-                     "WHERE r.id = ? AND c.owner_id = ? AND LOWER(r.status) = 'reserved'";
+                     "WHERE r.id = ? AND c.owner_id = ? AND LOWER(r.status) IN ('reserved', 'pending')";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -140,7 +143,7 @@ public class OwnerReservationDAO {
         String sql = "UPDATE reservations r " +
                      "JOIN camps c ON r.camp_id = c.id " +
                      "SET r.status = 'rejected' " +
-                     "WHERE r.id = ? AND c.owner_id = ? AND LOWER(r.status) = 'reserved'";
+                     "WHERE r.id = ? AND c.owner_id = ? AND LOWER(r.status) IN ('reserved', 'pending')";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -159,15 +162,25 @@ public class OwnerReservationDAO {
      * 상태별 건수 집계
      */
     public static int countByStatus(int ownerId, String status) {
-        String sql = "SELECT COUNT(*) FROM reservations r " +
-                     "JOIN camps c ON r.camp_id = c.id " +
-                     "WHERE c.owner_id = ? AND r.status = ?";
+        // "reserved" 카운트는 pending + reserved 합산
+        String sql;
+        if ("reserved".equals(status)) {
+            sql = "SELECT COUNT(*) FROM reservations r " +
+                  "JOIN camps c ON r.camp_id = c.id " +
+                  "WHERE c.owner_id = ? AND LOWER(r.status) IN ('reserved', 'pending')";
+        } else {
+            sql = "SELECT COUNT(*) FROM reservations r " +
+                  "JOIN camps c ON r.camp_id = c.id " +
+                  "WHERE c.owner_id = ? AND r.status = ?";
+        }
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, ownerId);
-            ps.setString(2, status);
+            if (!"reserved".equals(status)) {
+                ps.setString(2, status);
+            }
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
 

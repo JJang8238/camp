@@ -269,9 +269,17 @@
             if (campList != null && !campList.isEmpty()) {
                 for (Product p : campList) {
                     String img = p.getImageUrl();
-                    String imgPath = (img != null && !img.trim().isEmpty())
-                            ? ctx + img
-                            : ctx + "/assets/img/default.jpg";
+                    String imgPath;
+
+                    if (img == null || img.trim().isEmpty()) {
+                        imgPath = ctx + "/assets/img/default.jpg";
+                    } else if (img.startsWith("http://") || img.startsWith("https://")) {
+                        imgPath = img;
+                    } else if (img.startsWith("/")) {
+                        imgPath = img;
+                    } else {
+                        imgPath = ctx + "/assets/img/" + img;
+                    }
 
                     // ✅ 찜 여부 확인
                     boolean isWished = WishlistDAO.isWished(userId, p.getId());

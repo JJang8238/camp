@@ -28,6 +28,9 @@ public class CampListServlet extends HttpServlet {
         String loc = request.getParameter("loc");
         String facility = request.getParameter("facility");
 
+        String checkIn = request.getParameter("checkIn");
+        String checkOut = request.getParameter("checkOut");
+
         String sort = request.getParameter("sort");
         if (sort == null || sort.trim().isEmpty()) {
             sort = "recommend";
@@ -46,7 +49,10 @@ public class CampListServlet extends HttpServlet {
             page = 1;
         }
 
-        int totalCount = campDAO.getCampCount(keyword, type, loc, facility);
+        int totalCount = campDAO.getCampCount(
+                keyword, type, loc, facility, checkIn, checkOut
+        );
+
         int totalPage = (int) Math.ceil((double) totalCount / pageSize);
 
         if (totalPage < 1) {
@@ -58,7 +64,7 @@ public class CampListServlet extends HttpServlet {
         }
 
         List<Product> campList = campDAO.getCampListPaging(
-                keyword, type, loc, facility, sort, page, pageSize
+                keyword, type, loc, facility, sort, checkIn, checkOut, page, pageSize
         );
 
         request.setAttribute("campList", campList);

@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
 import dto.Product;
 import dto.Camp;
 import util.DBUtil;
@@ -97,7 +98,17 @@ public class CampDAO {
         return false;
     }
 
-    public List<Product> getCampListPaging(String keyword, String type, String loc, String facility, String sort, int page, int pageSize) {
+    public List<Product> getCampListPaging(
+            String keyword,
+            String type,
+            String loc,
+            String facility,
+            String sort,
+            String checkIn,
+            String checkOut,
+            int page,
+            int pageSize
+    ) {
         List<Product> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
 
@@ -164,6 +175,20 @@ public class CampDAO {
 
         sql.append("FROM camps ");
         sql.append("WHERE status = 'active' ");
+
+        if (checkIn != null && !checkIn.trim().isEmpty()
+                && checkOut != null && !checkOut.trim().isEmpty()) {
+
+            sql.append("AND NOT EXISTS ( ");
+            sql.append("    SELECT 1 FROM reservations r ");
+            sql.append("    WHERE r.camp_id = camps.id ");
+            sql.append("    AND r.status IN ('pending', 'approved', 'paid') ");
+            sql.append("    AND NOT (r.check_out <= ? OR r.check_in >= ?) ");
+            sql.append(") ");
+
+            whereParams.add(checkIn);
+            whereParams.add(checkOut);
+        }
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append("AND (name LIKE ? OR address LIKE ? OR tags LIKE ?) ");
@@ -281,13 +306,34 @@ public class CampDAO {
         return list;
     }
 
-    public int getCampCount(String keyword, String type, String loc, String facility) {
+    public int getCampCount(
+            String keyword,
+            String type,
+            String loc,
+            String facility,
+            String checkIn,
+            String checkOut
+    ) {
         int count = 0;
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT COUNT(*) FROM camps WHERE status = 'active' ");
 
         List<String> params = new ArrayList<>();
+
+        if (checkIn != null && !checkIn.trim().isEmpty()
+                && checkOut != null && !checkOut.trim().isEmpty()) {
+
+            sql.append("AND NOT EXISTS ( ");
+            sql.append("    SELECT 1 FROM reservations r ");
+            sql.append("    WHERE r.camp_id = camps.id ");
+            sql.append("    AND r.status IN ('pending', 'approved', 'paid') ");
+            sql.append("    AND NOT (r.check_out <= ? OR r.check_in >= ?) ");
+            sql.append(") ");
+
+            params.add(checkIn);
+            params.add(checkOut);
+        }
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append("AND (name LIKE ? OR address LIKE ? OR tags LIKE ?) ");
@@ -300,11 +346,21 @@ public class CampDAO {
         if (type != null && !type.trim().isEmpty()) {
             String[] types = type.split(",");
             sql.append("AND (");
-            for (int i = 0; i < types.length; i++) {
-                if (i > 0) sql.append(" OR ");
-                sql.append("type LIKE ?");
-                params.add("%" + types[i].trim() + "%");
+            boolean first = true;
+
+            for (String t : types) {
+                if (t == null || t.trim().isEmpty()) continue;
+
+                if (!first) sql.append(" OR ");
+                sql.append("type LIKE ? OR tags LIKE ?");
+
+                String value = "%" + t.trim() + "%";
+                params.add(value);
+                params.add(value);
+
+                first = false;
             }
+
             sql.append(") ");
         }
 
@@ -313,14 +369,18 @@ public class CampDAO {
             List<String> expandedLocs = new ArrayList<>();
 
             for (String l : locs) {
-                expandedLocs.addAll(expandLocationKeyword(l));
+                if (l == null || l.trim().isEmpty()) continue;
+                expandedLocs.addAll(expandLocationKeyword(l.trim()));
             }
 
             sql.append("AND (");
             for (int i = 0; i < expandedLocs.size(); i++) {
                 if (i > 0) sql.append(" OR ");
-                sql.append("address LIKE ?");
-                params.add("%" + expandedLocs.get(i).trim() + "%");
+                sql.append("address LIKE ? OR tags LIKE ?");
+
+                String value = "%" + expandedLocs.get(i).trim() + "%";
+                params.add(value);
+                params.add(value);
             }
             sql.append(") ");
         }
@@ -328,11 +388,19 @@ public class CampDAO {
         if (facility != null && !facility.trim().isEmpty()) {
             String[] facilities = facility.split(",");
             sql.append("AND (");
-            for (int i = 0; i < facilities.length; i++) {
-                if (i > 0) sql.append(" OR ");
+            boolean first = true;
+
+            for (String f : facilities) {
+                if (f == null || f.trim().isEmpty()) continue;
+
+                if (!first) sql.append(" OR ");
                 sql.append("tags LIKE ?");
-                params.add("%" + facilities[i].trim() + "%");
+
+                params.add("%" + f.trim() + "%");
+
+                first = false;
             }
+
             sql.append(") ");
         }
 
@@ -399,13 +467,6 @@ public class CampDAO {
         return list;
     }
 
-    // =====================================================
-    // ✅ 사장님 전용 메서드 추가
-    // =====================================================
-
-    /**
-     * 캠핑장 신규 등록 (owner_id 포함)
-     */
     public static boolean insertCamp(Camp camp, int ownerId) {
         String sql = "INSERT INTO camps (name, address, type, tags, price, image, description, status, owner_id) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -422,17 +483,16 @@ public class CampDAO {
             ps.setString(7, camp.getDescription());
             ps.setString(8, camp.getStatus());
             ps.setInt(9, ownerId);
+
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
 
-    /**
-     * owner_id 기준 내 캠핑장 목록 조회
-     */
     public static List<Camp> getCampsByOwnerId(int ownerId) {
         List<Camp> list = new ArrayList<>();
         String sql = "SELECT * FROM camps WHERE owner_id = ? ORDER BY id DESC";
@@ -464,9 +524,6 @@ public class CampDAO {
         return list;
     }
 
-    /**
-     * 캠핑장 삭제 (본인 소유만)
-     */
     public static boolean deleteCamp(int campId, int ownerId) {
         String sql = "DELETE FROM camps WHERE id = ? AND owner_id = ?";
 
@@ -475,17 +532,16 @@ public class CampDAO {
 
             ps.setInt(1, campId);
             ps.setInt(2, ownerId);
+
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
 
-    /**
-     * 캠핑장 운영 상태 변경 (본인 소유만)
-     */
     public static boolean updateCampStatus(int campId, int ownerId, String newStatus) {
         String sql = "UPDATE camps SET status = ? WHERE id = ? AND owner_id = ?";
 
@@ -495,20 +551,27 @@ public class CampDAO {
             ps.setString(1, newStatus);
             ps.setInt(2, campId);
             ps.setInt(3, ownerId);
+
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
 
-    /**
-     * 캠핑장 정보 수정 (본인 소유만)
-     */
-    public static boolean updateCamp(int campId, int ownerId, String name, String address,
-                                     String type, String tags, int price,
-                                     String description, String status) {
+    public static boolean updateCamp(
+            int campId,
+            int ownerId,
+            String name,
+            String address,
+            String type,
+            String tags,
+            int price,
+            String description,
+            String status
+    ) {
         String sql = "UPDATE camps SET name=?, address=?, type=?, tags=?, price=?, " +
                      "description=?, status=? " +
                      "WHERE id=? AND owner_id=?";
@@ -525,11 +588,13 @@ public class CampDAO {
             ps.setString(7, status);
             ps.setInt(8, campId);
             ps.setInt(9, ownerId);
+
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
 }

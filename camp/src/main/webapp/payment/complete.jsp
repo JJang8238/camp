@@ -3,11 +3,14 @@
     String ctx       = request.getContextPath();
     String orderName = request.getParameter("orderName");
     String amount    = request.getParameter("amount");
+    String checkIn   = request.getParameter("checkIn");
+    String checkOut  = request.getParameter("checkOut");
 
     if (orderName == null) orderName = "";
     if (amount == null) amount = "";
+    if (checkIn == null) checkIn = "";
+    if (checkOut == null) checkOut = "";
 
-    // 금액 포맷팅
     String formattedAmount = amount;
 
     try {
@@ -25,7 +28,6 @@
     <jsp:include page="/include/head.jsp" />
 
     <style>
-
         html,
         body {
             height: 100%;
@@ -47,9 +49,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-
             min-height: 65vh;
-
             text-align: center;
             gap: 16px;
         }
@@ -83,6 +83,7 @@
             border-radius: 16px;
             padding: 24px 40px;
             margin-top: 8px;
+            min-width: 360px;
         }
 
         .complete-info p {
@@ -122,7 +123,6 @@
             cursor: pointer;
             text-decoration: none;
         }
-
     </style>
 </head>
 
@@ -146,6 +146,13 @@
                 캠핑장:
                 <strong><%=orderName%></strong>
             </p>
+
+            <% if (!checkIn.isEmpty() && !checkOut.isEmpty()) { %>
+                <p>
+                    예약 기간:
+                    <strong><%=checkIn%> ~ <%=checkOut%></strong>
+                </p>
+            <% } %>
 
             <p>
                 결제 금액:

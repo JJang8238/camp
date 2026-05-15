@@ -99,6 +99,23 @@ CREATE TABLE reservations (
     FOREIGN KEY (camp_id) REFERENCES camps(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+ALTER TABLE reservations --05.15 예약테이블 변경!
+ADD COLUMN check_in DATE NULL,
+ADD COLUMN check_out DATE NULL;
+
+UPDATE reservations
+SET 
+    check_in = reserve_date,
+    check_out = DATE_ADD(reserve_date, INTERVAL 1 DAY);
+    
+    SELECT * 
+FROM reservations
+WHERE check_in IS NULL
+   OR check_out IS NULL;
+   
+   ALTER TABLE reservations
+MODIFY check_in DATE NOT NULL,
+MODIFY check_out DATE NOT NULL;
 -- =====================================================
 -- 6. 상품
 -- =====================================================
@@ -445,3 +462,5 @@ LEFT JOIN users u ON r.reporter_id = u.id;
 
 -- 완료 확인
 SELECT '패치 완료' AS result;
+
+

@@ -1,23 +1,30 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%
     String ctx = request.getContextPath();
+
     String paymentKey  = request.getParameter("paymentKey");
     String orderId     = request.getParameter("orderId");
     String amount      = request.getParameter("amount");
-    String reserveDate = request.getParameter("reserveDate");
+
+    String checkIn     = request.getParameter("checkIn");
+    String checkOut    = request.getParameter("checkOut");
+
     String peopleCount = request.getParameter("peopleCount");
     String campId      = request.getParameter("campId");
 
-    if (reserveDate == null) reserveDate = "";
+    if (checkIn == null) checkIn = "";
+    if (checkOut == null) checkOut = "";
     if (peopleCount == null) peopleCount = "1";
-    if (campId == null)      campId = "0";
+    if (campId == null) campId = "0";
 %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>결제 처리 중 | Camp Mate</title>
+
     <jsp:include page="/include/head.jsp" />
+
     <style>
         .loading-wrap {
             display: flex;
@@ -27,13 +34,16 @@
             min-height: 60vh;
             gap: 20px;
         }
+
         .loading-wrap p {
             font-size: 18px;
             color: #555;
         }
     </style>
 </head>
+
 <body>
+
 <jsp:include page="/include/header.jsp" />
 
 <div class="loading-wrap">
@@ -42,25 +52,31 @@
 </div>
 
 <script>
-// 서버로 결제 승인 요청
 fetch("<%=ctx%>/payment/confirm", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+        "Content-Type": "application/json"
+    },
     body: JSON.stringify({
         paymentKey:  "<%=paymentKey%>",
         orderId:     "<%=orderId%>",
-        amount:      "<%=amount%>",
-        reserveDate: "<%=reserveDate%>",
+        amount:      Number("<%=amount%>"),
+        checkIn:     "<%=checkIn%>",
+        checkOut:    "<%=checkOut%>",
         peopleCount: "<%=peopleCount%>",
         campId:      "<%=campId%>"
     })
 })
-.then(function(res) { return res.json(); })
+.then(function(res) {
+    return res.json();
+})
 .then(function(data) {
     if (data.success) {
         location.href = "<%=ctx%>/payment/complete.jsp"
             + "?orderName=" + encodeURIComponent(data.orderName)
-            + "&amount="    + encodeURIComponent(data.amount);
+            + "&amount=" + encodeURIComponent(data.amount)
+            + "&checkIn=" + encodeURIComponent("<%=checkIn%>")
+            + "&checkOut=" + encodeURIComponent("<%=checkOut%>");
     } else {
         alert("결제 승인 실패: " + data.message);
         location.href = "<%=ctx%>/main.jsp";
@@ -71,5 +87,6 @@ fetch("<%=ctx%>/payment/confirm", {
     location.href = "<%=ctx%>/main.jsp";
 });
 </script>
+
 </body>
 </html>

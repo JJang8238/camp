@@ -11,6 +11,12 @@
 
     String keyword = request.getParameter("keyword");
 
+    String checkIn = request.getParameter("checkIn");
+    String checkOut = request.getParameter("checkOut");
+
+    if (checkIn == null) checkIn = "";
+    if (checkOut == null) checkOut = "";
+
     String sort = request.getParameter("sort");
     if (sort == null || sort.trim().isEmpty()) {
         sort = "recommend";
@@ -69,31 +75,76 @@
         .filter-group { margin-bottom: 20px; }
 
         .filter-subtitle {
-            font-size: 14px; font-weight: 600; color: #333;
-            margin-bottom: 10px; display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
         }
 
         .collapsible-content {
-            display: none; overflow: hidden;
+            display: none;
+            overflow: hidden;
             border-top: 1px solid #eee;
-            padding-top: 15px; margin-top: 10px;
+            padding-top: 15px;
+            margin-top: 10px;
         }
 
         .btn-toggle-filter {
-            width: 100%; background: #fff;
-            border: 1px solid #ddd; border-radius: 14px;
-            padding: 10px 12px; font-size: 13px; font-weight: 700;
-            color: #666; cursor: pointer;
-            display: flex; justify-content: center;
-            align-items: center; gap: 6px;
-            transition: 0.2s ease; margin-bottom: 15px;
+            width: 100%;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s ease;
+            margin-bottom: 15px;
         }
-        .btn-toggle-filter:hover { background-color: #f8f9fa; color: var(--main-green); }
-        .btn-toggle-filter.active { background-color: #eef4f1; color: var(--main-green); border-color: var(--main-green); }
-        .toggle-icon { transition: transform 0.3s; }
-        .btn-toggle-filter.active .toggle-icon { transform: rotate(180deg); }
 
-        /* ✅ 찜 버튼 */
+        .btn-toggle-filter:hover {
+            background-color: #f8f9fa;
+            color: var(--main-green);
+        }
+
+        .btn-toggle-filter.active {
+            background-color: #eef4f1;
+            color: var(--main-green);
+            border-color: var(--main-green);
+        }
+
+        .toggle-icon { transition: transform 0.3s; }
+
+        .btn-toggle-filter.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+.date-row {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.date-row .filter-group {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.date-row .filter-input[type="date"] {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+        .filter-input[type="date"] {
+            width: 100%;
+        }
+
         .btn-wish {
             background: none;
             border: none;
@@ -104,6 +155,7 @@
             transition: transform 0.15s;
             flex-shrink: 0;
         }
+
         .btn-wish:hover { transform: scale(1.25); }
         .btn-wish:disabled { cursor: not-allowed; opacity: 0.5; }
     </style>
@@ -135,6 +187,26 @@
                                class="filter-input"
                                placeholder="캠핑장명, 지역, 키워드 검색"
                                value="<%= (keyword != null) ? keyword : "" %>">
+                    </div>
+
+                    <div class="date-row">
+                        <div class="filter-group">
+                            <label class="filter-label" for="checkIn">체크인</label>
+                            <input type="date"
+                                   id="checkIn"
+                                   name="checkIn"
+                                   class="filter-input"
+                                   value="<%= checkIn %>">
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label" for="checkOut">체크아웃</label>
+                            <input type="date"
+                                   id="checkOut"
+                                   name="checkOut"
+                                   class="filter-input"
+                                   value="<%= checkOut %>">
+                        </div>
                     </div>
 
                     <div class="filter-group" id="typeTagGroup">
@@ -248,12 +320,22 @@
 
     <main class="main-content">
         <h2 class="page-section-title">캠핑장 예약</h2>
-        <p class="section-sub-title">원하는 숙소 유형과 지역을 골라 캠핑장을 찾아보세요.</p>
+
+        <% if (!checkIn.isEmpty() && !checkOut.isEmpty()) { %>
+            <p class="section-sub-title">
+                <%= checkIn %> ~ <%= checkOut %> 기간에 예약 가능한 캠핑장을 찾아보세요.
+            </p>
+        <% } else { %>
+            <p class="section-sub-title">원하는 숙소 유형과 지역을 골라 캠핑장을 찾아보세요.</p>
+        <% } %>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="camp-count small text-muted">
                 <% if (keyword != null && !keyword.trim().isEmpty()) { %>
                     "<%= keyword %>" ·
+                <% } %>
+                <% if (!checkIn.isEmpty() && !checkOut.isEmpty()) { %>
+                    <%= checkIn %> ~ <%= checkOut %> ·
                 <% } %>
                 <%= totalCount %>개
             </div>
@@ -281,7 +363,6 @@
                         imgPath = ctx + "/assets/img/" + img;
                     }
 
-                    // ✅ 찜 여부 확인
                     boolean isWished = WishlistDAO.isWished(userId, p.getId());
         %>
             <div class="horizontal-card">
@@ -302,7 +383,6 @@
                             </div>
 
                             <div style="display:flex; align-items:center; gap:8px;">
-                                <%-- ✅ 찜 버튼: AJAX 방식 (/wishToggle 서블릿으로 요청) --%>
                                 <button type="button"
                                         class="btn-wish"
                                         data-camp-id="<%= p.getId() %>"
@@ -356,7 +436,7 @@
 
                         <div class="card-action-group">
                             <a href="<%=ctx%>/campDetail.jsp?id=<%= p.getId() %>" class="btn btn-outline">상세보기</a>
-                            <a href="<%=ctx%>/campDetail.jsp?id=<%= p.getId() %>" class="btn btn-point">예약하기</a>
+                            <a href="<%=ctx%>/campDetail.jsp?id=<%= p.getId() %>&checkIn=<%= URLEncoder.encode(checkIn, "UTF-8") %>&checkOut=<%= URLEncoder.encode(checkOut, "UTF-8") %>" class="btn btn-point">예약하기</a>
                         </div>
                     </div>
                 </div>
@@ -377,6 +457,8 @@
             String pageLocParam      = request.getParameter("loc");
             String pageFacilityParam = request.getParameter("facility");
             String pageSortParam     = request.getParameter("sort");
+            String pageCheckInParam  = request.getParameter("checkIn");
+            String pageCheckOutParam = request.getParameter("checkOut");
 
             if (pageKeywordParam != null && !pageKeywordParam.trim().isEmpty())
                 pageQuery.append("&keyword=").append(URLEncoder.encode(pageKeywordParam, "UTF-8"));
@@ -388,6 +470,10 @@
                 pageQuery.append("&facility=").append(URLEncoder.encode(pageFacilityParam, "UTF-8"));
             if (pageSortParam != null && !pageSortParam.trim().isEmpty())
                 pageQuery.append("&sort=").append(URLEncoder.encode(pageSortParam, "UTF-8"));
+            if (pageCheckInParam != null && !pageCheckInParam.trim().isEmpty())
+                pageQuery.append("&checkIn=").append(URLEncoder.encode(pageCheckInParam, "UTF-8"));
+            if (pageCheckOutParam != null && !pageCheckOutParam.trim().isEmpty())
+                pageQuery.append("&checkOut=").append(URLEncoder.encode(pageCheckOutParam, "UTF-8"));
         %>
 
         <% if (totalPage > 1) { %>
@@ -485,13 +571,12 @@
         });
     }
 
-    // ✅ 찜 AJAX 토글 → /wishToggle 서블릿으로 요청
     function toggleWish(btn) {
         const campId = btn.dataset.campId;
         const wished = btn.dataset.wished === 'true';
         const action = wished ? 'remove' : 'add';
 
-        btn.disabled = true; // 중복 클릭 방지
+        btn.disabled = true;
 
         fetch('<%=ctx%>/wishToggle', {
             method: 'POST',

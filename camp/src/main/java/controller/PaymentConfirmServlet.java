@@ -131,7 +131,7 @@ public class PaymentConfirmServlet extends HttpServlet {
                 : java.time.LocalDate.now().toString();
 
         String sql = "INSERT INTO reservations (user_id, camp_id, reserve_date, people_count, status, order_id, payment_key, amount) " +
-                     "VALUES (?, ?, ?, ?, 'RESERVED', ?, ?, ?)";
+        		"VALUES (?, ?, ?, ?, 'PENDING', ?, ?, ?)";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

@@ -82,6 +82,154 @@
     </div>
 </div>
 
+<!-- ✅ AI 캠핑 스타일 추천 위젯 -->
+<div class="container mt-2 mb-5" id="styleQuizSection">
+    <div class="style-quiz-card">
+        <div class="style-quiz-header">
+            <span class="style-quiz-badge">✨ AI 추천</span>
+            <h3 class="style-quiz-title">어떤 캠핑을 원하세요?</h3>
+            <p class="style-quiz-sub">스타일을 선택하면 딱 맞는 캠핑장을 추천해드려요 (중복 선택 가능)</p>
+        </div>
+
+        <div class="style-options" id="styleOptions">
+            <button class="style-btn" data-style="감성힐링" onclick="toggleStyle(this)">
+                <span class="style-icon">🌙</span>
+                <span class="style-label">감성 힐링</span>
+                <span class="style-desc">글램핑 · 야경 · 조용한</span>
+            </button>
+            <button class="style-btn" data-style="액티브" onclick="toggleStyle(this)">
+                <span class="style-icon">🏊</span>
+                <span class="style-label">액티브</span>
+                <span class="style-desc">물놀이 · 계곡 · 수영장</span>
+            </button>
+            <button class="style-btn" data-style="반려동물" onclick="toggleStyle(this)">
+                <span class="style-icon">🐾</span>
+                <span class="style-label">반려동물과</span>
+                <span class="style-desc">반려견 · 애견동반 · 산책로</span>
+            </button>
+            <button class="style-btn" data-style="럭셔리" onclick="toggleStyle(this)">
+                <span class="style-icon">👑</span>
+                <span class="style-label">럭셔리</span>
+                <span class="style-desc">풀빌라 · 스파 · 프리미엄</span>
+            </button>
+            <button class="style-btn" data-style="자연탐험" onclick="toggleStyle(this)">
+                <span class="style-icon">🏕️</span>
+                <span class="style-label">자연 탐험</span>
+                <span class="style-desc">차박 · 계곡 · 산</span>
+            </button>
+            <button class="style-btn" data-style="가족여행" onclick="toggleStyle(this)">
+                <span class="style-icon">👨‍👩‍👧‍👦</span>
+                <span class="style-label">가족 여행</span>
+                <span class="style-desc">어린이놀이터 · 바베큐</span>
+            </button>
+            <button class="style-btn" data-style="로맨틱" onclick="toggleStyle(this)">
+                <span class="style-icon">🌹</span>
+                <span class="style-label">로맨틱</span>
+                <span class="style-desc">야경 · 글램핑 · 감성</span>
+            </button>
+            <button class="style-btn" data-style="당일치기" onclick="toggleStyle(this)">
+                <span class="style-icon">☀️</span>
+                <span class="style-label">당일치기</span>
+                <span class="style-desc">피크닉 · 바베큐 · 가볍게</span>
+            </button>
+        </div>
+
+        <div class="style-quiz-footer" id="styleQuizFooter" style="display:none;">
+            <div class="selected-styles-wrap">
+                <span class="selected-label">선택한 스타일:</span>
+                <span id="selectedStylesText"></span>
+            </div>
+            <button class="btn-style-search" onclick="handleStyleSearch()">
+                이 스타일로 캠핑장 찾기 →
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.style-quiz-card {
+    background: linear-gradient(135deg, #f0f8f2 0%, #fafff7 100%);
+    border: 1.5px solid #d4edda;
+    border-radius: 20px;
+    padding: 32px;
+}
+.style-quiz-header { text-align: center; margin-bottom: 24px; }
+.style-quiz-badge {
+    display: inline-block;
+    background: var(--main-green, #2c7846);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+}
+.style-quiz-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin: 8px 0 6px; }
+.style-quiz-sub { font-size: 14px; color: #666; margin: 0; }
+.style-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.style-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 16px 10px;
+    background: #fff;
+    border: 2px solid #e8f5e9;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+.style-btn:hover {
+    border-color: var(--main-green, #2c7846);
+    background: #f0f8f2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44,120,70,0.12);
+}
+.style-btn.active {
+    border-color: var(--main-green, #2c7846);
+    background: #e8f5e9;
+    box-shadow: 0 0 0 3px rgba(44,120,70,0.15);
+}
+.style-icon { font-size: 26px; line-height: 1; }
+.style-label { font-size: 13px; font-weight: 700; color: #222; }
+.style-desc  { font-size: 11px; color: #888; line-height: 1.3; }
+.style-quiz-footer {
+    border-top: 1px solid #d4edda;
+    padding-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.selected-styles-wrap { font-size: 14px; color: #444; }
+.selected-label { font-weight: 600; margin-right: 6px; color: #333; }
+#selectedStylesText { color: var(--main-green, #2c7846); font-weight: 600; }
+.btn-style-search {
+    background: var(--main-green, #2c7846);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-style-search:hover { background: #225e38; transform: translateY(-1px); }
+@media (max-width: 768px) {
+    .style-options { grid-template-columns: repeat(2, 1fr); }
+    .style-quiz-footer { flex-direction: column; align-items: flex-start; }
+    .btn-style-search { width: 100%; text-align: center; }
+}
+</style>
+
 <div class="container my-5 pb-5">
     <div class="d-flex justify-content-between align-items-end mb-4 px-2">
         <div>
@@ -222,8 +370,49 @@ function performTagSearch() {
         alert("필터를 선택해주세요.");
         return;
     }
-
     location.href = contextPath + "/campList?tags=" + encodeURIComponent(selectedTags.join(","));
+}
+
+// ✅ AI 스타일 선택 토글
+let selectedStyles = [];
+
+function toggleStyle(btn) {
+    const style = btn.dataset.style;
+    if (selectedStyles.includes(style)) {
+        selectedStyles = selectedStyles.filter(s => s !== style);
+        btn.classList.remove("active");
+    } else {
+        selectedStyles.push(style);
+        btn.classList.add("active");
+    }
+
+    const footer = document.getElementById("styleQuizFooter");
+    const textEl  = document.getElementById("selectedStylesText");
+    const labels  = {
+        "감성힐링":"🌙 감성 힐링", "액티브":"🏊 액티브",
+        "반려동물":"🐾 반려동물과", "럭셔리":"👑 럭셔리",
+        "자연탐험":"🏕️ 자연 탐험", "가족여행":"👨‍👩‍👧‍👦 가족 여행",
+        "로맨틱":"🌹 로맨틱",     "당일치기":"☀️ 당일치기"
+    };
+
+    if (selectedStyles.length > 0) {
+        textEl.textContent = selectedStyles.map(s => labels[s] || s).join(" + ");
+        footer.style.display = "flex";
+    } else {
+        footer.style.display = "none";
+    }
+}
+
+// ✅ 스타일 기반 캠핑장 검색 (날짜도 함께 전달)
+function handleStyleSearch() {
+    if (selectedStyles.length === 0) return;
+    const checkIn  = document.getElementById("mainCheckIn")  ? document.getElementById("mainCheckIn").value  : "";
+    const checkOut = document.getElementById("mainCheckOut") ? document.getElementById("mainCheckOut").value : "";
+
+    let url = contextPath + "/campList?styles=" + encodeURIComponent(selectedStyles.join(","));
+    if (checkIn)  url += "&checkIn="  + encodeURIComponent(checkIn);
+    if (checkOut) url += "&checkOut=" + encodeURIComponent(checkOut);
+    location.href = url;
 }
 </script>
 

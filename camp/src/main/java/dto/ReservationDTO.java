@@ -3,52 +3,143 @@ package dto;
 import java.sql.Timestamp;
 
 public class ReservationDTO {
+
     private int id;
     private int userId;
     private int campId;
+
     private String campName;
+
     private String reserveDate;
+
+    // ✅ 추가
+    private String checkIn;
+    private String checkOut;
+
     private int peopleCount;
+
     private String status;
+
     private Timestamp createdAt;
+
     private String orderId;
     private String paymentKey;
+
     private int amount;
-    private String guestName; // ✅ 추가: 예약자 이름 (사장님 페이지용)
 
-    public int getId()                          { return id; }
-    public void setId(int id)                   { this.id = id; }
+    // ✅ 예약자 이름
+    private String guestName;
 
-    public int getUserId()                      { return userId; }
-    public void setUserId(int userId)           { this.userId = userId; }
+    public int getId() {
+        return id;
+    }
 
-    public int getCampId()                      { return campId; }
-    public void setCampId(int campId)           { this.campId = campId; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getCampName()                 { return campName; }
-    public void setCampName(String campName)    { this.campName = campName; }
+    public int getUserId() {
+        return userId;
+    }
 
-    public String getReserveDate()                      { return reserveDate; }
-    public void setReserveDate(String reserveDate)      { this.reserveDate = reserveDate; }
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
-    public int getPeopleCount()                         { return peopleCount; }
-    public void setPeopleCount(int peopleCount)         { this.peopleCount = peopleCount; }
+    public int getCampId() {
+        return campId;
+    }
 
-    public String getStatus()                   { return status; }
-    public void setStatus(String status)        { this.status = status; }
+    public void setCampId(int campId) {
+        this.campId = campId;
+    }
 
-    public Timestamp getCreatedAt()                     { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt)       { this.createdAt = createdAt; }
+    public String getCampName() {
+        return campName;
+    }
 
-    public String getOrderId()                  { return orderId; }
-    public void setOrderId(String orderId)      { this.orderId = orderId; }
+    public void setCampName(String campName) {
+        this.campName = campName;
+    }
 
-    public String getPaymentKey()                       { return paymentKey; }
-    public void setPaymentKey(String paymentKey)        { this.paymentKey = paymentKey; }
+    public String getReserveDate() {
+        return reserveDate;
+    }
 
-    public int getAmount()                      { return amount; }
-    public void setAmount(int amount)           { this.amount = amount; }
+    public void setReserveDate(String reserveDate) {
+        this.reserveDate = reserveDate;
+    }
 
-    public String getGuestName()                        { return guestName; }
-    public void setGuestName(String guestName)          { this.guestName = guestName; }
+    // ✅ 추가
+    public String getCheckIn() {
+        return checkIn;
+    }
+
+    public void setCheckIn(String checkIn) {
+        this.checkIn = checkIn;
+    }
+
+    public String getCheckOut() {
+        return checkOut;
+    }
+
+    public void setCheckOut(String checkOut) {
+        this.checkOut = checkOut;
+    }
+
+    public int getPeopleCount() {
+        return peopleCount;
+    }
+
+    public void setPeopleCount(int peopleCount) {
+        this.peopleCount = peopleCount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getPaymentKey() {
+        return paymentKey;
+    }
+
+    public void setPaymentKey(String paymentKey) {
+        this.paymentKey = paymentKey;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public String getGuestName() {
+        return guestName;
+    }
+
+    public void setGuestName(String guestName) {
+        this.guestName = guestName;
+    }
 }

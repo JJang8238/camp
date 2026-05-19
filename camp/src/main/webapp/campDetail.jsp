@@ -30,6 +30,11 @@ if (camp == null) {
 String name = (camp.getName() != null) ? camp.getName() : "";
 String description = (camp.getDescription() != null) ? camp.getDescription() : "";
 
+String checkInParam = request.getParameter("checkIn");
+String checkOutParam = request.getParameter("checkOut");
+if (checkInParam == null) checkInParam = "";
+if (checkOutParam == null) checkOutParam = "";
+
 MatchDAO matchDao = new MatchDAO();
 List<Match> matches = matchDao.getTodayMatchesByPlace(name);
 if (matches == null) matches = new ArrayList<>();
@@ -44,7 +49,6 @@ if (userName == null) userName = "";
 
 boolean isWished = (userId != null) && WishlistDAO.isWished(userId, id);
 
-// 이미지 경로 처리
 String rawImg = camp.getImage();
 String imgPath;
 if (rawImg != null && !rawImg.trim().isEmpty()) {
@@ -60,7 +64,6 @@ if (rawImg != null && !rawImg.trim().isEmpty()) {
     imgPath = ctx + "/assets/img/default.jpg";
 }
 
-// 별점 평균
 double avgRating = 0;
 if (!reviews.isEmpty()) {
     int sum = 0;
@@ -91,7 +94,6 @@ int roundedAvg = (int) Math.round(avgRating);
             padding: 0 24px;
         }
 
-        /* ── 메인 상단: 이미지 + 정보 ── */
         .detail-main {
             display: flex;
             gap: 28px;
@@ -105,6 +107,7 @@ int roundedAvg = (int) Math.round(avgRating);
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0,0,0,0.10);
         }
+
         .detail-img-box img {
             width: 100%;
             height: 340px;
@@ -112,7 +115,6 @@ int roundedAvg = (int) Math.round(avgRating);
             display: block;
         }
 
-        /* 우측 카드 */
         .detail-right-card {
             flex: 1;
             background: white;
@@ -121,7 +123,6 @@ int roundedAvg = (int) Math.round(avgRating);
             box-shadow: 0 2px 16px rgba(0,0,0,0.07);
             display: flex;
             flex-direction: column;
-            gap: 0;
         }
 
         .detail-name {
@@ -133,9 +134,27 @@ int roundedAvg = (int) Math.round(avgRating);
         }
 
         .detail-address {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             font-size: 13px;
             color: #888;
             margin-bottom: 12px;
+            cursor: pointer;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 1px;
+            transition: color 0.2s;
+        }
+
+        .detail-address:hover {
+            color: #2d5a27;
+            border-bottom-color: #2d5a27;
+        }
+
+        .detail-address .map-hint {
+            font-size: 11px;
+            color: #bbb;
+            margin-left: 4px;
         }
 
         .detail-tags {
@@ -144,6 +163,7 @@ int roundedAvg = (int) Math.round(avgRating);
             gap: 6px;
             margin-bottom: 14px;
         }
+
         .detail-tag {
             background: #f0f7ee;
             color: #2d5a27;
@@ -161,17 +181,116 @@ int roundedAvg = (int) Math.round(avgRating);
             color: #555;
             margin-bottom: 20px;
         }
-        .stars-row { color: #f5a623; font-size: 15px; letter-spacing: 1px; }
-        .rating-count { color: #bbb; font-size: 12px; }
 
-        .divider { border: none; border-top: 1px solid #f1f3f5; margin: 0 0 18px; }
+        .stars-row {
+            color: #f5a623;
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
 
-        .price-label { font-size: 11px; color: #bbb; margin-bottom: 2px; }
+        .rating-count {
+            color: #bbb;
+            font-size: 12px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #f1f3f5;
+            margin: 0 0 18px;
+        }
+
+        .price-label {
+            font-size: 11px;
+            color: #bbb;
+            margin-bottom: 2px;
+        }
+
         .price-value {
             font-size: 26px;
             font-weight: 800;
             color: #e8401c;
             margin-bottom: 18px;
+        }
+
+        .date-pick-wrap {
+            margin-bottom: 14px;
+        }
+
+        .date-pick-label {
+            font-size: 12px;
+            color: #888;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .date-pick-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .date-input,
+        .people-select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .date-input:focus,
+        .people-select:focus {
+            border-color: #2d5a27;
+        }
+
+        .btn-check-avail {
+            width: 100%;
+            padding: 10px;
+            background: #f0f7ee;
+            color: #2d5a27;
+            border: 1.5px solid #2d5a27;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .btn-check-avail:hover {
+            background: #e0f0dc;
+        }
+
+        .avail-result {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .avail-ok {
+            background: #e8f5e9;
+            color: #2d5a27;
+            border: 1px solid #c8e6c9;
+        }
+
+        .avail-no {
+            background: #fdecea;
+            color: #c0392b;
+            border: 1px solid #f5c6cb;
+        }
+
+        .avail-loading {
+            background: #f1f3f5;
+            color: #777;
+            border: 1px solid #dee2e6;
         }
 
         .btn-book {
@@ -187,7 +306,10 @@ int roundedAvg = (int) Math.round(avgRating);
             transition: background 0.2s;
             margin-bottom: 10px;
         }
-        .btn-book:hover { background: #1e3d1b; }
+
+        .btn-book:hover {
+            background: #1e3d1b;
+        }
 
         .btn-wish-detail {
             width: 100%;
@@ -205,91 +327,146 @@ int roundedAvg = (int) Math.round(avgRating);
             gap: 5px;
             transition: border-color 0.2s, color 0.2s, background 0.2s;
         }
-        .btn-wish-detail:hover { border-color: #e74c3c; color: #e74c3c; }
-        .btn-wish-detail.wished { border-color: #e74c3c; color: #e74c3c; background: #fff5f5; }
 
-        /* ── 날짜 선택 영역 ── */
-        .date-pick-wrap {
-            margin-bottom: 14px;
+        .btn-wish-detail:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
         }
-        .date-pick-label {
-            font-size: 12px; color: #888; font-weight: 600;
-            margin-bottom: 6px; display: block;
-        }
-        .date-pick-row {
-            display: flex; gap: 8px; align-items: center;
-        }
-        .date-input {
-            flex: 1;
-            padding: 9px 12px;
-            border: 1.5px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 13px;
-            outline: none;
-            transition: border-color 0.2s;
-            box-sizing: border-box;
-        }
-        .date-input:focus { border-color: #2d5a27; }
 
-        .people-select {
-            padding: 9px 12px;
-            border: 1.5px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 13px;
-            outline: none;
+        .btn-wish-detail.wished {
+            border-color: #e74c3c;
+            color: #e74c3c;
+            background: #fff5f5;
+        }
+
+        .detail-section {
             background: white;
-            cursor: pointer;
+            border-radius: 14px;
+            padding: 26px 30px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        .btn-check-avail {
-            width: 100%;
-            padding: 10px;
-            background: #f0f7ee;
-            color: #2d5a27;
-            border: 1.5px solid #2d5a27;
-            border-radius: 8px;
+        .detail-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0 0 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .detail-desc {
             font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-bottom: 10px;
+            color: #555;
+            line-height: 1.9;
         }
-        .btn-check-avail:hover { background: #e0f0dc; }
 
-        .avail-result {
-            padding: 10px 14px;
-            border-radius: 8px;
+        .empty-msg {
+            color: #bbb;
             font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            display: none;
-            text-align: center;
         }
-        .avail-ok     { background: #e8f5e9; color: #2d5a27; border: 1px solid #c8e6c9; }
-        .avail-no     { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
-        .avail-loading { background: #f1f3f5; color: #777; border: 1px solid #dee2e6; }
 
-        /* ── 주소 클릭 버튼 ── */
-        .detail-address {
-            display: inline-flex;
+        .review-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #f7f7f7;
+        }
+
+        .review-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .review-top-row {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 4px;
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 12px;
-            cursor: pointer;
-            border-bottom: 1px dashed #ccc;
-            padding-bottom: 1px;
-            transition: color 0.2s;
+            margin-bottom: 5px;
         }
-        .detail-address:hover { color: #2d5a27; border-bottom-color: #2d5a27; }
-        .detail-address .map-hint {
+
+        .review-user {
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .review-stars-sm {
+            color: #f5a623;
+            font-size: 12px;
+        }
+
+        .review-date {
             font-size: 11px;
             color: #bbb;
-            margin-left: 4px;
         }
 
-        /* ── 카카오맵 팝업 모달 ── */
+        .review-text {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .review-form-wrap {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f3f5;
+        }
+
+        .review-form-wrap h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+
+        .review-textarea {
+            width: 100%;
+            height: 90px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+            resize: none;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .review-textarea:focus {
+            border-color: #2d5a27;
+        }
+
+        .review-form-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            gap: 10px;
+        }
+
+        .review-select {
+            padding: 7px 10px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 7px;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-review-submit {
+            padding: 8px 20px;
+            background: #2d5a27;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-review-submit:hover {
+            background: #1e3d1b;
+        }
+
         .map-modal-overlay {
             display: none;
             position: fixed;
@@ -299,7 +476,10 @@ int roundedAvg = (int) Math.round(avgRating);
             align-items: center;
             justify-content: center;
         }
-        .map-modal-overlay.active { display: flex; }
+
+        .map-modal-overlay.active {
+            display: flex;
+        }
 
         .map-modal-box {
             background: white;
@@ -317,11 +497,13 @@ int roundedAvg = (int) Math.round(avgRating);
             padding: 16px 20px;
             border-bottom: 1px solid #f1f3f5;
         }
+
         .map-modal-title {
             font-size: 15px;
             font-weight: 700;
             color: #1a1a1a;
         }
+
         .map-modal-close {
             background: none;
             border: none;
@@ -330,7 +512,10 @@ int roundedAvg = (int) Math.round(avgRating);
             cursor: pointer;
             line-height: 1;
         }
-        .map-modal-close:hover { color: #333; }
+
+        .map-modal-close:hover {
+            color: #333;
+        }
 
         #kakaoMapContainer {
             width: 100%;
@@ -348,80 +533,35 @@ int roundedAvg = (int) Math.round(avgRating);
             flex-wrap: wrap;
             gap: 8px;
         }
-        .map-distance-info { font-weight: 600; color: #2d5a27; }
-        .map-address-text { color: #888; font-size: 12px; }
 
-        /* ── 하단 섹션 ── */
-        .detail-section {
-            background: white;
-            border-radius: 14px;
-            padding: 26px 30px;
-            margin-bottom: 18px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        .map-distance-info {
+            font-weight: 600;
+            color: #2d5a27;
         }
-        .detail-section h3 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0 0 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f1f3f5;
-        }
-        .detail-desc { font-size: 13px; color: #555; line-height: 1.9; }
-        .empty-msg { color: #bbb; font-size: 13px; }
 
-        /* 후기 */
-        .review-item {
-            padding: 16px 0;
-            border-bottom: 1px solid #f7f7f7;
+        .map-address-text {
+            color: #888;
+            font-size: 12px;
         }
-        .review-item:last-of-type { border-bottom: none; }
-        .review-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        .review-user { font-size: 13px; font-weight: 700; color: #333; }
-        .review-stars-sm { color: #f5a623; font-size: 12px; }
-        .review-date { font-size: 11px; color: #bbb; }
-        .review-text { font-size: 13px; color: #666; line-height: 1.7; margin: 0; }
-
-        /* 후기 작성 */
-        .review-form-wrap {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #f1f3f5;
-        }
-        .review-form-wrap h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #1a1a1a; }
-        .review-textarea {
-            width: 100%; height: 90px;
-            border: 1.5px solid #dee2e6; border-radius: 8px;
-            padding: 10px 12px; font-size: 13px;
-            resize: none; box-sizing: border-box;
-            outline: none; transition: border-color 0.2s;
-        }
-        .review-textarea:focus { border-color: #2d5a27; }
-        .review-form-bottom {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-top: 8px; gap: 10px;
-        }
-        .review-select {
-            padding: 7px 10px; border: 1.5px solid #dee2e6;
-            border-radius: 7px; font-size: 13px; outline: none; cursor: pointer;
-        }
-        .btn-review-submit {
-            padding: 8px 20px; background: #2d5a27; color: white;
-            border: none; border-radius: 7px; font-size: 13px;
-            font-weight: 600; cursor: pointer; transition: background 0.2s;
-        }
-        .btn-review-submit:hover { background: #1e3d1b; }
 
         @media (max-width: 750px) {
-            .detail-main { flex-direction: column; }
-            .detail-img-box { flex: none; width: 100%; }
-            .detail-img-box img { height: 220px; }
-            .detail-right-card { width: 100%; box-sizing: border-box; }
+            .detail-main {
+                flex-direction: column;
+            }
+
+            .detail-img-box {
+                flex: none;
+                width: 100%;
+            }
+
+            .detail-img-box img {
+                height: 220px;
+            }
+
+            .detail-right-card {
+                width: 100%;
+                box-sizing: border-box;
+            }
         }
     </style>
 </head>
@@ -434,16 +574,15 @@ int roundedAvg = (int) Math.round(avgRating);
 
     <div class="detail-main">
 
-        <!-- 이미지 -->
         <div class="detail-img-box">
             <img src="<%=imgPath%>"
                  alt="<%=name%>"
                  onerror="this.src='<%=ctx%>/assets/img/default.jpg'">
         </div>
 
-        <!-- 우측 정보 카드 -->
         <div class="detail-right-card">
             <h1 class="detail-name"><%=name%></h1>
+
             <p class="detail-address" onclick="openMapModal()" title="클릭하면 지도에서 위치를 확인할 수 있어요">
                 📍 <%=camp.getAddress()%>
                 <span class="map-hint">🗺 지도 보기</span>
@@ -451,25 +590,28 @@ int roundedAvg = (int) Math.round(avgRating);
 
             <div class="detail-tags">
                 <% if (camp.getType() != null && !camp.getType().trim().isEmpty()) { %>
-                <span class="detail-tag"><%=camp.getType()%></span>
+                    <span class="detail-tag"><%=camp.getType()%></span>
                 <% } %>
+
                 <% if (camp.getTags() != null && !camp.getTags().trim().isEmpty()) {
                     for (String tg : camp.getTags().split("[,\\s]+")) {
-                        if (!tg.trim().isEmpty()) { %>
-                <span class="detail-tag">#<%=tg.trim().replace("#","")%></span>
-                <%      }
+                        if (!tg.trim().isEmpty()) {
+                %>
+                    <span class="detail-tag">#<%=tg.trim().replace("#","")%></span>
+                <%
+                        }
                     }
                 } %>
             </div>
 
             <% if (!reviews.isEmpty()) { %>
-            <div class="detail-rating">
-                <span class="stars-row">
-                    <% for (int i=1; i<=5; i++) out.print(i <= roundedAvg ? "★" : "☆"); %>
-                </span>
-                <strong><%=avgStr%></strong>
-                <span class="rating-count">(후기 <%=reviews.size()%>개)</span>
-            </div>
+                <div class="detail-rating">
+                    <span class="stars-row">
+                        <% for (int i=1; i<=5; i++) out.print(i <= roundedAvg ? "★" : "☆"); %>
+                    </span>
+                    <strong><%=avgStr%></strong>
+                    <span class="rating-count">(후기 <%=reviews.size()%>개)</span>
+                </div>
             <% } %>
 
             <hr class="divider">
@@ -477,12 +619,22 @@ int roundedAvg = (int) Math.round(avgRating);
             <div class="price-label">1박 기준 시작가</div>
             <div class="price-value">₩ <%=String.format("%,d", camp.getPrice())%></div>
 
-            <%-- ✅ 날짜 선택 + 예약 가능 여부 확인 --%>
             <div class="date-pick-wrap">
                 <span class="date-pick-label">📅 예약 날짜 선택</span>
+
                 <div class="date-pick-row">
-                    <input type="date" id="reserveDate" class="date-input"
+                    <input type="date"
+                           id="checkIn"
+                           class="date-input"
+                           value="<%=checkInParam%>"
                            min="<%=java.time.LocalDate.now().plusDays(1).toString()%>">
+
+                    <input type="date"
+                           id="checkOut"
+                           class="date-input"
+                           value="<%=checkOutParam%>"
+                           min="<%=java.time.LocalDate.now().plusDays(2).toString()%>">
+
                     <select id="peopleCount" class="people-select">
                         <option value="1">1명</option>
                         <option value="2">2명</option>
@@ -513,7 +665,6 @@ int roundedAvg = (int) Math.round(avgRating);
         </div>
     </div>
 
-    <!-- 소개 -->
     <div class="detail-section">
         <h3>캠핑장 소개</h3>
         <% if (!description.trim().isEmpty()) { %>
@@ -523,7 +674,6 @@ int roundedAvg = (int) Math.round(avgRating);
         <% } %>
     </div>
 
-    <!-- 후기 -->
     <div class="detail-section">
         <h3>후기<%=reviews.isEmpty() ? "" : " (" + reviews.size() + ")"%></h3>
 
@@ -534,14 +684,14 @@ int roundedAvg = (int) Math.round(avgRating);
                 String rStars = "★★★★★☆☆☆☆☆".substring(5 - rv, 10 - rv);
                 String rDate = r.get("created_at") != null ? r.get("created_at").toString().substring(0, 10) : "";
         %>
-        <div class="review-item">
-            <div class="review-top-row">
-                <span class="review-user">🏕️ <%=r.get("user")%> 캠퍼님</span>
-                <span class="review-date"><%=rDate%></span>
+            <div class="review-item">
+                <div class="review-top-row">
+                    <span class="review-user">🏕️ <%=r.get("user")%> 캠퍼님</span>
+                    <span class="review-date"><%=rDate%></span>
+                </div>
+                <div class="review-stars-sm"><%=rStars%></div>
+                <p class="review-text"><%=r.get("content")%></p>
             </div>
-            <div class="review-stars-sm"><%=rStars%></div>
-            <p class="review-text"><%=r.get("content")%></p>
-        </div>
         <% } } else { %>
             <p class="empty-msg">아직 후기가 없습니다.</p>
         <% } %>
@@ -569,7 +719,6 @@ int roundedAvg = (int) Math.round(avgRating);
 
 <jsp:include page="/include/footer.jsp" />
 
-<%-- ── 카카오맵 팝업 모달 ── --%>
 <div class="map-modal-overlay" id="mapModal">
     <div class="map-modal-box">
         <div class="map-modal-header">
@@ -585,8 +734,8 @@ int roundedAvg = (int) Math.round(avgRating);
 </div>
 
 <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=631343aadfb0ebd9e064328c2767b936&libraries=services"></script>
+
 <script>
-// 토스페이먼츠 (기존 그대로)
 const clientKey = "test_ck_6bJXmgo28e4dxgEbwWKArLAnGKWx";
 const tossPayments = TossPayments(clientKey);
 
@@ -597,18 +746,32 @@ document.getElementById("pay-btn").addEventListener("click", function () {
         return;
     <% } %>
 
-    const reserveDate = document.getElementById('reserveDate').value;
+    const checkIn = document.getElementById('checkIn').value;
+    const checkOut = document.getElementById('checkOut').value;
     const peopleCount = document.getElementById('peopleCount').value;
 
-    if (!reserveDate) {
-        alert("예약 날짜를 선택해주세요.");
-        document.getElementById('reserveDate').focus();
+    if (!checkIn) {
+        alert("체크인 날짜를 선택해주세요.");
+        document.getElementById('checkIn').focus();
+        return;
+    }
+
+    if (!checkOut) {
+        alert("체크아웃 날짜를 선택해주세요.");
+        document.getElementById('checkOut').focus();
+        return;
+    }
+
+    if (checkIn >= checkOut) {
+        alert("체크아웃 날짜는 체크인 이후여야 합니다.");
+        document.getElementById('checkOut').focus();
         return;
     }
 
     const availResult = document.getElementById('availResult');
+
     if (availResult.classList.contains('avail-no')) {
-        alert("해당 날짜는 예약이 불가합니다. 다른 날짜를 선택해주세요.");
+        alert("선택한 날짜는 예약이 불가능합니다.");
         return;
     }
 
@@ -617,14 +780,19 @@ document.getElementById("pay-btn").addEventListener("click", function () {
     tossPayments.requestPayment("카드", {
         amount: <%=camp.getPrice()%>,
         orderId: orderId,
-        orderName: "<%=name%> (" + reserveDate + " / " + peopleCount + "명)",
-        successUrl: window.location.origin + "<%=ctx%>/payment/success.jsp?reserveDate=" + reserveDate + "&peopleCount=" + peopleCount + "&campId=<%=id%>",
-        failUrl:    window.location.origin + "<%=ctx%>/payment/fail.jsp",
+        orderName: "<%=name%> (" + checkIn + " ~ " + checkOut + " / " + peopleCount + "명)",
+        successUrl:
+            window.location.origin +
+            "<%=ctx%>/payment/success.jsp" +
+            "?checkIn=" + encodeURIComponent(checkIn) +
+            "&checkOut=" + encodeURIComponent(checkOut) +
+            "&peopleCount=" + encodeURIComponent(peopleCount) +
+            "&campId=<%=id%>",
+        failUrl: window.location.origin + "<%=ctx%>/payment/fail.jsp",
         customerName: "<%=userName%>"
     });
 });
 
-// ── 예약 가능 여부 확인 ──
 function checkAvailability() {
     <% if (userId == null) { %>
         alert("로그인 후 이용해주세요.");
@@ -632,10 +800,16 @@ function checkAvailability() {
         return;
     <% } %>
 
-    const reserveDate = document.getElementById('reserveDate').value;
-    if (!reserveDate) {
-        alert("날짜를 먼저 선택해주세요.");
-        document.getElementById('reserveDate').focus();
+    const checkIn = document.getElementById('checkIn').value;
+    const checkOut = document.getElementById('checkOut').value;
+
+    if (!checkIn || !checkOut) {
+        alert("체크인/체크아웃 날짜를 모두 선택해주세요.");
+        return;
+    }
+
+    if (checkIn >= checkOut) {
+        alert("체크아웃 날짜는 체크인 이후여야 합니다.");
         return;
     }
 
@@ -644,31 +818,60 @@ function checkAvailability() {
     resultDiv.style.display = 'block';
     resultDiv.textContent = '⏳ 확인 중...';
 
-    // AJAX로 예약 가능 여부 체크
-    fetch('<%=ctx%>/checkAvailability?campId=<%=id%>&date=' + reserveDate)
-        .then(res => res.json())
-        .then(data => {
-            if (data.available) {
-                resultDiv.className = 'avail-result avail-ok';
-                resultDiv.textContent = '✅ ' + reserveDate + ' 예약 가능합니다!';
-            } else {
-                resultDiv.className = 'avail-result avail-no';
-                resultDiv.textContent = '❌ ' + reserveDate + ' 은 이미 예약된 날짜입니다.';
-            }
-        })
-        .catch(() => {
-            // 서버 오류 시 예약 가능으로 처리
+    fetch(
+        '<%=ctx%>/checkAvailability' +
+        '?campId=<%=id%>' +
+        '&checkIn=' + encodeURIComponent(checkIn) +
+        '&checkOut=' + encodeURIComponent(checkOut)
+    )
+    .then(res => res.json())
+    .then(data => {
+        if (data.available) {
             resultDiv.className = 'avail-result avail-ok';
-            resultDiv.textContent = '✅ ' + reserveDate + ' 예약 가능합니다!';
-        });
+            resultDiv.textContent = '✅ ' + checkIn + ' ~ ' + checkOut + ' 예약 가능합니다!';
+        } else {
+            resultDiv.className = 'avail-result avail-no';
+            resultDiv.textContent = '❌ 선택한 날짜는 이미 예약되었습니다.';
+        }
+    })
+    .catch(() => {
+        resultDiv.className = 'avail-result avail-no';
+        resultDiv.textContent = '예약 가능 여부 확인 중 오류가 발생했습니다.';
+    });
 }
 
-// 날짜 변경 시 결과 초기화
-document.getElementById('reserveDate').addEventListener('change', function() {
+document.getElementById('checkIn').addEventListener('change', function () {
+    const checkIn = this.value;
+    const checkOutInput = document.getElementById('checkOut');
+
+    if (checkIn) {
+        const nextDate = new Date(checkIn);
+        nextDate.setDate(nextDate.getDate() + 1);
+
+        const yyyy = nextDate.getFullYear();
+        const mm = String(nextDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(nextDate.getDate()).padStart(2, '0');
+
+        const nextDateStr = yyyy + '-' + mm + '-' + dd;
+
+        checkOutInput.min = nextDateStr;
+
+        if (!checkOutInput.value || checkOutInput.value <= checkIn) {
+            checkOutInput.value = nextDateStr;
+        }
+    }
+
+    resetAvailability();
+});
+
+document.getElementById('checkOut').addEventListener('change', resetAvailability);
+
+function resetAvailability() {
     const resultDiv = document.getElementById('availResult');
     resultDiv.style.display = 'none';
     resultDiv.className = 'avail-result';
-});
+}
+
 function toggleWishDetail(btn) {
     <% if (userId == null) { %>
         alert("로그인 후 이용해주세요.");
@@ -699,7 +902,6 @@ function toggleWishDetail(btn) {
     .finally(() => { btn.disabled = false; });
 }
 
-// ── 카카오맵 팝업 ──
 const campAddress = "<%=camp.getAddress().replace("\"", "\\\"")%>";
 let kakaoMap = null;
 let mapInitialized = false;
@@ -707,7 +909,7 @@ let mapInitialized = false;
 function openMapModal() {
     document.getElementById('mapModal').classList.add('active');
     if (!mapInitialized) {
-        setTimeout(initKakaoMap, 100); // 모달 렌더 후 초기화
+        setTimeout(initKakaoMap, 100);
         mapInitialized = true;
     }
 }
@@ -722,29 +924,33 @@ function initKakaoMap() {
         center: new kakao.maps.LatLng(37.5665, 126.9780),
         level: 7
     };
+
     kakaoMap = new kakao.maps.Map(container, options);
 
     const geocoder = new kakao.maps.services.Geocoder();
+
     geocoder.addressSearch(campAddress, function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
             const campCoord = new kakao.maps.LatLng(result[0].y, result[0].x);
 
-            // 캠핑장 마커 + 인포윈도우
-            const campMarker = new kakao.maps.Marker({ map: kakaoMap, position: campCoord });
+            const campMarker = new kakao.maps.Marker({
+                map: kakaoMap,
+                position: campCoord
+            });
+
             const infowindow = new kakao.maps.InfoWindow({
                 content: '<div style="padding:8px 12px;font-size:13px;font-weight:700;color:#2d5a27;white-space:nowrap;">🏕️ <%=name.replace("\"","\\\"")%></div>'
             });
+
             infowindow.open(kakaoMap, campMarker);
             kakaoMap.setCenter(campCoord);
 
-            // 현재 위치
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(pos) {
                     const userLat = pos.coords.latitude;
                     const userLng = pos.coords.longitude;
                     const userCoord = new kakao.maps.LatLng(userLat, userLng);
 
-                    // 내 위치 마커 (별 모양)
                     new kakao.maps.Marker({
                         map: kakaoMap,
                         position: userCoord,
@@ -755,23 +961,24 @@ function initKakaoMap() {
                         )
                     });
 
-                    // 직선 거리 계산 (Haversine)
                     const R = 6371;
                     const dLat = (parseFloat(result[0].y) - userLat) * Math.PI / 180;
                     const dLon = (parseFloat(result[0].x) - userLng) * Math.PI / 180;
-                    const a = Math.sin(dLat/2)**2
-                            + Math.cos(userLat*Math.PI/180) * Math.cos(parseFloat(result[0].y)*Math.PI/180)
-                            * Math.sin(dLon/2)**2;
-                    const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-                    const distText = dist < 1 ? Math.round(dist*1000)+"m" : dist.toFixed(1)+"km";
+                    const a = Math.sin(dLat / 2) ** 2
+                            + Math.cos(userLat * Math.PI / 180)
+                            * Math.cos(parseFloat(result[0].y) * Math.PI / 180)
+                            * Math.sin(dLon / 2) ** 2;
+
+                    const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+                    const distText = dist < 1 ? Math.round(dist * 1000) + "m" : dist.toFixed(1) + "km";
                     const timeMin = Math.round(dist / 60 * 60);
-                    const timeText = timeMin < 60 ? timeMin+"분" : Math.floor(timeMin/60)+"시간 "+(timeMin%60)+"분";
+                    const timeText = timeMin < 60 ? timeMin + "분" : Math.floor(timeMin / 60) + "시간 " + (timeMin % 60) + "분";
 
                     document.getElementById('distanceInfo').innerHTML =
                         '📍 현재 위치에서 약 <strong>' + distText + '</strong> · 차량 약 <strong>' + timeText + '</strong> 소요';
 
-                    // 두 마커 모두 보이게 범위 조정
                     const bounds = new kakao.maps.LatLngBounds();
                     bounds.extend(userCoord);
                     bounds.extend(campCoord);
@@ -789,7 +996,6 @@ function initKakaoMap() {
     });
 }
 
-// 모달 외부 클릭 시 닫기
 document.getElementById('mapModal').addEventListener('click', function(e) {
     if (e.target === this) closeMapModal();
 });

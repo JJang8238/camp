@@ -1,5 +1,9 @@
+SET SQL_SAFE_UPDATES = 0;
+CREATE DATABASE IF NOT EXISTS camp_DB;
 USE camp_DB;
 
+CREATE DATABASE IF NOT EXISTS camp_DB;
+USE camp_DB;
 -- =====================================================
 -- 기존 테이블 정리
 -- =====================================================
@@ -446,3 +450,31 @@ LEFT JOIN users u ON r.reporter_id = u.id;
 
 -- 완료 확인
 SELECT '패치 완료' AS result;
+
+SELECT COLUMN_NAME, COLUMN_TYPE 
+FROM information_schema.COLUMNS 
+WHERE TABLE_SCHEMA = 'camp_DB' AND TABLE_NAME = 'posts';
+
+SELECT * FROM camp_DB.posts LIMIT 3;
+
+SELECT COLUMN_NAME FROM information_schema.COLUMNS 
+WHERE TABLE_SCHEMA = 'camp_DB' AND TABLE_NAME = 'post_images';
+
+-- 완료 확인
+SELECT '패치 완료' AS result;
+
+-- 1단계: Safe Update Mode 끄기
+SET SQL_SAFE_UPDATES = 0;
+
+-- 2단계: UPDATE 실행
+UPDATE camps
+SET image = CONCAT('/assets/img/camp', (MOD(id - 1, 3) + 1), '.jpg')
+WHERE image = '/assets/img/default.jpg' OR image IS NULL OR image = '';
+
+-- 3단계: Safe Update Mode 다시 켜기 (보안상 권장)
+SET SQL_SAFE_UPDATES = 1;
+
+-- reservation check_in/check_out 컬럼 추가 0520
+ALTER TABLE reservations
+    ADD COLUMN check_in  DATE NULL AFTER reserve_date,
+    ADD COLUMN check_out DATE NULL AFTER check_in;

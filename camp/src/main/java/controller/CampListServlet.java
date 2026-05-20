@@ -33,9 +33,6 @@ public class CampListServlet extends HttpServlet {
         // ✅ 메인 AI 질문에서 선택한 캠핑 스타일 파라미터
         String styles = request.getParameter("styles");
 
-        String checkIn = request.getParameter("checkIn");
-        String checkOut = request.getParameter("checkOut");
-
         String sort = request.getParameter("sort");
         if (sort == null || sort.trim().isEmpty()) sort = "recommend";
 

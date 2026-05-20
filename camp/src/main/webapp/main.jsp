@@ -86,7 +86,7 @@
 <div class="container mt-2 mb-5" id="styleQuizSection">
     <div class="style-quiz-card">
         <div class="style-quiz-header">
-            <span class="style-quiz-badge">✨ AI 추천</span>
+            <span class="style-quiz-badge">✨ 캠핑장 추천</span>
             <h3 class="style-quiz-title">어떤 캠핑을 원하세요?</h3>
             <p class="style-quiz-sub">스타일을 선택하면 딱 맞는 캠핑장을 추천해드려요 (중복 선택 가능)</p>
         </div>

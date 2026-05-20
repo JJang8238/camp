@@ -23,22 +23,23 @@ public class CampListServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        String keyword = request.getParameter("keyword");
-        String type = request.getParameter("type");
-        String loc = request.getParameter("loc");
+        String keyword  = request.getParameter("keyword");
+        String type     = request.getParameter("type");
+        String loc      = request.getParameter("loc");
         String facility = request.getParameter("facility");
+        String checkIn  = request.getParameter("checkIn");
+        String checkOut = request.getParameter("checkOut");
+
+        // ✅ 메인 AI 질문에서 선택한 캠핑 스타일 파라미터
+        String styles = request.getParameter("styles");
 
         String checkIn = request.getParameter("checkIn");
         String checkOut = request.getParameter("checkOut");
 
         String sort = request.getParameter("sort");
-        if (sort == null || sort.trim().isEmpty()) {
-            sort = "recommend";
-        }
+        if (sort == null || sort.trim().isEmpty()) sort = "recommend";
 
-        int page = 1;
-        int pageSize = 10;
-
+        int page = 1, pageSize = 10;
         String pageStr = request.getParameter("page");
         try {
             if (pageStr != null && !pageStr.trim().isEmpty()) {
@@ -49,28 +50,20 @@ public class CampListServlet extends HttpServlet {
             page = 1;
         }
 
-        int totalCount = campDAO.getCampCount(
-                keyword, type, loc, facility, checkIn, checkOut
+        int totalCount = campDAO.getCampCount(keyword, type, loc, facility, checkIn, checkOut);
+        int totalPage  = Math.max(1, (int) Math.ceil((double) totalCount / pageSize));
+        if (page > totalPage) page = totalPage;
+
+        // ✅ styles 포함 버전으로 목록 조회
+        List<Product> campList = campDAO.getCampListPagingWithStyles(
+                keyword, type, loc, facility, sort, checkIn, checkOut, styles, page, pageSize
         );
 
-        int totalPage = (int) Math.ceil((double) totalCount / pageSize);
-
-        if (totalPage < 1) {
-            totalPage = 1;
-        }
-
-        if (page > totalPage) {
-            page = totalPage;
-        }
-
-        List<Product> campList = campDAO.getCampListPaging(
-                keyword, type, loc, facility, sort, checkIn, checkOut, page, pageSize
-        );
-
-        request.setAttribute("campList", campList);
-        request.setAttribute("totalCount", totalCount);
+        request.setAttribute("campList",    campList);
+        request.setAttribute("totalCount",  totalCount);
         request.setAttribute("currentPage", page);
-        request.setAttribute("totalPage", totalPage);
+        request.setAttribute("totalPage",   totalPage);
+        request.setAttribute("styles",      styles != null ? styles : "");
 
         request.getRequestDispatcher("/campList.jsp").forward(request, response);
     }

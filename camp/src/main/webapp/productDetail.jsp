@@ -9,6 +9,9 @@
 <%
     String ctx = request.getContextPath();
 
+    Integer loginUserId = (Integer) session.getAttribute("userId");
+    boolean isLogin = loginUserId != null;
+
     String idStr = request.getParameter("id");
     if (idStr == null || idStr.trim().isEmpty()) {
         out.println("<script>alert('잘못된 접근입니다.'); location.href='" + ctx + "/productList.jsp';</script>");
@@ -62,10 +65,13 @@
             "       u.name AS seller_name, u.username AS seller_username " +
             "FROM product p " +
             "LEFT JOIN users u ON p.seller_id = u.id " +
-            "WHERE p.id = ? AND (p.status IS NULL OR p.status <> 'hidden')";
+            "WHERE p.id = ? " +
+            "AND (p.status IS NULL OR p.status <> 'hidden' OR p.seller_id = ?)";
 
         psProduct = conn.prepareStatement(productSql);
         psProduct.setInt(1, productId);
+        psProduct.setInt(2, isLogin ? loginUserId : -1);
+
         rsProduct = psProduct.executeQuery();
 
         if (!rsProduct.next()) {
@@ -90,7 +96,7 @@
         if (sellerName == null) sellerName = "";
         if (sellerUsername == null) sellerUsername = "";
         if (mainImage == null) mainImage = "";
-        if (productStatus == null) productStatus = "";
+        if (productStatus == null || productStatus.trim().isEmpty()) productStatus = "selling";
 
         String imageSql =
             "SELECT image_path " +
@@ -159,8 +165,8 @@
     }
 
     boolean isSoldOut = "soldout".equals(productStatus);
-
-    // 이미지 경로 변환 함수 대신 JSP 내부에서 반복 사용
+    boolean isHidden = "hidden".equals(productStatus);
+    boolean isMyProduct = isLogin && loginUserId == sellerId;
 %>
 
 <!DOCTYPE html>
@@ -252,11 +258,17 @@
                 <% if (!productCategory.isEmpty()) { %>
                     <span class="product-meta-chip">카테고리 · <%= productCategory %></span>
                 <% } %>
+
                 <% if (!productLocation.isEmpty()) { %>
                     <span class="product-meta-chip">거래지역 · <%= productLocation %></span>
                 <% } %>
+
                 <% if (isSoldOut) { %>
                     <span class="product-meta-chip soldout-chip">판매완료</span>
+                <% } %>
+
+                <% if (isHidden) { %>
+                    <span class="product-meta-chip soldout-chip">숨김</span>
                 <% } %>
             </div>
 
@@ -266,39 +278,50 @@
                 <%= productDescription.isEmpty() ? "등록된 상품 설명이 없습니다." : productDescription %>
             </div>
 
-            <%
-    Integer loginUserId = (Integer) session.getAttribute("userId");
-    boolean isLogin = loginUserId != null;
-    boolean isMyProduct = isLogin && loginUserId == sellerId;
-%>
+            <div class="product-action-group">
+                <button type="button" class="btn-soft" onclick="history.back()">목록으로</button>
 
-<div class="product-action-group">
-    <button type="button" class="btn-soft" onclick="history.back()">목록으로</button>
+                <% if (isMyProduct) { %>
+                    <form action="<%=ctx%>/productStatusUpdate.jsp" method="post"
+                          style="display:flex; gap:8px; align-items:center;">
+                        <input type="hidden" name="productId" value="<%=productId%>">
 
-    <% if (isSoldOut) { %>
-        <button type="button" class="btn-point disabled" disabled>거래불가</button>
+                        <select name="status"
+                                style="padding:9px 14px; border:1px solid #ddd; border-radius:20px; font-size:13px;">
+                            <option value="selling" <%= "selling".equals(productStatus) ? "selected" : "" %>>
+                                거래중
+                            </option>
+                            <option value="soldout" <%= "soldout".equals(productStatus) ? "selected" : "" %>>
+                                거래완료
+                            </option>
+                            <option value="hidden" <%= "hidden".equals(productStatus) ? "selected" : "" %>>
+                                숨김
+                            </option>
+                        </select>
 
-    <% } else if (!isLogin) { %>
-        <a href="<%=ctx%>/login.jsp" class="btn-point">로그인 후 채팅하기</a>
+                        <button type="submit" class="btn-point">상태 변경</button>
+                    </form>
 
-    <% } else if (isMyProduct) { %>
-        <button type="button" class="btn-point disabled" disabled>내 상품입니다</button>
+                <% } else if (isSoldOut) { %>
+                    <button type="button" class="btn-point disabled" disabled>거래불가</button>
 
-    <% } else { %>
-        <a href="<%=ctx%>/chat/start?productId=<%=productId%>" class="btn-point">채팅하기</a>
-    <% } %>
+                <% } else if (!isLogin) { %>
+                    <a href="<%=ctx%>/login.jsp" class="btn-point">로그인 후 채팅하기</a>
 
-    <%-- 신고 버튼: 로그인 + 본인 상품 아닐 때만 --%>
-    <% if (isLogin && !isMyProduct) { %>
-    <button type="button"
-            style="padding:9px 18px; border:1.5px solid #e74c3c; border-radius:20px; font-size:13px; font-weight:600; color:#e74c3c; background:white; cursor:pointer; transition:background .2s,color .2s;"
-            onmouseover="this.style.background='#e74c3c';this.style.color='white'"
-            onmouseout="this.style.background='white';this.style.color='#e74c3c'"
-            onclick="openReportModal('product', <%=productId%>, location.href)">
-        🚨 신고
-    </button>
-    <% } %>
-</div>
+                <% } else { %>
+                    <a href="<%=ctx%>/chat/start?productId=<%=productId%>" class="btn-point">채팅하기</a>
+                <% } %>
+
+                <% if (isLogin && !isMyProduct) { %>
+                    <button type="button"
+                            style="padding:9px 18px; border:1.5px solid #e74c3c; border-radius:20px; font-size:13px; font-weight:600; color:#e74c3c; background:white; cursor:pointer; transition:background .2s,color .2s;"
+                            onmouseover="this.style.background='#e74c3c';this.style.color='white'"
+                            onmouseout="this.style.background='white';this.style.color='#e74c3c'"
+                            onclick="openReportModal('product', <%=productId%>, location.href)">
+                        🚨 신고
+                    </button>
+                <% } %>
+            </div>
         </div>
     </div>
 

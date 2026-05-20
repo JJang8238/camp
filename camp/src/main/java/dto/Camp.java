@@ -11,6 +11,10 @@ public class Camp {
     private String image;
     private String description;
     private String status;
+    private String facilities;
+    private String nearbyFacilities;
+    private String themes;
+
 
     // getter / setter
     public int getId() { return id; }
@@ -48,5 +52,28 @@ public class Camp {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    public String getFacilities() {
+        return facilities;
+    }
+
+    public void setFacilities(String facilities) {
+        this.facilities = facilities;
+    }
+
+    public String getNearbyFacilities() {
+        return nearbyFacilities;
+    }
+
+    public void setNearbyFacilities(String nearbyFacilities) {
+        this.nearbyFacilities = nearbyFacilities;
+    }
+
+    public String getThemes() {
+        return themes;
+    }
+
+    public void setThemes(String themes) {
+        this.themes = themes;
     }
 }

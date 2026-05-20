@@ -12,6 +12,7 @@ public class ReservationDAO {
     // 사용자 예약 목록 조회 (기존)
     // ══════════════════════════════════════════════════════════════
     public static List<ReservationDTO> getReservationsByUserId(int userId) {
+
         List<ReservationDTO> list = new ArrayList<>();
         String sql =
             "SELECT r.id, r.user_id, r.camp_id, c.name AS camp_name, " +
@@ -25,6 +26,7 @@ public class ReservationDAO {
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));

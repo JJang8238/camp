@@ -594,7 +594,7 @@
         <div class="style-result-banner">
             <span class="style-result-icon">✨</span>
             <div class="style-result-text">
-                <strong>AI 추천 스타일:</strong>
+                <strong>추천 스타일:</strong>
                 <% for (int si = 0; si < styleList.size(); si++) {
                        String sl = styleList.get(si);
                        String slLabel = styleLabelMap.getOrDefault(sl, sl);

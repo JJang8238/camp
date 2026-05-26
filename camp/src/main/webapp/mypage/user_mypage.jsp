@@ -144,10 +144,10 @@
             </div>
         </a>
 
-		<a href="<%=ctx%>/chat/list" class="mypage-card">
+		<a href="<%=ctx%>/chat/list" class="mypage-card" id="chatCard" style="position:relative;">
     		<div class="card-icon">💬</div>
     		<div class="card-info">
-        		<h4>거래 채팅</h4>
+        		<h4>거래 채팅 <span id="chatCardBadge" style="display:none; background:#ff4444; color:white; font-size:11px; font-weight:700; border-radius:999px; padding:2px 7px; vertical-align:middle; margin-left:4px;">!</span></h4>
         		<p>캠핑용품 구매 · 판매 채팅을 확인하세요</p>
     		</div>
 		</a>
@@ -181,6 +181,30 @@
 
 <jsp:include page="/include/footer.jsp" />
 
+
+<script>
+(function() {
+    const ctx = "<%=ctx%>";
+    const badge = document.getElementById("chatCardBadge");
+    if (!badge) return;
+
+    function checkUnread() {
+        fetch(ctx + "/chat/unreadCount")
+            .then(res => res.json())
+            .then(data => {
+                if (data.count > 0) {
+                    badge.style.display = "inline-block";
+                } else {
+                    badge.style.display = "none";
+                }
+            })
+            .catch(() => {});
+    }
+
+    checkUnread();
+    setInterval(checkUnread, 5000);
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

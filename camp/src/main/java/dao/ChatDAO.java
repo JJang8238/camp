@@ -181,6 +181,102 @@ public class ChatDAO {
     }
 
 
+    public List<ChatRoom> getChatRoomsByProductId(int productId, int sellerId) {
+        List<ChatRoom> list = new ArrayList<>();
+
+        String sql =
+            "SELECT cr.*, " +
+            "       p.name AS product_name, " +
+            "       p.price AS product_price, " +
+            "       COALESCE(p.image, pi.image_path) AS product_image, " +
+            "       buyer.name AS buyer_name, " +
+            "       seller.name AS seller_name, " +
+            "       (SELECT cm.message FROM chat_message cm " +
+            "        WHERE cm.room_id = cr.id " +
+            "        ORDER BY cm.id DESC LIMIT 1) AS last_message, " +
+            "       (SELECT cm.created_at FROM chat_message cm " +
+            "        WHERE cm.room_id = cr.id " +
+            "        ORDER BY cm.id DESC LIMIT 1) AS last_message_at, " +
+            "       (SELECT COUNT(*) FROM chat_message cm " +
+            "        WHERE cm.room_id = cr.id " +
+            "          AND cm.sender_id <> ? " +
+            "          AND cm.is_read = 0) AS unread_count " +
+            "FROM chat_room cr " +
+            "JOIN product p ON cr.product_id = p.id " +
+            "LEFT JOIN product_image pi ON p.id = pi.product_id AND pi.sort_order = 1 " +
+            "JOIN users buyer ON cr.buyer_id = buyer.id " +
+            "JOIN users seller ON cr.seller_id = seller.id " +
+            "WHERE cr.product_id = ? AND cr.seller_id = ? " +
+            "ORDER BY COALESCE(last_message_at, cr.created_at) DESC";
+
+        try (
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setInt(1, sellerId);
+            ps.setInt(2, productId);
+            ps.setInt(3, sellerId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ChatRoom room = new ChatRoom();
+                    room.setId(rs.getInt("id"));
+                    room.setProductId(rs.getInt("product_id"));
+                    room.setBuyerId(rs.getInt("buyer_id"));
+                    room.setSellerId(rs.getInt("seller_id"));
+                    room.setCreatedAt(rs.getTimestamp("created_at"));
+                    room.setProductName(rs.getString("product_name"));
+                    room.setProductPrice(rs.getInt("product_price"));
+                    room.setProductImage(rs.getString("product_image"));
+                    room.setBuyerName(rs.getString("buyer_name"));
+                    room.setSellerName(rs.getString("seller_name"));
+                    room.setLastMessage(rs.getString("last_message"));
+                    room.setLastMessageAt(rs.getTimestamp("last_message_at"));
+                    room.setUnreadCount(rs.getInt("unread_count"));
+
+                    list.add(room);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+
+    // 전체 미읽음 메시지 수 조회 (헤더 알림 뱃지용)
+    public int getTotalUnreadCount(int userId) {
+        String sql =
+            "SELECT COUNT(*) FROM chat_message cm " +
+            "JOIN chat_room cr ON cm.room_id = cr.id " +
+            "WHERE (cr.buyer_id = ? OR cr.seller_id = ?) " +
+            "  AND cm.sender_id <> ? " +
+            "  AND cm.is_read = 0";
+
+        try (
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            ps.setInt(3, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+
     public List<ChatMessage> getMessages(int roomId) {
         List<ChatMessage> list = new ArrayList<>();
 

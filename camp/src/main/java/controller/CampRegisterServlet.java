@@ -11,8 +11,15 @@ import util.DBUtil;
 import dao.UserDAO;
 import dto.User;
 
+import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,12 +27,17 @@ import java.sql.PreparedStatement;
 @WebServlet("/owner/registerCamp")
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 1,
-    maxFileSize = 1024 * 1024 * 10,
-    maxRequestSize = 1024 * 1024 * 15
+    maxFileSize       = 1024 * 1024 * 10,
+    maxRequestSize    = 1024 * 1024 * 15
 )
 public class CampRegisterServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
+
+    private static final String BUCKET = System.getenv("S3_BUCKET");
+    private static final String REGION  = System.getenv("AWS_REGION") != null
+                                            ? System.getenv("AWS_REGION")
+                                            : "ap-northeast-2";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -47,12 +59,12 @@ public class CampRegisterServlet extends HttpServlet {
             return;
         }
 
-        String name = request.getParameter("name");
-        String address = request.getParameter("address");
-        String type = request.getParameter("type");
-        String tags = request.getParameter("tags");
-        String priceStr = request.getParameter("price");
-        String status = request.getParameter("status");
+        String name        = request.getParameter("name");
+        String address     = request.getParameter("address");
+        String type        = request.getParameter("type");
+        String tags        = request.getParameter("tags");
+        String priceStr    = request.getParameter("price");
+        String status      = request.getParameter("status");
         String description = request.getParameter("description");
 
         if (name == null || name.trim().isEmpty()
@@ -68,47 +80,53 @@ public class CampRegisterServlet extends HttpServlet {
         if (description == null) description = "";
 
         int price = 0;
-        try {
-            price = Integer.parseInt(priceStr);
-        } catch (Exception e) {
-            price = 0;
-        }
-
-        String uploadPath = getServletContext().getRealPath("/assets/img/camps");
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
+        try { price = Integer.parseInt(priceStr); } catch (Exception e) { price = 0; }
 
         Part filePart = request.getPart("imageFile");
         String imagePath = "";
 
         if (filePart != null && filePart.getSize() > 0) {
-            String originalFileName = Paths.get(filePart.getSubmittedFileName())
-                    .getFileName()
-                    .toString();
-
+            String originalFileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
             String ext = "";
             int dotIdx = originalFileName.lastIndexOf(".");
-            if (dotIdx != -1) {
-                ext = originalFileName.substring(dotIdx);
+            if (dotIdx != -1) ext = originalFileName.substring(dotIdx).toLowerCase();
+
+            String savedFileName = "camps/" + System.currentTimeMillis() + "_" + (int)(Math.random() * 100000) + ext;
+
+            if (BUCKET != null && !BUCKET.trim().isEmpty()) {
+                // S3 업로드
+                try (InputStream is = filePart.getInputStream()) {
+                    S3Client s3 = S3Client.builder()
+                            .region(Region.of(REGION))
+                            .credentialsProvider(InstanceProfileCredentialsProvider.create())
+                            .build();
+
+                    s3.putObject(PutObjectRequest.builder()
+                            .bucket(BUCKET)
+                            .key(savedFileName)
+                            .contentType(filePart.getContentType())
+                            .contentLength(filePart.getSize())
+                            .build(),
+                            RequestBody.fromInputStream(is, filePart.getSize()));
+                    s3.close();
+
+                    imagePath = "https://" + BUCKET + ".s3." + REGION + ".amazonaws.com/" + savedFileName;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // 로컬 저장 (개발 환경)
+                String uploadPath = getServletContext().getRealPath("/assets/img/camps");
+                new File(uploadPath).mkdirs();
+                String localFileName = savedFileName.replace("camps/", "");
+                filePart.write(uploadPath + File.separator + localFileName);
+                imagePath = "/assets/img/camps/" + localFileName;
             }
-
-            String savedFileName = System.currentTimeMillis()
-                    + "_"
-                    + (int)(Math.random() * 100000)
-                    + ext;
-
-            filePart.write(uploadPath + File.separator + savedFileName);
-
-            // DB에는 contextPath 없이 웹 경로만 저장
-            imagePath = "/assets/img/camps/" + savedFileName;
         }
 
         try (Connection conn = DBUtil.getConnection()) {
             String sql =
-                "INSERT INTO camps " +
-                "(name, address, type, tags, price, image, status, description) " +
+                "INSERT INTO camps (name, address, type, tags, price, image, status, description) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -125,11 +143,8 @@ public class CampRegisterServlet extends HttpServlet {
 
             response.setContentType("text/html;charset=UTF-8");
             response.getWriter().println(
-                "<script>alert('캠핑장이 등록되었습니다.'); location.href='"
-                + ctx
-                + "/owner/dashboard.jsp';</script>"
+                "<script>alert('캠핑장이 등록되었습니다.'); location.href='" + ctx + "/owner/dashboard.jsp';</script>"
             );
-
         } catch (Exception e) {
             e.printStackTrace();
             response.setContentType("text/html;charset=UTF-8");

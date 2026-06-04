@@ -84,9 +84,15 @@
                         <%
                             } else {
                                 for (Product p : productList) {
-                                    String imagePath = (p.getImage() != null && !p.getImage().trim().isEmpty())
-                                            ? ctx + "/assets/img/" + p.getImage()
-                                            : ctx + "/assets/img/default.jpg";
+                                    String img = p.getImage();
+                                    String imagePath;
+                                    if (img == null || img.trim().isEmpty()) {
+                                        imagePath = ctx + "/assets/img/default.jpg";
+                                    } else if (img.startsWith("http://") || img.startsWith("https://")) {
+                                        imagePath = img;
+                                    } else {
+                                        imagePath = ctx + "/assets/img/" + img;
+                                    }
 
                                     String status = p.getStatus();
                                     if (status == null || status.trim().isEmpty()) {

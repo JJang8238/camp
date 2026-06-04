@@ -9,162 +9,305 @@
 <title>Camp Mate | Join Us</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
 :root {
-    --primary-green: #2D5A27;
-    --light-green: #f4f8f3;
-    --border-color: #dfe5de;
+    --forest: #1E3A1A;
+    --forest-mid: #2D5A27;
+    --forest-light: #4A7C42;
+    --moss: #8BAF7C;
+    --cream: #F7F4EE;
+    --cream-dark: #EDE8DE;
+    --sand: #C8B89A;
+    --text-main: #1A1A1A;
+    --text-muted: #6B6560;
+    --border: #D5CFC5;
+    --white: #FFFFFF;
+    --error: #C0392B;
+    --success: #2D7A3E;
 }
+
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: 'Pretendard', sans-serif;
+    font-family: 'Noto Sans KR', sans-serif;
     background:
-        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-        url('<%=ctx%>/assets/img/camp1.jpg') center/cover no-repeat;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+        linear-gradient(160deg, rgba(15,25,12,0.72) 0%, rgba(30,58,26,0.55) 100%),
+        url('<%=ctx%>/assets/img/camp1.jpg') center/cover no-repeat fixed;
     min-height: 100vh;
-    padding: 30px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
 }
 
+/* ── 메인 카드 ── */
 .register-container {
-    background: rgba(255,255,255,0.96);
-    border-radius: 25px;
-    padding: 40px;
     width: 100%;
-    max-width: 520px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    max-width: 500px;
+    background: var(--white);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.35);
 }
 
-h2 {
-    text-align: center;
-    font-weight: 800;
-    color: var(--primary-green);
-    margin-bottom: 25px;
+/* ── 헤더 밴드 ── */
+.reg-header {
+    background: var(--forest);
+    padding: 32px 36px 28px;
+    position: relative;
 }
 
-/* 회원 유형 */
+.reg-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--moss), var(--forest-light), var(--sand));
+}
+
+.reg-logo {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--moss);
+    margin-bottom: 6px;
+}
+
+.reg-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--white);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.reg-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 6px;
+}
+
+/* ── 폼 본문 ── */
+.reg-body {
+    padding: 32px 36px 36px;
+    background: var(--white);
+}
+
+/* ── 회원 유형 선택 ── */
 .role-select-wrap {
-    margin-bottom: 20px;
+    margin-bottom: 28px;
 }
 
 .role-select-title {
-    font-size: 14px;
+    font-size: 11px;
     font-weight: 700;
-    color: var(--primary-green);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
     margin-bottom: 10px;
 }
 
 .role-options {
     display: flex;
-    gap: 12px;
+    gap: 10px;
 }
 
 .role-card {
     flex: 1;
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 16px 12px;
-    text-align: center;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    padding: 14px 12px;
+    text-align: left;
     cursor: pointer;
-    background: #fff;
-    transition: 0.2s ease;
+    background: var(--white);
+    transition: border-color 0.18s, background 0.18s;
     user-select: none;
+    position: relative;
 }
 
-.role-card input {
-    display: none;
+.role-card input { display: none; }
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    transition: 0.18s;
 }
 
 .role-card.active {
-    border: 2px solid var(--primary-green);
-    background: var(--light-green);
+    border-color: var(--forest-mid);
+    background: #F2F6F1;
+}
+
+.role-card.active::before {
+    background: var(--forest-mid);
+    border-color: var(--forest-mid);
+    box-shadow: inset 0 0 0 3px #F2F6F1;
+}
+
+.role-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
 }
 
 .role-name {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
-    color: #222;
+    color: var(--text-main);
+    margin-bottom: 3px;
 }
 
 .role-desc {
-    font-size: 12px;
-    color: #666;
-    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
 }
 
-/* STEP */
+/* ── STEP 박스 ── */
 .step-box {
-    background: #f9faf9;
-    border-radius: 18px;
-    padding: 20px;
     margin-bottom: 20px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: opacity 0.25s;
+}
+
+.step-header {
+    background: var(--cream);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.step-badge {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--forest);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
 }
 
 .step-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    color: var(--primary-green);
-    margin-bottom: 15px;
+    color: var(--forest);
+    letter-spacing: 0.03em;
+    margin: 0;
 }
 
-/* 공통 */
-.form-group {
-    margin-bottom: 15px;
+.step-inner {
+    padding: 20px 18px;
 }
+
+/* ── 폼 그룹 ── */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group:last-child { margin-bottom: 0; }
 
 .form-group label {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
     display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
 }
 
 .input-flex {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .input-flex input {
     flex: 1;
-    height: 48px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    padding: 0 15px;
+    height: 44px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-main);
+    background: var(--white);
     outline: none;
+    transition: border-color 0.15s;
+}
+
+.input-flex input:focus {
+    border-color: var(--forest-mid);
 }
 
 .input-single {
     width: 100%;
-    height: 48px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    padding: 0 15px;
+    height: 44px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-main);
+    background: var(--white);
     outline: none;
+    transition: border-color 0.15s;
+}
+
+.input-single:focus {
+    border-color: var(--forest-mid);
 }
 
 textarea.input-single {
     height: 90px;
-    padding: 12px 15px;
+    padding: 12px 14px;
     resize: none;
 }
 
 .input-flex button {
-    width: 110px;
-    height: 48px;
-    border-radius: 12px;
-    background: var(--primary-green);
-    color: white;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 3px;
+    background: var(--forest);
+    color: var(--white);
     border: none;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    letter-spacing: 0.02em;
+}
+
+.input-flex button:hover {
+    background: var(--forest-light);
+}
+
+.input-flex button:disabled {
+    background: var(--border);
+    cursor: not-allowed;
+    color: var(--text-muted);
 }
 
 input:disabled,
 textarea:disabled {
-    background: #f1f3f2;
+    background: var(--cream);
+    color: var(--text-muted);
+    border-color: var(--cream-dark);
+    cursor: not-allowed;
 }
 
 .status {
@@ -172,136 +315,203 @@ textarea:disabled {
     margin-top: 5px;
 }
 
-.owner-fields {
-    display: none;
+/* ── 사장님 전용 필드 ── */
+.owner-fields { display: none; }
+.owner-fields.show { display: block; }
+
+.owner-divider {
+    border: none;
+    border-top: 1px dashed var(--border);
+    margin: 18px 0;
 }
 
-.owner-fields.show {
-    display: block;
+.owner-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--forest);
+    color: var(--white);
+    padding: 3px 10px;
+    border-radius: 2px;
+    margin-bottom: 14px;
 }
 
-/* 가입 버튼 */
+/* ── 가입 완료 버튼 ── */
 #btnRegister {
     width: 100%;
     height: 50px;
-    border-radius: 12px;
+    border-radius: 3px;
     border: none;
-    background: #ccc;
+    background: var(--cream-dark);
+    color: var(--text-muted);
+    font-size: 15px;
     font-weight: 700;
-    transition: 0.2s ease;
+    font-family: 'Noto Sans KR', sans-serif;
+    letter-spacing: 0.05em;
+    cursor: not-allowed;
+    transition: background 0.2s, color 0.2s;
+    margin-top: 4px;
 }
 
 #btnRegister:not(:disabled) {
-    background: var(--primary-green);
-    color: white;
+    background: var(--forest);
+    color: var(--white);
+    cursor: pointer;
 }
+
+#btnRegister:not(:disabled):hover {
+    background: var(--forest-light);
+}
+
+/* ── 하단 로그인 링크 ── */
+.reg-footer {
+    text-align: center;
+    padding: 0 36px 28px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.reg-footer a {
+    color: var(--forest-mid);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.reg-footer a:hover { text-decoration: underline; }
 </style>
 </head>
 
 <body>
 
 <div class="register-container">
-    <h2>Join Camp Mate</h2>
 
-    <form action="<%=ctx%>/register_process.jsp" method="post" onsubmit="return validateBeforeSubmit()">
+    <!-- 헤더 -->
+    <div class="reg-header">
+        <div class="reg-logo">Camp Mate</div>
+        <h2 class="reg-title">회원가입</h2>
+        <div class="reg-subtitle">자연과 함께하는 캠핑 커뮤니티에 오신 것을 환영합니다</div>
+    </div>
 
-        <!-- 숨김값 -->
-        <input type="hidden" id="emailVerified" name="emailVerified" value="0">
-        <input type="hidden" id="emailHidden" name="email">
-        <input type="hidden" id="role" name="role" value="user">
+    <div class="reg-body">
+        <form action="<%=ctx%>/register_process.jsp" method="post" onsubmit="return validateBeforeSubmit()">
 
-        <!-- 회원 유형 선택 -->
-        <div class="role-select-wrap">
-            <div class="role-select-title">회원 유형 선택</div>
-            <div class="role-options">
-                <label class="role-card active" id="roleUserCard" onclick="selectRole('user')">
-                    <input type="radio" name="roleSelect" value="user" checked>
-                    <div class="role-name">일반 사용자</div>
-                    <div class="role-desc">캠핑장 예약 / 커뮤니티 / 중고거래</div>
-                </label>
+            <!-- 숨김값 -->
+            <input type="hidden" id="emailVerified" name="emailVerified" value="0">
+            <input type="hidden" id="emailHidden" name="email">
+            <input type="hidden" id="role" name="role" value="user">
 
-                <label class="role-card" id="roleOwnerCard" onclick="selectRole('owner')">
-                    <input type="radio" name="roleSelect" value="owner">
-                    <div class="role-name">캠핑장 사장님</div>
-                    <div class="role-desc">캠핑장 등록 / 관리 / 운영</div>
-                </label>
-            </div>
-        </div>
+            <!-- 회원 유형 선택 -->
+            <div class="role-select-wrap">
+                <div class="role-select-title">회원 유형 선택</div>
+                <div class="role-options">
+                    <label class="role-card active" id="roleUserCard" onclick="selectRole('user')">
+                        <input type="radio" name="roleSelect" value="user" checked>
+                        <div class="role-icon">🏕️</div>
+                        <div class="role-name">일반 사용자</div>
+                        <div class="role-desc">캠핑장 예약<br>커뮤니티 / 중고거래</div>
+                    </label>
 
-        <!-- STEP1 -->
-        <div class="step-box">
-            <div class="step-title">STEP 1. 본인 인증</div>
-
-            <div class="form-group">
-                <label>이메일 주소</label>
-                <div class="input-flex">
-                    <input type="email" id="email" placeholder="example@mail.com">
-                    <button type="button" onclick="sendEmailCode()">코드 발송</button>
+                    <label class="role-card" id="roleOwnerCard" onclick="selectRole('owner')">
+                        <input type="radio" name="roleSelect" value="owner">
+                        <div class="role-icon">🌲</div>
+                        <div class="role-name">캠핑장 사장님</div>
+                        <div class="role-desc">캠핑장 등록<br>관리 / 운영</div>
+                    </label>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>인증번호</label>
-                <div class="input-flex">
-                    <input type="text" id="emailCode" placeholder="6자리 숫자 입력">
-                    <button type="button" onclick="verifyEmailCode()">인증 확인</button>
+            <!-- STEP1 -->
+            <div class="step-box">
+                <div class="step-header">
+                    <div class="step-badge">1</div>
+                    <div class="step-title">본인 인증</div>
+                </div>
+                <div class="step-inner">
+                    <div class="form-group">
+                        <label>이메일 주소</label>
+                        <div class="input-flex">
+                            <input type="email" id="email" placeholder="example@mail.com">
+                            <button type="button" onclick="sendEmailCode()">코드 발송</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>인증번호</label>
+                        <div class="input-flex">
+                            <input type="text" id="emailCode" placeholder="6자리 숫자 입력">
+                            <button type="button" onclick="verifyEmailCode()">인증 확인</button>
+                        </div>
+                    </div>
+
+                    <div id="emailMsg" class="status"></div>
                 </div>
             </div>
 
-            <div id="emailMsg" class="status"></div>
-        </div>
-
-        <!-- STEP2 -->
-        <div class="step-box" id="step2" style="opacity:0.5; pointer-events:none;">
-            <div class="step-title">STEP 2. 정보 입력</div>
-
-            <div class="form-group">
-                <label>이름</label>
-                <input type="text" id="name" name="name" class="input-single" disabled placeholder="이름 입력">
-            </div>
-
-            <div class="form-group">
-                <label>아이디</label>
-                <div class="input-flex">
-                    <input type="text" id="username" name="username" disabled oninput="resetIdCheck()" placeholder="아이디 입력">
-                    <button type="button" id="btnCheckDup" disabled onclick="checkIdDup()">중복 확인</button>
+            <!-- STEP2 -->
+            <div class="step-box" id="step2" style="opacity:0.5; pointer-events:none;">
+                <div class="step-header">
+                    <div class="step-badge">2</div>
+                    <div class="step-title">정보 입력</div>
                 </div>
-                <div id="idHelp" class="status"></div>
-            </div>
+                <div class="step-inner">
+                    <div class="form-group">
+                        <label>이름</label>
+                        <input type="text" id="name" name="name" class="input-single" disabled placeholder="이름 입력">
+                    </div>
 
-            <div class="form-group">
-                <label>비밀번호</label>
-                <input type="password" id="password" name="password" class="input-single" disabled oninput="checkPasswordMatch()" placeholder="비밀번호 입력">
-            </div>
+                    <div class="form-group">
+                        <label>아이디</label>
+                        <div class="input-flex">
+                            <input type="text" id="username" name="username" disabled oninput="resetIdCheck()" placeholder="아이디 입력">
+                            <button type="button" id="btnCheckDup" disabled onclick="checkIdDup()">중복 확인</button>
+                        </div>
+                        <div id="idHelp" class="status"></div>
+                    </div>
 
-            <div class="form-group">
-                <label>비밀번호 확인</label>
-                <input type="password" id="passwordConfirm" class="input-single" disabled oninput="checkPasswordMatch()" placeholder="비밀번호 확인">
-                <div id="pwHelp" class="status"></div>
-            </div>
+                    <div class="form-group">
+                        <label>비밀번호</label>
+                        <input type="password" id="password" name="password" class="input-single" disabled oninput="checkPasswordMatch()" placeholder="8자 이상 입력">
+                    </div>
 
-            <!-- 사장님 전용 -->
-            <div id="ownerFields" class="owner-fields">
-                <div class="form-group">
-                    <label>캠핑장명</label>
-                    <input type="text" id="campName" name="campName" class="input-single" disabled placeholder="운영 중인 캠핑장명 입력">
+                    <div class="form-group">
+                        <label>비밀번호 확인</label>
+                        <input type="password" id="passwordConfirm" class="input-single" disabled oninput="checkPasswordMatch()" placeholder="비밀번호 재입력">
+                        <div id="pwHelp" class="status"></div>
+                    </div>
+
+                    <!-- 사장님 전용 -->
+                    <div id="ownerFields" class="owner-fields">
+                        <hr class="owner-divider">
+                        <div class="owner-badge">사업자 정보</div>
+
+                        <div class="form-group">
+                            <label>캠핑장명</label>
+                            <input type="text" id="campName" name="campName" class="input-single" disabled placeholder="운영 중인 캠핑장명 입력">
+                        </div>
+
+                        <div class="form-group">
+                            <label>사업자명</label>
+                            <input type="text" id="businessName" name="businessName" class="input-single" disabled placeholder="사업자명 입력">
+                        </div>
+
+                        <div class="form-group">
+                            <label>사업자등록번호</label>
+                            <input type="text" id="businessNumber" name="businessNumber" class="input-single" disabled placeholder="숫자만 입력">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnRegister" disabled>가입 완료</button>
                 </div>
-
-                <div class="form-group">
-                    <label>사업자명</label>
-                    <input type="text" id="businessName" name="businessName" class="input-single" disabled placeholder="사업자명 입력">
-                </div>
-
-                <div class="form-group">
-                    <label>사업자등록번호</label>
-                    <input type="text" id="businessNumber" name="businessNumber" class="input-single" disabled placeholder="숫자만 입력">
-                </div>
             </div>
 
-            <button type="submit" id="btnRegister" disabled>가입 완료</button>
-        </div>
+        </form>
+    </div>
 
-    </form>
+    <div class="reg-footer">
+        이미 계정이 있으신가요? <a href="<%=ctx%>/login.jsp">로그인</a>
+    </div>
 </div>
 
 <script>

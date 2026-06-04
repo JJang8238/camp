@@ -495,16 +495,13 @@ ALTER TABLE reservations
     ADD COLUMN check_in  DATE NULL AFTER reserve_date,
     ADD COLUMN check_out DATE NULL AFTER check_in;
     
---캠프 주변시설 정보 컬럼 추가 0520
-    ALTER TABLE camps
-ADD COLUMN facilities VARCHAR(500) NULL COMMENT '부대시설'
+ALTER TABLE camps
+ADD COLUMN facilities VARCHAR(500) NULL COMMENT '부대시설',
 ADD COLUMN nearby_facilities VARCHAR(500) NULL COMMENT '주변이용가능시설',
 ADD COLUMN themes VARCHAR(500) NULL COMMENT '테마환경';
 
-SELECT name, facilities, nearby_facilities, themes
-FROM camps
-LIMIT 20;
-
---캠핑장 데이터 삭제
+USE camp_DB;
+SET SQL_SAFE_UPDATES = 0;
 DELETE FROM camps;
 ALTER TABLE camps AUTO_INCREMENT = 1;
+SET SQL_SAFE_UPDATES = 1;

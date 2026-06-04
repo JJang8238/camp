@@ -279,7 +279,7 @@
             </div>
 
             <div class="product-action-group">
-                <button type="button" class="btn-soft" onclick="history.back()">목록으로</button>
+                <button type="button" class="btn-soft" id="btnBack">목록으로</button>
 
                 <% if (isMyProduct) { %>
                     <form action="<%=ctx%>/productStatusUpdate.jsp" method="post"
@@ -458,6 +458,25 @@
                 showSlide(i);
             });
         });
+    })();
+</script>
+
+
+<script>
+    (function() {
+        var referrer = document.referrer;
+        var backBtn = document.getElementById('btnBack');
+        if (!backBtn) return;
+
+        // 이전 페이지가 같은 도메인이고 productDetail이 아닌 경우 → 그 페이지로
+        // 그 외(직접 접근, 상태변경 후 redirect 등) → productList로
+        if (referrer && referrer.indexOf(location.hostname) !== -1
+                && referrer.indexOf('productDetail.jsp') === -1
+                && referrer.indexOf('productStatusUpdate') === -1) {
+            backBtn.onclick = function() { location.href = referrer; };
+        } else {
+            backBtn.onclick = function() { location.href = '<%=ctx%>/productList.jsp'; };
+        }
     })();
 </script>
 

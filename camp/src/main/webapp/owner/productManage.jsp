@@ -17,9 +17,6 @@
     // 내 상품 목록
     ProductDAO productDAO = new ProductDAO();
     List<Product> myProducts = productDAO.getProductsBySeller(userId);
-
-    String successMsg = "";
-    String errorMsg   = "";
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -174,6 +171,21 @@
         }
         .btn-view:hover { background: #555; color: white; text-decoration: none; }
 
+        /* 삭제 버튼 */
+        .btn-delete {
+            width: 100%;
+            padding: 7px 18px;
+            border: 1.5px solid #c0392b; border-radius: 8px;
+            font-size: 12px; font-weight: 600;
+            color: #c0392b; background: white;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-delete:hover { background: #c0392b; color: white; }
+
+        /* 삭제 폼 기본 마진 제거 */
+        .form-delete { margin: 0; padding: 0; }
+
         /* 빈 상태 */
         .empty-box {
             text-align: center;
@@ -278,6 +290,11 @@
             <div class="product-actions">
                 <a href="<%=ctx%>/productDetail.jsp?id=<%=p.getId()%>" class="btn-view">상세보기</a>
                 <a href="<%=ctx%>/productEdit.jsp?id=<%=p.getId()%>" class="btn-edit">✏️ 수정</a>
+                <form method="post" action="<%=ctx%>/product/delete" class="form-delete"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?\n삭제된 상품은 목록에서 숨겨집니다.');">
+                    <input type="hidden" name="productId" value="<%=p.getId()%>">
+                    <button type="submit" class="btn-delete">🗑 삭제</button>
+                </form>
             </div>
         </div>
 

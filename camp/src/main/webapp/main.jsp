@@ -68,19 +68,6 @@
     </div>
 </div>
 
-<div class="container text-center mt-5 pt-5">
-    <div class="d-flex flex-wrap justify-content-center pt-4">
-        <span class="tag" data-tag="물놀이">#물놀이 🏊</span>
-        <span class="tag" data-tag="깨끗한">#깨끗한 ✨</span>
-        <span class="tag" data-tag="여유있는">#여유있는 🧘</span>
-        <span class="tag" data-tag="캠핑카">#캠핑카 🚐</span>
-        <span class="tag" data-tag="반려견">#반려견 🐾</span>
-        <span class="tag" data-tag="계곡">#계곡 🏞️</span>
-        <span class="tag" data-tag="글램핑">#글램핑 ⛺</span>
-        <span class="tag" data-tag="카라반">#카라반 🚍</span>
-        <span class="tag tag-search" onclick="performTagSearch()">검색 🔍</span>
-    </div>
-</div>
 
 <!-- ✅ AI 캠핑 스타일 추천 위젯 -->
 <div class="container mt-2 mb-5" id="styleQuizSection">

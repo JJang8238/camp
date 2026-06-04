@@ -29,6 +29,28 @@
     <title>캠프 메이트 관리자 | 상품 관리</title>
     <link rel="stylesheet" href="<%=ctx%>/assets/css/common.css">
     <link rel="stylesheet" href="<%=ctx%>/assets/css/admin.css">
+    <style>
+        .btn-delete-admin {
+            padding: 5px 14px;
+            border: 1.5px solid #c0392b;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #c0392b;
+            background: white;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+        .btn-delete-admin:hover { background: #c0392b; color: white; }
+        .form-delete-admin { display: inline; margin: 0; padding: 0; }
+        .product-manage-form-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
+    </style>
 </head>
 <body class="admin-body">
 
@@ -109,6 +131,8 @@
                                     } else {
                                         statusText = status;
                                     }
+
+                                    boolean isSoldout = "soldout".equals(status);
                         %>
                             <tr>
                                 <td><%= p.getId() %></td>
@@ -130,7 +154,7 @@
                                         <%= statusText %>
                                     </span>
                                 </td>
-                                <td colspan="2">
+                                <td colspan="<%= isSoldout ? 1 : 2 %>">
                                     <form action="<%=ctx%>/admin/productStatusUpdate.jsp" method="post" class="admin-inline-form product-manage-form">
                                         <input type="hidden" name="productId" value="<%= p.getId() %>">
 
@@ -143,6 +167,15 @@
                                         <button type="submit" class="admin-save-btn">저장</button>
                                     </form>
                                 </td>
+                                <% if (isSoldout) { %>
+                                <td>
+                                    <form action="<%=ctx%>/admin/productDelete" method="post" class="form-delete-admin"
+                                          onsubmit="return confirm('판매완료된 상품을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.');">
+                                        <input type="hidden" name="productId" value="<%= p.getId() %>">
+                                        <button type="submit" class="btn-delete-admin">🗑 삭제</button>
+                                    </form>
+                                </td>
+                                <% } %>
                             </tr>
                         <%
                                 }

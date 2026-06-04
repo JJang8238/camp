@@ -9,7 +9,7 @@
     Integer loginUserId = (Integer) session.getAttribute("userId");
 
     if (loginUserId == null) {
-        out.println("<script>alert('로그인이 필요합니다.'); location.href='" + ctx + "/login.jsp';</script>");
+        response.sendRedirect(ctx + "/login.jsp");
         return;
     }
 
@@ -17,23 +17,22 @@
     String status = request.getParameter("status");
 
     if (productIdStr == null || status == null) {
-        out.println("<script>alert('잘못된 요청입니다.'); history.back();</script>");
+        response.sendRedirect(ctx + "/productList.jsp");
         return;
     }
 
     int productId;
-
     try {
         productId = Integer.parseInt(productIdStr);
     } catch (Exception e) {
-        out.println("<script>alert('잘못된 상품 번호입니다.'); history.back();</script>");
+        response.sendRedirect(ctx + "/productList.jsp");
         return;
     }
 
     if (!"selling".equals(status)
             && !"soldout".equals(status)
             && !"hidden".equals(status)) {
-        out.println("<script>alert('변경할 수 없는 상태입니다.'); history.back();</script>");
+        response.sendRedirect(ctx + "/productDetail.jsp?id=" + productId);
         return;
     }
 
@@ -53,14 +52,14 @@
         int result = ps.executeUpdate();
 
         if (result > 0) {
-            out.println("<script>alert('거래 상태가 변경되었습니다.'); location.href='" + ctx + "/productDetail.jsp?id=" + productId + "';</script>");
+            response.sendRedirect(ctx + "/productDetail.jsp?id=" + productId);
         } else {
-            out.println("<script>alert('본인 상품만 상태를 변경할 수 있습니다.'); history.back();</script>");
+            response.sendRedirect(ctx + "/productDetail.jsp?id=" + productId + "&error=auth");
         }
 
     } catch (Exception e) {
         e.printStackTrace();
-        out.println("<script>alert('상태 변경 중 오류가 발생했습니다.'); history.back();</script>");
+        response.sendRedirect(ctx + "/productDetail.jsp?id=" + productId + "&error=server");
     } finally {
         try { if (ps != null) ps.close(); } catch (Exception ignore) {}
         try { if (conn != null) conn.close(); } catch (Exception ignore) {}
